@@ -1,0 +1,2 @@
+This is very simple sample to use phxpaxos to election.
+Check the code in election.cpp, that is really simple.

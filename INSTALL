@@ -1,0 +1,93 @@
+Installation Instructions
+*************************
+
+Copyright (C) 2016 Tencent.
+
+This file is free documentation; the Free Software Foundation gives
+unlimited permission to copy, distribute and modify it.
+
+PhxPaxos-Specific Installation Notes
+====================================
+
+*** NOTE FOR 64-BIT LINUX SYSTEMS
+
+The PhxPaxos library has to be built on 64-bit systems or you may
+experience some problems.
+
+Basic Installation
+==================
+
+Briefly, the shell commands `sh autoinstall.sh; make;' should configure 
+and build this package. The following more-detailed instructions are 
+generic; see the `README' file for instructions specific to this package.
+
+   The `autoinstall.sh' shell script attempts to guess correct values 
+for various system-dependent variables used during compilation. It 
+uses those values and Makefile.define in each directory which describes 
+the source files infomation to create a `Makefile' in each directory of 
+the package. 
+
+   The file `makefile.mk' is used to set options of the compilation 
+environment. You need modify it if you want to change the options including
+the paths of the third party libraries, like glog, leveldb, and protobuf.
+
+   The grpc library is required if you want to complile the example 
+source.
+
+The simplest way to compile this package is:
+  1. Make sure the third party libraries, protobuf (3.0 or above) and 
+  leveldb, have been installed in the system. If you want to test the 
+  samples, libraries of glog and grpc are also required.
+
+  2. `cd' to the directory containing the package's source code and type
+     `sh autoinstall.sh' to configure the package for your system.
+
+  3. Type `make' to compile the package.
+
+  4. Type `make install' to install the programs and any data files and
+  documentation.
+
+  5. You can remove the program binaries and object files from the source 
+  code directory by typing `make clean'.  
+
+Compilers and Options
+=====================
+
+Glibc 2.12 or above, as well as 64bit option and C++ 11 support in compiler,
+is required to build the library.
+
+If you want to include more options, modifying the makefile.mk file in 
+the source code directory is a good idea.
+
+Installation Position--------------TODO
+=====================
+
+Libraries are under ./lib and include files are under ./include, related to 
+the local source code directory.
+
+Installation Names
+==================
+
+By default, `make install' installs the package's commands under
+`./lib', include files under `./include', etc.  You
+can specify an installation prefix by giving `autointall.sh' the option 
+`--prefix=PREFIX'.
+
+Installation Plugin 
+==============
+
+Usage of Plugin can be found in plugin directory 
+
+The simplest way to compile this plugin is:
+
+  1. `cd plugin' to the plugin directory containing the plugin library's 
+  source code.
+
+  2. Type `make' to compile the plugin.
+
+  3. Type `make install' to install the programs and any data files and
+  documentation.
+
+  4. You can remove the program binaries and object files from the source 
+  code directory by typing `make clean'.  
+

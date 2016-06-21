@@ -1,0 +1,35 @@
+1. make.
+2. run phx_paxos_bench on different machine.
+3. run phx_paxos_bench and appoint bench.
+
+#args explanation:
+phx_paxos_bench have 4 args like "<myip:myport> <node0_ip:node_0port,node1_ip:node_1_port,node2_ip:node2_port,...> <start bench? y/n> <paxos group count>"
+
+Myip:myport means running machine's ip/port.
+The second arg is all running machine's ip/port list.
+Third arg, is to appoint bench or not. Only one machine need to appoint bench(means fill this arg as 'y').
+Last arg, set how many paxos group you want to running on one machine. different paxos group count will have different benchmark.
+
+#sample command.
+
+Now grant we have three machine. (10.10.10.10:11111), (10.10.10.11:11111), (10.10.10.12:11111).
+You must change this ip/port list to your real environment first.
+And now I want to get 20 paxos group count's benchmark.
+We do this: 
+
+#first run below command on first machine.
+./phxecho 10.10.10.10:11111 10.10.10.10:11111,10.10.10.11:11111,10.10.10.12:11111 n 20
+
+#second run below command on second machine. 
+./phxecho 10.10.10.10:11112 10.10.10.10:11111,10.10.10.11:11111,10.10.10.12:11111 n 20
+
+#last run below command on third machine. Notice that need to appoint bench on args.
+./phxecho 10.10.10.12:11112 10.10.10.10:11111,10.10.10.11:11111,10.10.10.12:11111 y 20
+
+Wait a minutes. then you will get the benchmark(qps) on standard output.
+
+##Notice
+Every times you run phx_paxos_bench, it will generate a dir names logpath_myip_myport on current dir.
+This dir is use to save paxos data on disk.
+
+So if you want to reset all things before bench, just rm this dirs on every machine.

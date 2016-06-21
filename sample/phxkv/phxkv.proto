@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package phxkv;
+
+service PhxKVServer {
+	rpc Put(KVOperator) returns (KVResponse) { }
+	rpc GetLocal(KVOperator) returns (KVResponse) { }
+	rpc GetGlobal(KVOperator) returns (KVResponse) { }
+	rpc Delete(KVOperator) returns (KVResponse) { }
+}
+
+message KVOperator
+{
+	string key = 1;
+	bytes value = 2;
+	uint64 version = 3;
+	uint32 operator = 4;
+	uint32 sid = 5;
+};
+
+message KVData
+{
+	bytes value = 1;
+	uint64 version = 2;
+	bool isdeleted = 3;
+};
+
+message KVResponse
+{
+	KVData data = 1;
+	int32 ret = 2;
+	uint64 master_nodeid = 3;
+};

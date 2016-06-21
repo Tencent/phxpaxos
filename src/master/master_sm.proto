@@ -1,0 +1,12 @@
+// Copyright (c) 2016 The Paxoslib Authors(lynncui@tencent). All rights reserved.
+syntax = "proto2";
+package phxpaxos;
+
+message MasterOperator
+{
+	required uint64 nodeid = 1;
+	required uint64 version = 2;
+	required int32 timeout = 3;
+	required uint32 operator = 4;
+	required uint32 sid = 5;
+};

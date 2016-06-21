@@ -1,0 +1,77 @@
+// Copyright (c) 2016 The Paxoslib Authors(lynncui@tencent). All rights reserved.
+
+syntax = "proto2";
+package phxpaxos;
+
+message Header 
+{
+	required uint64 gid = 1;
+	required uint64 rid = 2;
+	required int32 cmdid = 3;
+	optional int32 version = 4;
+};
+
+message PaxosMsg
+{
+	required int32 MsgType = 1;
+	optional uint64 InstanceID = 2;
+	optional uint64 NodeID = 3;
+	optional uint64 ProposalID = 4;
+	optional uint64 ProposalNodeID = 5;
+	optional bytes Value = 6;
+	optional uint64 PreAcceptID = 7;
+	optional uint64 PreAcceptNodeID = 8;
+	optional uint64 RejectByPromiseID = 9;
+	optional uint64 NowInstanceID = 10;
+	optional uint64 MinChosenInstanceID = 11;
+	optional uint32 LastChecksum = 12;
+	optional uint32 Flag = 13;
+	optional bytes SystemVariables = 14;
+	optional bytes MasterVariables = 15;
+};
+
+message CheckpointMsg
+{
+	required int32 MsgType = 1;
+	required uint64 NodeID = 2;
+	optional int32 Flag = 3;
+	required uint64 UUID = 4;
+	required uint64 Sequence = 5;
+	optional uint64 CheckpointInstanceID = 6;
+	optional uint32 Checksum = 7;
+	optional string FilePath = 8;
+	optional int32 SMID = 9;
+	optional uint64 Offset = 10;
+	optional bytes Buffer = 11;
+}
+
+message AcceptorStateData
+{
+	required uint64 InstanceID = 1;
+	required uint64 PromiseID = 2;
+	required uint64 PromiseNodeID = 3;
+	required uint64 AcceptedID = 4;
+	required uint64 AcceptedNodeID = 5;
+	required bytes AcceptedValue = 6;
+	required uint32 Checksum = 7;
+};
+
+message PaxosNodeInfo
+{
+	required uint64 Rid = 1;
+	required uint64 Nodeid = 2;
+};
+
+message SystemVariables
+{
+	required uint64 Gid = 1;
+	repeated PaxosNodeInfo MemberShip = 2;
+	required uint64 Version = 3;
+};
+
+message MasterVariables
+{
+	required uint64 MasterNodeid = 1;
+	required uint64 Version = 2;
+	required uint32 LeaseTime = 3;
+};
