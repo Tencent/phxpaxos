@@ -19,17 +19,24 @@ sbin_path="$(SRC_BASE_PATH)/.sbin"
 def writefile(write_file, text):
 	write_file.append(text + "\n")
 
-def Uniq(u_list):
-	for item in u_list:
-		while(u_list.count(item) > 1):
-			u_list.remove(item)
+def Uniq(u_list, check_uniq=0):
+	if( check_uniq == 0 ):
+		for item in u_list:
+			while(u_list.count(item) > 1):
+				u_list.remove(item)
+	else:
+		res_list = []
+		for item in u_list:
+			if( res_list.count(item) == 0 ):
+				res_list.append( item )
+		u_list = res_list
 	return u_list
 
 res_list={}
 makefile=None
 makefile_name = "Makefile"
 
-def GetSourceTagFromDeps(path, lib_name, tag_name):
+def GetSourceTagFromDeps(path, lib_name, tag_name, check_uniq=0):
 	define_name = GetLableName(lib_name, tag_name)
 
 	lib_define_name = GetLableName(lib_name, "LIB")
@@ -41,8 +48,6 @@ def GetSourceTagFromDeps(path, lib_name, tag_name):
 	if((path,lib_name,tag_name) in res_list):
 		return res_list[ (path,lib_name,tag_name) ]
 
-	if( tag_name == "FULL_LIB_DEPS_PATH" ):
-		res.append( "$(SRC_BASE_PATH)/%s" % path )
 
 	lib_path = base_path + "/" + path + "/" + include_makefile_name
 	makefile_file = open(lib_path, "r")
@@ -50,17 +55,19 @@ def GetSourceTagFromDeps(path, lib_name, tag_name):
 		lines = makefile_file.readlines()
 		for line in lines:
 			values=line.split('=')
+			find_local_res = []
+			find_global_res = []
 			if(values[0] == define_name):
 				value = values[1].replace('\n', '').split(' ')
 				for obj in value:
 					if(len(obj) > 0):
 						if(tag_name == "OBJ"):
-							res.append("%s/%s" % (path, obj))
+							find_local_res.append("%s/%s" % (path, obj))
 						elif(tag_name == "LIB"):
 							if(len(obj.split(':')) == 1):
-								res.append(obj)
+								find_local_res.append(obj)
 						else:
-							res.append(obj)
+							find_local_res.append(obj)
 							
 			if(values[0] == lib_define_name):
 				res_inc = values[1].replace('\n','')
@@ -71,11 +78,20 @@ def GetSourceTagFromDeps(path, lib_name, tag_name):
 						deps_lib_name = dep_lib.split(':')[1]
 						if(deps_path == ""):
 							deps_path = path
-						res+=GetSourceTagFromDeps(deps_path, deps_lib_name, tag_name)
-
+						find_global_res+=GetSourceTagFromDeps(deps_path, deps_lib_name, tag_name, check_uniq)
+			if( check_uniq == 0 ):
+				res+= find_local_res
+				res+= find_global_res
+			else:
+				res+= find_global_res
+				res+= find_local_res
 	finally:
 		makefile_file.close()
-	res=Uniq(res)
+
+	if( tag_name == "FULL_LIB_DEPS_PATH" ):
+		res.append( "$(SRC_BASE_PATH)/%s" % path )
+
+	res=Uniq(res, check_uniq)
 	res_list[ (path,lib_name,tag_name) ] = res
 	return res	
 
@@ -83,7 +99,7 @@ def GetSourceTagFromDeps(path, lib_name, tag_name):
 def PrintComm(path, target_name, lib_name):
 	inc_res=GetSourceTagFromDeps(path, lib_name, "INCS")
 	cppflags_res=GetSourceTagFromDeps(path, lib_name, "EXTRA_CPPFLAGS")
-	full_lib_path_res=GetSourceTagFromDeps(path, lib_name, "FULL_LIB_DEPS_PATH")
+	full_lib_path_res=GetSourceTagFromDeps(path, lib_name, "FULL_LIB_DEPS_PATH", 1)
 
 	obj_name = "%s_%s" % (lib_name.upper(), "SRC")
 	inc_name = "%s_%s" % (lib_name.upper(), "INCS")
@@ -92,7 +108,7 @@ def PrintComm(path, target_name, lib_name):
 
 	makefile.write("%s=$(%s)\n" % (obj_name, GetLableName(lib_name, "OBJ")))
 	makefile.write("%s=$(sort %s)\n" % (inc_name, ' '.join(inc_res)))
-	makefile.write("%s=$(sort %s)\n" % (full_lib_path_name, ' '.join(full_lib_path_res)))
+	makefile.write("%s=%s\n" % (full_lib_path_name, ' '.join(full_lib_path_res)))
 	makefile.write("%s=%s\n\n" % (extra_cpp_flag_name,' '.join(cppflags_res)))
 
 	makefile.write("CPPFLAGS+=$(patsubst %%,-I%%, $(%s))\n" % inc_name)
@@ -206,16 +222,6 @@ def PrintMakeAllSubDir(dir_list):
 		makefile.write("clean:\n")
 		makefile.write("\trm -rf *.o %s " % ' '.join(clean_dir));
 
-def CreateMySQL():
-	percona_path=base_path+"/percona";
-	makefile.write( ".PHONY:mysql\n" );
-	makefile.write( "mysql:\n" );
-#makefile.write("\tcd percona;\\\n");
-#makefile.write("\tcmake percona -DCMAKE_INSTALL_PREFIX=%s -DMYSQL_DATADIR=%s  -DSYSCONFDIR=%s;\n" 
-#			% (percona_path,percona_path, percona_path ) );
-	makefile.write("\tmake -C percona;\n");
-
-
 def Process(path, library_list, elibrary_list, binary_list):
 	for lib in library_list:
 		if(len(lib) == 0):
@@ -294,11 +300,8 @@ def CreateMakeFile(path):
 		makefile.write("include %s\n" % include_makefile_name)
 		Process(path[len(base_path):], library_list, elibrary_list, binary_list)
 
-		if( path != base_path ):
-			sub_dir_list = GetSubDirList(path)
-			PrintMakeAllSubDir(sub_dir_list)
-		else:
-			PrintMakeAllSubDir([])
+		sub_dir_list = GetSubDirList(path)
+		PrintMakeAllSubDir(sub_dir_list)
 
 		for target in elibrary_list:
 			makefile.write("lib%s.a %s/lib%s.a " % (target, lib_path,target));

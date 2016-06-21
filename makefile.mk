@@ -104,24 +104,25 @@ endif
 
 .PHONY:install
 install:
-	prefix_dir=`readlink $(PREFIX) -m`;\
+	@prefix_dir=`readlink $(PREFIX) -m`;\
 	src_dir=`readlink $(SRC_BASE_PATH) -m`;\
 	if ([ "$$prefix_dir" != "$$src_dir" ]); then \
 	echo cp $(PHX_LIB_PATH) $(PREFIX)/include -rf;\
 	cp $(PHXPAXOS_INCLUDE_PATH) $(PREFIX)/include -rf;\
 	fi
-	echo INSTALL to $(PREFIX)/lib;
-	mkdir $(PREFIX)/lib -p;\
+	@echo INSTALL to $(PREFIX)/lib;
+	@mkdir $(PREFIX)/lib -p;\
 	rm $(PREFIX)/lib/* -rf;\
 	cp $(PHX_EXTLIB_PATH)/* $(PREFIX)/lib/ -rf;
 
 version = 0.9.0
 
-dist: clean phxpaxos-$(version).src.tar.gz
-phxpaxos-$(version).src.tar.gz:
-	@rm -rf phxpaxos-$(version).src.tar.gz
-	@find . -type f | grep -v CVS | grep -v Makefile | grep -v "lib.*.a" | grep -v .svn | grep -v .git | sed s:^./:phxpaxos-$(version)/: > MANIFEST
+dist: clean phxpaxos-$(version).src.tgz
+phxpaxos-$(version).src.tgz:
+	@rm -rf phxpaxos-$(version).src.tgz
+	@find ./* -name "Makefile" | xargs rm -rf
+	@find . -type f | grep -v CVS | grep -v "lib.*.a" | grep -v .svn | grep -v .git | sed s:^./:phxpaxos-$(version)/: > MANIFEST
 	@(cd ..; ln -s phxpaxos phxpaxos-$(version))
-	(cd ..; tar cvf - `cat phxpaxos/MANIFEST` | gzip > phxpaxos/phxpaxos-$(version).src.tar.gz)
+	(cd ..; tar cvf - `cat phxpaxos/MANIFEST` | gzip > phxpaxos/phxpaxos-$(version).src.tgz)
 	@(cd ..; rm phxpaxos-$(version))
 

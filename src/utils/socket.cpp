@@ -96,7 +96,7 @@ void SocketAddress::setUnixDomain(const string& path) {
     }
 
     _addr.addr.sa_family = AF_UNIX;
-    strcpy(_addr.un.sun_path, path.c_str());
+    strncpy(_addr.un.sun_path, path.c_str(), sizeof(_addr.un.sun_path));
 }
 
 unsigned long SocketAddress::getIp() const {

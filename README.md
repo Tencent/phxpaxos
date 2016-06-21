@@ -2,8 +2,7 @@
 使得一些单机状态服务可以扩展到多机器，从而获得强一致性的多副本以及自动容灾的特性。**
 **这个类库在微信服务里面经过一系列的工程验证，并且我们对它进行过大量的恶劣环境下的测试，使其在一致性的保证上更为健壮。**
 
-作者：Haochuan Cui (lynncui@tencent.com), Ming Chen (mingchen@tencent.com), 
-Junchao Chen (junechen@tencent.com) 和 Duokai Huang (mariohuang@tencent.com)
+作者：Haochuan Cui (lynncui@tencent.com), Ming Chen (mingchen@tencent.com), Junchao Chen (junechen@tencent.com) 和 Duokai Huang (mariohuang@tencent.com) 
 
 # 特性
   * 基于Lamport的Paxos Made Simple进行工程化，不进行任何算法变种。
@@ -22,7 +21,7 @@ Junchao Chen (junechen@tencent.com) 和 Duokai Huang (mariohuang@tencent.com)
 # 局限
   * 一个PhxPaxos实例任一时刻只允许运行在单一进程（容许多线程）。
   * 这个类库没有内建对client-server的支持，开发者必须将类库的代码嵌入到自己的服务器代码里面，以实现这个功能。
-  * PhxPaxos只容许运行在64位的POSIX平台，一般都为Linux。
+  * PhxPaxos只容许运行在64位的Linux平台。
   
 # 性能
 ### 运行环境
@@ -91,7 +90,7 @@ Junchao Chen (junechen@tencent.com) 和 Duokai Huang (mariohuang@tencent.com)
 在编译前，需要先准备好这些第三方库，放在我们的third-party目录，可以直接放置，也可以通过软链的形式。
 
 ### 编译环境
- * POSIX平台，建议为Linux。
+ * Linux。
  * GCC-4.8及以上版本。
  
 ### 编译安装方法
