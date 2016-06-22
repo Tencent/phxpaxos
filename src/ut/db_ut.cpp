@@ -22,16 +22,47 @@ See the AUTHORS file for names of contributors.
 #include <string>
 #include "db.h"
 #include "gmock/gmock.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 using namespace phxpaxos;
 using namespace std;
 using ::testing::_;
 using ::testing::Return;
 
+int MakeLogStoragePath(std::string & sLogStoragePath)
+{
+    sLogStoragePath = "./ut_test_db_path/";
+
+    if (access(sLogStoragePath.c_str(), F_OK) != -1)
+    {
+        if (FileUtils :: DeleteDir(sLogStoragePath) != 0)
+        {
+            printf("Delete exist logstorage dir fail\n");
+            return -1;
+        }
+    }
+
+    if (mkdir(sLogStoragePath.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1)
+    {       
+        printf("Create dir fail, path %s\n", sLogStoragePath.c_str());
+        return -1;
+    }       
+
+    return 0;
+}
+
 int InitDB(const int iGroupCount, MultiDatabase & oDB)
 {
-	string sDBPath = "./ut_test_db_path/";
-	int ret = oDB.Init(sDBPath, iGroupCount);
+	string sDBPath;
+    int ret = MakeLogStoragePath(sDBPath);
+    if (ret != 0)
+    {
+        return ret;
+    }
+
+	ret = oDB.Init(sDBPath, iGroupCount);
 	if (ret != 0)
 	{
 		return ret;
