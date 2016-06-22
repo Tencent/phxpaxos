@@ -7,7 +7,7 @@
 作者：Haochuan Cui (lynncui@tencent.com), Ming Chen (mingchen@tencent.com), Junchao Chen (junechen@tencent.com) 和 Duokai Huang (mariohuang@tencent.com) 
 
 # 特性
-  * 基于Lamport的Paxos Made Simple进行工程化，不进行任何算法变种。
+  * 基于Lamport的 [Paxos Made Simple](http://research.microsoft.com/en-us/um/people/lamport/pubs/paxos-simple.pdf) 进行工程化，不进行任何算法变种。
   * 使用基于消息传递机制的纯异步工程架构。
   * 每次写盘使用fsync严格保证正确性。
   * 一次Propose（写入数据）的Latency为一次RTT，均摊单机写盘次数为1次。
