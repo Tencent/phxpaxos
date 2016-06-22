@@ -2,3 +2,7 @@
 	path = third_party/grpc
 	url = https://github.com/grpc/grpc
 	branch = release-0_14
+[submodule "third_party/protobuf"]
+	path = third_party/protobuf
+	url = https://github.com/google/protobuf
+	branch = 3.0.0-beta-3
