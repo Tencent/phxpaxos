@@ -1,0 +1,4 @@
+[submodule "third_party/grpc"]
+	path = third_party/grpc
+	url = https://github.com/grpc/grpc
+	branch = release-0_14
