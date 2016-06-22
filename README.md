@@ -96,15 +96,20 @@
 ### ±àÒë°²×°·½·¨
 ###### ±àÒëlibphxpaxos.a
  
-    ÔÚPhxPaxos¸ùÄ¿Â¼ÏÂ£¬Ö´ÐÐautoinstall.sh
-    make
-    make install
+ÔÚPhxPaxos¸ùÄ¿Â¼ÏÂ
+```shell
+./autoinstall.sh
+make
+make install
+```
 
 ###### ±àÒëlibphxpaxos_plugin.a
  
-    ÔÚpluginÄ¿Â¼ÏÂ
-    make
-    make install
+ÔÚpluginÄ¿Â¼ÏÂ
+```shell
+make
+make install
+```
 
 # ÈçºÎÇ¶ÈëPhxPaxosµ½×Ô¼ºµÄ´úÂë
 ### Ñ¡ÔñÒ»¸öµ¥»ú·þÎñ
@@ -371,7 +376,7 @@ IPÎª127.0.0.1£¬PORTÎª11113£¬ ¿ÉÒÔ¿´µ½ËûµÄExecuteº¯ÊýµÄÐÅÏ¢Ò²´òÓ¡µÄÁË³öÀ´£¬valueÍ
 Õâ¸ö¹¦ÄÜ·Ç³£ÊµÓÃ¡£¼ÙÉèÓÐÄÇÃ´Ò»¸ö¶àÌ¨»úÆ÷×é³ÉµÄ¼¯Èº£¬ÎÒÏ£ÍûÈÎÒ»Ê±¿ÌÖ»ÓÐÒ»Ì¨»úÆ÷ÔÚÌá¹©·þÎñ£¬ÏàÐÅ´ó¼Ò¿ÉÄÜ»áÓöµ½ÕâÑùµÄ³¡¾°£¬
 ¶øÍ¨³£µÄ×ö·¨¿ÉÄÜÊÇÊ¹ÓÃZooKeeperÀ´´î½¨·Ö²¼Ê½Ëø¡£ÄÇÃ´Ê¹ÓÃÎÒÃÇµÄMaster¹¦ÄÜ£¬Ö»Ðè±àÐ´¶Ì¶ÌµÄ¼¸Ê®ÐÐ´úÂë£¬
 ¼´¿É¸úÄãÏÖÓÐµÄ·þÎñÎÞ·ì½áºÏÆðÀ´£¬¶ø²»ÓÃÒýÈë¶îÍâµÄÒ»Ð©ÅÓ´óµÄÄ£¿é¡£
-¡¡¡¡
+
 ÏÂÃæÕ¹Ê¾ÈçºÎÇ¶ÈëMasterµ½×Ô¼ºµÄ´úÂëÀïÃæ¡£
 
 Ê×ÏÈÎÒÃÇ¹¹½¨Ò»¸öÑ¡¾ÙÀàPhxElection£¬Õâ¸öÀà¹©ÒÑÓÐµÄÄ£¿é´úÂëÊ¹ÓÃ£¬ÈçÏÂ£º
