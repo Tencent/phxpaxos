@@ -217,10 +217,10 @@ def PrintMakeAllSubDir(dir_list):
 		makefile.write("\t@for sub_dir in $^; do \\\n")
 		makefile.write("\tmake -C $$sub_dir clean;\\\n")
 		makefile.write("\tdone\n")
-		makefile.write("\trm -rf *.o %s " % ' '.join(clean_dir));
+		makefile.write("\trm -rf *.o *.pb.* %s " % ' '.join(clean_dir));
 	else:
 		makefile.write("clean:\n")
-		makefile.write("\trm -rf *.o %s " % ' '.join(clean_dir));
+		makefile.write("\trm -rf *.o *.pb.* %s " % ' '.join(clean_dir));
 
 def Process(path, library_list, elibrary_list, binary_list):
 	for lib in library_list:

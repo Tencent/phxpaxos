@@ -124,10 +124,10 @@ int PhxEchoServer :: Echo(const std::string & sEchoReqValue, std::string & sEcho
         return ret;
     }
 
-    if (oEchoSMCtx.iExcuteRet != 0)
+    if (oEchoSMCtx.iExecuteRet != 0)
     {
-        printf("echo sm excute fail, excuteret %d\n", oEchoSMCtx.iExcuteRet);
-        return oEchoSMCtx.iExcuteRet;
+        printf("echo sm excute fail, excuteret %d\n", oEchoSMCtx.iExecuteRet);
+        return oEchoSMCtx.iExecuteRet;
     }
 
     sEchoRespValue = oEchoSMCtx.sEchoRespValue.c_str();

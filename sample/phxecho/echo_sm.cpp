@@ -40,7 +40,7 @@ bool PhxEchoSM :: Execute(const int iGroupIdx, const uint64_t llInstanceID,
     if (poSMCtx != nullptr && poSMCtx->m_pCtx != nullptr)
     {
         PhxEchoSMCtx * poPhxEchoSMCtx = (PhxEchoSMCtx *)poSMCtx->m_pCtx;
-        poPhxEchoSMCtx->iExcuteRet = 0;
+        poPhxEchoSMCtx->iExecuteRet = 0;
         poPhxEchoSMCtx->sEchoRespValue = sPaxosValue;
     }
 

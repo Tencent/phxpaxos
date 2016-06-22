@@ -87,7 +87,7 @@
 | src/ut             | 单元测试             | 无                                 | gtest,gmock      |
 
 编译我们的Phxpaxo(libphxpaxos.a)类库，只需要protobuf和leveldb两个第三方库；而编译其他目录则需要glog和grpc这两个库。
-在编译前，需要先准备好这些第三方库，放在我们的third-party目录，可以直接放置，也可以通过软链的形式。
+在编译前，需要先准备好这些第三方库，放在我们的third_party目录，可以直接放置，也可以通过软链的形式。
 
 ### 编译环境
  * Linux。
@@ -96,15 +96,15 @@
 ### 编译安装方法
 ###### 编译libphxpaxos.a
  
-    在PhxPaxos根目录下，执行autoinstall.sh.
-    make.
-    make install.
+    在PhxPaxos根目录下，执行autoinstall.sh
+    make
+    make install
 
 ###### 编译libphxpaxos_plugin.a
  
-    在plugin目录下。
-    make.
-    make install.
+    在plugin目录下
+    make
+    make install
 
 # 如何嵌入PhxPaxos到自己的代码
 ### 选择一个单机服务
@@ -153,7 +153,7 @@ bool PhxEchoSM :: Execute(const int iGroupIdx, const uint64_t llInstanceID,
     if (poSMCtx != nullptr && poSMCtx->m_pCtx != nullptr)
     {   
         PhxEchoSMCtx * poPhxEchoSMCtx = (PhxEchoSMCtx *)poSMCtx->m_pCtx;
-        poPhxEchoSMCtx->iExcuteRet = 0;
+        poPhxEchoSMCtx->iExecuteRet = 0;
         poPhxEchoSMCtx->sEchoRespValue = sPaxosValue;
     }   
 
@@ -187,16 +187,16 @@ m_pCtx则记录了用户自定义的上下文数据的所在地址。
 class PhxEchoSMCtx
 {
 public:
-    int iExcuteRet;
+    int iExecuteRet;
     std::string sEchoRespValue;
 
     PhxEchoSMCtx()
     {   
-        iExcuteRet = -1; 
+        iExecuteRet = -1; 
     }   
 };
 ```
-通过iExcuteRet可以获得Execute的执行情况，通过sEchoRespValue可以获得Execute带入的sEchoReqValue。
+通过iExecuteRet可以获得Execute的执行情况，通过sEchoRespValue可以获得Execute带入的sEchoReqValue。
 
 最终由以上几个类，我们构建了自己的状态机以及状态转移函数。
 
@@ -318,10 +318,10 @@ int PhxEchoServer :: Echo(const std::string & sEchoReqValue, std::string & sEcho
         return ret;
     }   
 
-    if (oEchoSMCtx.iExcuteRet != 0)
+    if (oEchoSMCtx.iExecuteRet != 0)
     {   
-        printf("echo sm excute fail, excuteret %d\n", oEchoSMCtx.iExcuteRet);
-        return oEchoSMCtx.iExcuteRet;
+        printf("echo sm excute fail, excuteret %d\n", oEchoSMCtx.iExecuteRet);
+        return oEchoSMCtx.iExecuteRet;
     }   
 
     sEchoRespValue = oEchoSMCtx.sEchoRespValue.c_str();
@@ -434,11 +434,7 @@ int PhxElection :: RunPaxos()
 }
 ```
 与Echo不一样的是，这次我们并不需要实现自己的状态机，而是通过将oSMInfo.bIsUseMaster设置为true，开启我们内置的一个Master状态机。
-　　
-相同的，通过Node::RunNode即可获得PhxPaxos的实例指针。
-　　
-通过SetMasterLease可以随时修改Master的租约时间。
-　　
+相同的，通过Node::RunNode即可获得PhxPaxos的实例指针。通过SetMasterLease可以随时修改Master的租约时间。
 最后，我们通过这个指针获得集群的Master信息，代码如下：
 
 ```c++

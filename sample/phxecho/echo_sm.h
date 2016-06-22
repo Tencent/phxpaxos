@@ -32,12 +32,12 @@ namespace phxecho
 class PhxEchoSMCtx
 {
 public:
-    int iExcuteRet;
+    int iExecuteRet;
     std::string sEchoRespValue;
 
     PhxEchoSMCtx()
     {
-        iExcuteRet = -1;
+        iExecuteRet = -1;
     }
 };
 

@@ -1,22 +1,3 @@
-# Tencent is pleased to support the open source community by making 
-# PhxPaxos available.
-# Copyright (C) 2016 THL A29 Limited, a Tencent company. 
-# All rights reserved.
-# 
-# Licensed under the BSD 3-Clause License (the "License"); you may 
-# not use this file except in compliance with the License. You may 
-# obtain a copy of the License at
-# 
-# https://opensource.org/licenses/BSD-3-Clause
-# 
-# Unless required by applicable law or agreed to in writing, software 
-# distributed under the License is distributed on an "AS IS" basis, 
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-# implied. See the License for the specific language governing 
-# permissions and limitations under the License.
-# 
-# See the AUTHORS file for names of contributors. 
-
 SRC_BASE_PATH ?= .
 PREFIX?=$(SRC_BASE_PATH)
 PHX_LIB_PATH = $(SRC_BASE_PATH)/.lib
@@ -104,25 +85,13 @@ endif
 
 .PHONY:install
 install:
-	@prefix_dir=`readlink $(PREFIX) -m`;\
+	prefix_dir=`readlink $(PREFIX) -m`;\
 	src_dir=`readlink $(SRC_BASE_PATH) -m`;\
 	if ([ "$$prefix_dir" != "$$src_dir" ]); then \
 	echo cp $(PHX_LIB_PATH) $(PREFIX)/include -rf;\
 	cp $(PHXPAXOS_INCLUDE_PATH) $(PREFIX)/include -rf;\
 	fi
-	@echo INSTALL to $(PREFIX)/lib;
-	@mkdir $(PREFIX)/lib -p;\
+	echo INSTALL to $(PREFIX)/lib;
+	mkdir $(PREFIX)/lib -p;\
 	rm $(PREFIX)/lib/* -rf;\
 	cp $(PHX_EXTLIB_PATH)/* $(PREFIX)/lib/ -rf;
-
-version = 0.9.0
-
-dist: clean phxpaxos-$(version).src.tgz
-phxpaxos-$(version).src.tgz:
-	@rm -rf phxpaxos-$(version).src.tgz
-	@find ./* -name "Makefile" | xargs rm -rf
-	@find . -type f | grep -v CVS | grep -v "lib.*.a" | grep -v .svn | grep -v .git | sed s:^./:phxpaxos-$(version)/: > MANIFEST
-	@(cd ..; ln -s phxpaxos phxpaxos-$(version))
-	(cd ..; tar cvf - `cat phxpaxos/MANIFEST` | gzip > phxpaxos/phxpaxos-$(version).src.tgz)
-	@(cd ..; rm phxpaxos-$(version))
-
