@@ -8,6 +8,8 @@
 
 想了解更多，请扫描右侧二维码关注我们的公众号
 
+[关于实现的一些原理细节](http://mp.weixin.qq.com/s?__biz=MzI4NDMyNTU2Mw==&mid=2247483695&idx=1&sn=91ea422913fc62579e020e941d1d059e#rd)
+
 # 特性
   * 基于Lamport的 [Paxos Made Simple](http://research.microsoft.com/en-us/um/people/lamport/pubs/paxos-simple.pdf) 进行工程化，不进行任何算法变种。
   * 使用基于消息传递机制的纯异步工程架构。
