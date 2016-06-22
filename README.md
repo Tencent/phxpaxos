@@ -4,6 +4,9 @@
 
 作者：Haochuan Cui (lynncui@tencent.com), Ming Chen (mingchen@tencent.com), Junchao Chen (junechen@tencent.com) 和 Duokai Huang (mariohuang@tencent.com) 
 
+
+想了解更多，请关注我们的公众号
+
 ![](http://mmbiz.qpic.cn/mmbiz/UqFrHRLeCAkOcYOjaX3oxIxWicXVJY0ODsbAyPybxk4DkPAaibgdm7trm1MNiatqJYRpF034J7PlfwCz33mbNUkew/640?wx_fmt=jpeg&tp=webp&wxfrom=5&wx_lazy=1 "欢迎关注微信后台团队的公众号")
 
 # 特性
