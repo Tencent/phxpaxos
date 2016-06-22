@@ -6,3 +6,6 @@
 	path = third_party/protobuf
 	url = https://github.com/google/protobuf
 	branch = 3.0.0-beta-3
+[submodule "third_party/leveldb"]
+	path = third_party/leveldb
+	url = https://github.com/google/leveldb
