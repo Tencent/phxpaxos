@@ -12,3 +12,7 @@
 [submodule "third_party/glog"]
 	path = third_party/glog
 	url = https://github.com/google/glog
+[submodule "third_party/gtest"]
+	path = third_party/gtest
+	url = https://github.com/google/googletest
+	branch = release-1.6.0
