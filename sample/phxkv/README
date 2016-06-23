@@ -1,5 +1,5 @@
 This is a sample that make leveldb base on paxos to build a strong consistent distributed kv.
-Also, this sample show you how to unite grpc(maybe other rcp) and phxpaxos.
+Also, this sample show you how to unite grpc(maybe other rpc) and phxpaxos.
 
 #run server
 First check prepare_dir.sh to prepare all dir for server.
