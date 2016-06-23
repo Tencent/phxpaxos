@@ -20,3 +20,7 @@
 	path = third_party/openssl
 	url = https://github.com/openssl/openssl
 	branch = OpenSSL_1_0_2-stable
+[submodule "third_party/gmock"]
+	path = third_party/gmock
+	url = https://github.com/google/googlemock
+	branch = release-1.6.0
