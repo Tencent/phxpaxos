@@ -16,3 +16,7 @@
 	path = third_party/gtest
 	url = https://github.com/google/googletest
 	branch = release-1.6.0
+[submodule "third_party/openssl"]
+	path = third_party/openssl
+	url = https://github.com/openssl/openssl
+	branch = OpenSSL_1_0_2-stable
