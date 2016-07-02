@@ -96,7 +96,7 @@
 | src/ut             | 单元测试             | 无                                 | gtest,gmock      |
 
 编译我们的Phxpaxo(libphxpaxos.a)类库，只需要protobuf和leveldb两个第三方库；而编译其他目录则需要glog和grpc这两个库。
-在编译前，需要先准备好这些第三方库，放在我们的third_party目录，可以直接放置，也可以通过软链的形式。
+在编译前，需要先准备好这些第三方库，放在我们的third_party目录，可以直接放置，也可以通过软链的形式，也可以git clone时加上--recursive参数获取third_party目录下所有的submodule。
 
 ### 编译环境
  * Linux。
