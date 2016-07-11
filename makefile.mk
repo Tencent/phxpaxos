@@ -96,7 +96,7 @@ install:
 	rm $(PREFIX)/lib/* -rf;\
 	cp $(PHX_EXTLIB_PATH)/* $(PREFIX)/lib/ -rf;
 
-version = 0.9.0
+version = 1.0.0
 
 dist: clean phxpaxos-$(version).src.tgz
 phxpaxos-$(version).src.tgz:
