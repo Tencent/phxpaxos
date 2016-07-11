@@ -17,15 +17,25 @@
 # 
 # See the AUTHORS file for names of contributors. 
 
-allobject=phx_paxos_bench 
+allobject=phx_paxos_bench bench_db 
 
 PHX_PAXOS_BENCH_OBJ=bench_sm.o bench_server.o bench_main.o
 
 PHX_PAXOS_BENCH_LIB=src/utils:utils src/algorithm:algorithm
 
-PHX_PAXOS_BENCH_SYS_LIB=$(PHXPAXOS_LIB_PATH)/libphxpaxos.a $(LEVELDB_LIB_PATH)/libleveldb.a $(PROTOBUF_LIB_PATH)/libprotobuf.a -lpthread $(PROTOBUF_LIB_PATH)/libprotobuf.a
+PHX_PAXOS_BENCH_SYS_LIB=$(PHXPAXOS_LIB_PATH)/libphxpaxos.a $(LEVELDB_LIB_PATH)/libleveldb.a $(PROTOBUF_LIB_PATH)/libprotobuf.a -lpthread
 
-PHX_PAXOS_BENCH_INCS=$(SRC_BASE_PATH)/src/benchmark  $(PHXPAXOS_INCLUDE_PATH) $(LEVELDB_INCLUDE_PATH)  $(PROTOBUF_INCLUDE_PATH)
+PHX_PAXOS_BENCH_INCS=$(SRC_BASE_PATH)/src/benchmark  $(PHXPAXOS_INCLUDE_PATH) $(LEVELDB_INCLUDE_PATH) $(PROTOBUF_INCLUDE_PATH) 
 
 PHX_PAXOS_BENCH_EXTRA_CPPFLAGS=-Wall -Werror
+
+BENCH_DB_OBJ=bench_db.o
+
+BENCH_DB_LIB=
+
+BENCH_DB_SYS_LIB=$(PHXPAXOS_LIB_PATH)/libphxpaxos.a $(LEVELDB_LIB_PATH)/libleveldb.a $(PROTOBUF_LIB_PATH)/libprotobuf.a -lpthread
+
+BENCH_DB_INCS=$(SRC_BASE_PATH)/src/benchmark  $(PHXPAXOS_INCLUDE_PATH) $(LEVELDB_INCLUDE_PATH) $(PROTOBUF_INCLUDE_PATH) 
+
+BENCH_DB_EXTRA_CPPFLAGS=-Wall -Werror
 

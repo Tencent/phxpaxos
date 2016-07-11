@@ -48,7 +48,7 @@ void RandValue(const int iSize, string & sValue)
 
     for (int i = 0; i < iRealSize; i++)
     {
-        sValue += ('a' + (rand() % 26));
+        sValue += ('a'/* + (rand() % 26)*/);
     }
 }
 
@@ -109,6 +109,7 @@ public:
     void run()
     {
         string sValue;
+        m_iAvgValueSize = 1024 * 1024;
         for (int i = 0; i < m_iWriteCount; i++)
         {
             RandValue(m_iAvgValueSize, sValue);
@@ -366,4 +367,5 @@ int main(int argc, char ** argv)
 
     return 0;
 }
+
 

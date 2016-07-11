@@ -114,3 +114,4 @@ void LoggerGoogle :: Log(const int iLogLevel, const char * pcFormat, va_list arg
     
 }
 
+

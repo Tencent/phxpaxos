@@ -42,6 +42,8 @@ bool TestSM :: CheckExecuteValueCorrect(const std::vector<pair<uint64_t, std::st
 {
     if (vecOtherExecuted.size() != m_vecExecuted.size())
     {
+        printf("size not same, other.size %zu excute.size %zu",
+                vecOtherExecuted.size(), m_vecExecuted.size());
         return false;
     }
 
@@ -79,4 +81,5 @@ bool TestSM :: CheckExecuteValueCorrect(const std::vector<pair<uint64_t, std::st
 }
 
 }
+
 

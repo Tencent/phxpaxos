@@ -37,6 +37,7 @@ EventLoop :: EventLoop()
     m_poTcpAcceptor = nullptr;
     m_poTcpClient = nullptr;
     m_poNotify = nullptr;
+    memset(m_EpollEvents, 0, sizeof(m_EpollEvents));
 }
 
 EventLoop :: ~EventLoop()
@@ -332,4 +333,5 @@ void EventLoop :: DealwithTimeout(int & iNextTimeout)
 }
 
 }
+
 

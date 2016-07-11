@@ -87,6 +87,20 @@ public:
     //Continue to run paxos log cleaner.
     virtual void ContinuePaxosLogCleaner() = 0;
 
+    //Membership
+    
+    //Show now membership.
+    virtual int ShowMembership(const int iGroupIdx, NodeInfoList & vecNodeInfoList) = 0;
+    
+    //Add a paxos node to membership.
+    virtual int AddMember(const int iGroupIdx, const NodeInfo & oNode) = 0;
+
+    //Remove a paxos node from membership.
+    virtual int RemoveMember(const int iGroupIdx, const NodeInfo & oNode) = 0;
+
+    //Change membership by one node to another node.
+    virtual int ChangeMember(const int iGroupIdx, const NodeInfo & oFromNode, const NodeInfo & oToNode) = 0;
+
     //Master
     
     //Check who is master.
@@ -98,6 +112,16 @@ public:
     virtual int SetMasterLease(const int iGroupIdx, const int iLeaseTimeMs) = 0;
 
     virtual int DropMaster(const int iGroupIdx) = 0;
+
+    //Qos
+
+    //If many threads propose same group, that some threads will be on waiting status.
+    //Set max hold threads, and we will reject some propose request to avoid to many threads be holded.
+    //Reject propose request will get retcode(PaxosTryCommitRet_TooManyThreadWaiting_Reject), check on def.h.
+    virtual void SetMaxHoldThreads(const int iGroupIdx, const int iMaxHoldThreads) = 0;
+
+    //To avoid threads be holded too long time, we use this threshold to reject some propose to control thread's wait time.
+    virtual void SetProposeWaitTimeThresholdMS(const int iGroupIdx, const int iWaitTimeThresholdMS) = 0;
 
 protected:
     friend class NetWork; 

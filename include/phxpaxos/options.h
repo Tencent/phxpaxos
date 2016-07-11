@@ -123,13 +123,32 @@ public:
     std::string sLogStoragePath;
 
     //optional
+    //If true, the write will be flushed from the operating system
+    //buffer cache before the write is considered complete.
+    //If this flag is true, writes will be slower.
+    //
+    //If this flag is false, and the machine crashes, some recent
+    //writes may be lost. Note that if it is just the process that
+    //crashes (i.e., the machine does not reboot), no writes will be
+    //lost even if sync==false. Because of the data lost, we not guarantee consistence.
+    //
+    //Default is true.
+    bool bSync;
+
+    //optional
+    //Default is 0.
+    //This means the write will skip flush at most iSyncInterval times.
+    //That also means you will lost at most iSyncInterval count's paxos log.
+    int iSyncInterval;
+
+    //optional
     //User-specified network.
     NetWork * poNetWork;
 
     //optional
     //Our default network use udp and tcp combination, a message we use udp or tcp to send decide by a threshold.
     //Message size under iUDPMaxSize we use udp to send.
-    //Default is 2048.
+    //Default is 4096.
     size_t iUDPMaxSize;
     
     //optional
@@ -146,6 +165,23 @@ public:
     //required
     //All nodes's ip/port with a paxos set(usually three or five nodes).
     NodeInfoList vecNodeInfoList;
+    
+    //optional
+    //Only bUseMembership == true, we use option's nodeinfolist to init paxos membership,
+    //after that, paxos will remember all nodeinfos, so second time you can run paxos without vecNodeList, 
+    //and you can only change membership by use function in node.h. 
+    //
+    //Default is false.
+    //if bUseMembership == false, that means every time you run paxos will use vecNodeList to build a new membership.
+    //when you change membership by a new vecNodeList, we don't guarantee consistence.
+    //
+    //For test, you can set false.
+    //But when you use it to real services, remember to set true. 
+    bool bUseMembership;
+
+    //While membership change, phxpaxos will call this function.
+    //Default is nullptr.
+    MembershipChangeCallback pMembershipChangeCallback;
 
     //optional
     //One phxpaxos can mounting multi state machines.

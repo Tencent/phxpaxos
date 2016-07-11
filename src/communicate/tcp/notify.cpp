@@ -78,7 +78,12 @@ void Notify :: SendNotify()
 int Notify :: OnRead()
 {
     char sTmp[2] = {0};
-    read(m_iPipeFD[0], sTmp, 1);
+    int iReadLen = read(m_iPipeFD[0], sTmp, 1);
+    if (iReadLen < 0)
+    {
+        return -1;
+    }
+
     return 0;
 }
 
@@ -88,4 +93,5 @@ void Notify :: OnError(bool & bNeedDelete)
 }
     
 }
+
 

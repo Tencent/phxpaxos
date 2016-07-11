@@ -28,7 +28,7 @@ namespace phxpaxos
 {
 
 Logger :: Logger()
-    : m_pLogFunc(nullptr)
+    : m_pLogFunc(nullptr), m_eLogLevel(LogLevel::LogLevel_None)
 {
 }
 
@@ -171,4 +171,5 @@ void Logger :: LogVerbose(const char * pcFormat, ...)
 }
 
 }
+
 

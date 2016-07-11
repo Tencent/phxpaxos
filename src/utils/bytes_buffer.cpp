@@ -37,7 +37,7 @@ BytesBuffer :: BytesBuffer()
     
 BytesBuffer :: ~BytesBuffer()
 {
-    delete m_pcBuffer;
+    delete []m_pcBuffer;
 }
 
 char * BytesBuffer :: GetPtr()
@@ -54,7 +54,7 @@ void BytesBuffer :: Ready(const int iBufferLen)
 {
     if (m_iLen < iBufferLen)
     {
-        delete m_pcBuffer;
+        delete []m_pcBuffer;
         m_pcBuffer = nullptr;
 
         while (m_iLen < iBufferLen)
@@ -68,4 +68,5 @@ void BytesBuffer :: Ready(const int iBufferLen)
 }
 
 }
+
 

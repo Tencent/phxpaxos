@@ -88,7 +88,7 @@ public:
     int GetMasterVariables(std::string & sBuffer);
     
 public:
-    int GetMaxInstanceIDFileID(std::string & sFileID);
+    int GetMaxInstanceIDFileID(std::string & sFileID, uint64_t & llInstanceID);
 
     int RebuildOneIndex(const uint64_t llInstanceID, const std::string & sFileID);
     
@@ -106,7 +106,8 @@ private:
 
     const uint64_t GetInstanceIDFromKey(const std::string & sKey);
 
-private:
+public:
+//private:
     leveldb::DB * m_poLevelDB;
     PaxosComparator m_oPaxosCmp;
     bool m_bHasInit;

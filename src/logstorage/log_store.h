@@ -40,7 +40,7 @@ public:
     LogStore();
     ~LogStore();
 
-    int Init(const std::string & sPath, const int iMyGroupIdx);
+    int Init(const std::string & sPath, const int iMyGroupIdx, Database * poDatabase);
 
     int Append(const WriteOptions & oWriteOptions, const uint64_t llInstanceID, const std::string & sBuffer, std::string & sFileID);
 
@@ -56,9 +56,10 @@ public:
 
     ////////////////////////////////////////////
     
-    int RebuildIndex(Database * poDatabase);
+    int RebuildIndex(Database * poDatabase, int & iNowFileWriteOffset);
 
-    int RebuildIndexForOneFile(const int iFileID, const int iOffset, Database * poDatabase);
+    int RebuildIndexForOneFile(const int iFileID, const int iOffset, 
+            Database * poDatabase, int & iNowFileWriteOffset, uint64_t & llNowInstanceID);
 
 private:
     void GenFileID(const int iFileID, const int iOffset, const uint32_t iCheckSum, std::string & sFileID);
@@ -71,7 +72,9 @@ private:
 
     int DeleteFile(const int iFileID);
 
-    int GetFileFD(int & iFd, int & iFileID, int & iOffset);
+    int GetFileFD(const int iNeedWriteSize, int & iFd, int & iFileID, int & iOffset);
+
+    int ExpandFile(int iFd, int & iFileSize);
     
 private:
     int m_iFd;
@@ -86,6 +89,9 @@ private:
 
     int m_iDeletedMaxFileID;
     int m_iMyGroupIdx;
+
+    int m_iNowFileSize;
+    int m_iNowFileOffset;
 
 private:
     TimeStat m_oTimeStat;

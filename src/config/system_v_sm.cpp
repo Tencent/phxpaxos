@@ -364,3 +364,4 @@ const std::set<nodeid_t> & SystemVSM :: GetMembershipMap()
 
 }
 
+

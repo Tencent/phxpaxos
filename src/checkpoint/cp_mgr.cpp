@@ -39,6 +39,7 @@ CheckpointMgr :: CheckpointMgr(
     m_oReplayer(poConfig, poSMFac, poLogStorage, this),
     m_oCleaner(poConfig, poSMFac, poLogStorage, this),
     m_llMinChosenInstanceID(0),
+    m_llMaxChosenInstanceID(0),
     m_bInAskforCheckpointMode(false),
     m_bUseCheckpointReplayer(bUseCheckpointReplayer)
 {
@@ -181,4 +182,5 @@ const uint64_t CheckpointMgr :: GetMaxChosenInstanceID() const
 }
 
 }
+
 

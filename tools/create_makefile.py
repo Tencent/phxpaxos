@@ -100,6 +100,9 @@ def PrintComm(path, target_name, lib_name):
 	inc_res=GetSourceTagFromDeps(path, lib_name, "INCS")
 	cppflags_res=GetSourceTagFromDeps(path, lib_name, "EXTRA_CPPFLAGS")
 	full_lib_path_res=GetSourceTagFromDeps(path, lib_name, "FULL_LIB_DEPS_PATH", 1)
+	for path in full_lib_path_res:
+		if(path.find("third_party")!=-1):
+			full_lib_path_res.remove(path)
 
 	obj_name = "%s_%s" % (lib_name.upper(), "SRC")
 	inc_name = "%s_%s" % (lib_name.upper(), "INCS")
@@ -123,8 +126,7 @@ def PrintReferenceDIR(target_name, direct_inc_name):
 	makefile.write("\tcurrent_dir=`readlink $$dir -m`;\\\n");
 	makefile.write("\tpwd_dir=`pwd`;\\\n");
 	makefile.write("\tpwd_dir=`readlink $$pwd_dir -m`;\\\n");
-	makefile.write("\tis_3rd_dir=`echo $$dir | grep -v third_party`;\\\n");
-	makefile.write("\tif ([ \"$$current_dir\" != \"$$pwd_dir\" ] && [ \"$$is_3rd_dir\" != \"\" ]); then \\\n");
+	makefile.write("\tif ([ \"$$current_dir\" != \"$$pwd_dir\" ]); then \\\n");
 	makefile.write("\tmake -C $$dir;\\\n");
 	makefile.write("\tfi;\\\n");
 	makefile.write("\tdone\n\n");

@@ -110,23 +110,20 @@ GroupSMInfo :: GroupSMInfo()
 Options :: Options()
 {
     poLogStorage = nullptr;
-    
+    bSync = true;
+    iSyncInterval = 0;
     poNetWork = nullptr;
-
-    iUDPMaxSize = 2048;
-    
+    iUDPMaxSize = 4096;
     iGroupCount = 1;
-
+    bUseMembership = false;
+    pMembershipChangeCallback = nullptr;
     poBreakpoint = nullptr;
-
     bIsLargeValueMode = false;
-
     pLogFunc = nullptr;
-
     eLogLevel = LogLevel::LogLevel_None;
-
     bUseCheckpointReplayer = false;
 }
     
 }
+
 

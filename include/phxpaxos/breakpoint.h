@@ -118,6 +118,7 @@ public:
     virtual void NewValue() { }
     virtual void NewValueConflict() { }
     virtual void NewValueGetLockTimeout() { }
+    virtual void NewValueGetLockReject() { }
     virtual void NewValueGetLockOK(const int iUseTimeMs) { }
     virtual void NewValueCommitOK(const int iUseTimeMs) { }
     virtual void NewValueCommitFail() { }

@@ -73,6 +73,16 @@ public:
     void ContinuePaxosLogCleaner();
     
 public:
+    //membership
+    int AddMember(const int iGroupIdx, const NodeInfo & oNode);
+
+    int RemoveMember(const int iGroupIdx, const NodeInfo & oNode);
+
+    int ChangeMember(const int iGroupIdx, const NodeInfo & oFromNode, const NodeInfo & oToNode);
+    
+    int ShowMembership(const int iGroupIdx, NodeInfoList & vecNodeInfoList);
+
+public:
     //master
     
     const NodeInfo GetMaster(const int iGroupIdx);
@@ -82,6 +92,11 @@ public:
     int SetMasterLease(const int iGroupIdx, const int iLeaseTimeMs);
 
     int DropMaster(const int iGroupIdx);
+
+public:
+    void SetMaxHoldThreads(const int iGroupIdx, const int iMaxHoldThreads);
+
+    void SetProposeWaitTimeThresholdMS(const int iGroupIdx, const int iWaitTimeThresholdMS);
 
 private:
     int CheckOptions(const Options & oOptions);
@@ -95,6 +110,12 @@ private:
     void InitStateMachine(const Options & oOptions);
 
     bool CheckGroupID(const int iGroupIdx);
+
+    int ProposalMembership(
+            SystemVSM * poSystemVSM,
+            const int iGroupIdx, 
+            const NodeInfoList & vecNodeInfoList, 
+            const uint64_t llVersion);
 
 private:
     std::vector<Group *> m_vecGroupList;

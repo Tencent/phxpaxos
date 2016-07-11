@@ -153,6 +153,7 @@ const uint64_t SMFac :: GetCheckpointInstanceID(const int iGroupIdx) const
 
     for (auto & poSM : m_vecSMList)
     {
+        uint64_t llCheckpointInstanceID = poSM->GetCheckpointInstanceID(iGroupIdx);
         if (poSM->SMID() == SYSTEM_V_SMID
                 || poSM->SMID() == MASTER_V_SMID)
         {
@@ -160,15 +161,15 @@ const uint64_t SMFac :: GetCheckpointInstanceID(const int iGroupIdx) const
             //master variables
             //if no user state machine, system and master's can use.
             //if have user state machine, use user'state machine's checkpointinstanceid.
-            if (poSM->GetCheckpointInstanceID(iGroupIdx) == uint64_t(-1))
+            if (llCheckpointInstanceID == uint64_t(-1))
             {
                 continue;
             }
             
-            if (poSM->GetCheckpointInstanceID(iGroupIdx) > llCPInstanceID_Insize
+            if (llCheckpointInstanceID > llCPInstanceID_Insize
                     || llCPInstanceID_Insize == (uint64_t)-1)
             {
-                llCPInstanceID_Insize = poSM->GetCheckpointInstanceID(iGroupIdx);
+                llCPInstanceID_Insize = llCheckpointInstanceID;
             }
 
             continue;
@@ -176,15 +177,15 @@ const uint64_t SMFac :: GetCheckpointInstanceID(const int iGroupIdx) const
 
         bHaveUseSM = true;
 
-        if (poSM->GetCheckpointInstanceID(iGroupIdx) == uint64_t(-1))
+        if (llCheckpointInstanceID == uint64_t(-1))
         {
             continue;
         }
         
-        if (poSM->GetCheckpointInstanceID(iGroupIdx) > llCPInstanceID
+        if (llCheckpointInstanceID > llCPInstanceID
                 || llCPInstanceID == (uint64_t)-1)
         {
-            llCPInstanceID = poSM->GetCheckpointInstanceID(iGroupIdx);
+            llCPInstanceID = llCheckpointInstanceID;
         }
     }
     
@@ -197,4 +198,5 @@ std::vector<StateMachine *> SMFac :: GetSMList()
 }
 
 }
+
 

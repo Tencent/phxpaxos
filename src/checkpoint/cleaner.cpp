@@ -98,21 +98,35 @@ void Cleaner :: run()
             Time::MsSleep(1000);
             continue;
         }
-        
-        bool bDeleteRet = DeleteOne(llInstanceID);
-        if (bDeleteRet)
+
+        uint64_t llCPInstanceID = m_poSMFac->GetCheckpointInstanceID(m_poConfig->GetMyGroupIdx()) + 1;
+        while (llInstanceID + m_llHoldCount < llCPInstanceID)
         {
-            PLGImp("delete one done, instanceid %lu", llInstanceID);
-            llInstanceID++;
+            bool bDeleteRet = DeleteOne(llInstanceID);
+            if (bDeleteRet)
+            {
+                PLGImp("delete one done, instanceid %lu", llInstanceID);
+                llInstanceID++;
+            }
+            else
+            {
+                PLGErr("delete system fail, instanceid %lu", llInstanceID);
+                break;
+            }
+        }
+
+        if (llCPInstanceID == 0)
+        {
+            PLGImp("sleep a while, max deleted instanceid %lu checkpoint instanceid (no checkpoint) now instanceid %lu",
+                    llInstanceID, m_poCheckpointMgr->GetMaxChosenInstanceID());
         }
         else
         {
-            PLGImp("no need to delete, max deleted instanceid %lu checkpoint instanceid %lu now instanceid %lu",
-                    llInstanceID, m_poSMFac->GetCheckpointInstanceID(m_poConfig->GetMyGroupIdx()),
-                    m_poCheckpointMgr->GetMaxChosenInstanceID());
-
-            Time::MsSleep(1000);
+            PLGImp("sleep a while, max deleted instanceid %lu checkpoint instanceid %lu now instanceid %lu",
+                    llInstanceID, llCPInstanceID, m_poCheckpointMgr->GetMaxChosenInstanceID());
         }
+
+        Time::MsSleep(1000);
     }
 }
 
@@ -162,12 +176,6 @@ int Cleaner :: FixMinChosenInstanceID(const uint64_t llOldMinChosenInstanceID)
 
 bool Cleaner :: DeleteOne(const uint64_t llInstanceID)
 {
-    uint64_t llCPInstanceID = m_poSMFac->GetCheckpointInstanceID(m_poConfig->GetMyGroupIdx()) + 1;
-    if (llInstanceID + m_llHoldCount >= llCPInstanceID)
-    {
-        return false;
-    }
-    
     WriteOptions oWriteOptions;
     oWriteOptions.bSync = false;
 
@@ -200,4 +208,5 @@ void Cleaner :: SetHoldPaxosLogCount(const uint64_t llHoldCount)
 }
 
 }
+
 

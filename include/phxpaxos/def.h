@@ -37,6 +37,7 @@ enum PaxosTryCommitRet
     PaxosTryCommitRet_Im_Not_In_Membership  = 17,
     PaxosTryCommitRet_Value_Size_TooLarge = 18,
     PaxosTryCommitRet_Timeout = 404,
+    PaxosTryCommitRet_TooManyThreadWaiting_Reject = 405,
 };
 
 enum PaxosNodeFunctionRet

@@ -51,6 +51,10 @@ public:
 public:
     void SetTimeoutMs(const int iTimeoutMs);
 
+    void SetMaxHoldThreads(const int iMaxHoldThreads);
+
+    void SetProposeWaitTimeThresholdMS(const int iWaitTimeThresholdMS);
+
 private:
     Config * m_poConfig;
     CommitCtx * m_poCommitCtx;

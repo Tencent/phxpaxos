@@ -81,6 +81,7 @@ int TestServer :: RunPaxos()
         return ret;
     }
 
+    //oOptions.iSyncInterval = 1;
     oOptions.iGroupCount = 1;
 
     oOptions.oMyNode = m_oMyNode;
@@ -135,4 +136,5 @@ TestSM * TestServer :: GetSM()
 }
     
 }
+
 

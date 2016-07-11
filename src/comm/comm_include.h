@@ -24,3 +24,4 @@ See the AUTHORS file for names of contributors.
 #include "./paxos_msg.pb.h"
 #include "phxpaxos/breakpoint.h"
 #include "utils_include.h"
+#include "commdef.h"

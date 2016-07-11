@@ -20,6 +20,7 @@ See the AUTHORS file for names of contributors.
 */
 
 #include "phxpaxos/sm.h"
+#include "comm_include.h"
 
 namespace phxpaxos
 {
@@ -47,17 +48,20 @@ const uint64_t StateMachine :: GetCheckpointInstanceID(const int iGroupIdx) cons
 int StateMachine :: GetCheckpointState(const int iGroupIdx, std::string & sDirPath, 
         std::vector<std::string> & vecFileList) 
 { 
+    PLErr("func not impl, return -1");
     return -1; 
 }    
 
 int StateMachine :: LoadCheckpointState(const int iGroupIdx, const std::string & sCheckpointTmpFileDirPath,
         const std::vector<std::string> & vecFileList, const uint64_t llCheckpointInstanceID) 
 { 
+    PLErr("func not impl, return -1");
     return -1;
 }
 
 int StateMachine :: LockCheckpointState() 
 { 
+    PLErr("func not impl, return -1");
     return -1; 
 }
 
@@ -66,4 +70,5 @@ void StateMachine :: UnLockCheckpointState()
 }
 
 }
+
 

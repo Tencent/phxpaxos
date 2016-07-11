@@ -31,8 +31,9 @@ Group :: Group(LogStorage * poLogStorage,
             const int iGroupIdx,
             const Options & oOptions) : 
     m_oCommunicate(&m_oConfig, oOptions.oMyNode.GetNodeID(), oOptions.iUDPMaxSize, poNetWork),
-    m_oConfig(poLogStorage, false, oOptions.oMyNode, oOptions.vecNodeInfoList, 
-            oOptions.vecFollowerNodeInfoList, iGroupIdx, oOptions.iGroupCount, nullptr),
+    m_oConfig(poLogStorage, oOptions.bSync, oOptions.iSyncInterval, oOptions.bUseMembership, 
+            oOptions.oMyNode, oOptions.vecNodeInfoList, oOptions.vecFollowerNodeInfoList, 
+            iGroupIdx, oOptions.iGroupCount, oOptions.pMembershipChangeCallback),
     m_oInstance(&m_oConfig, poLogStorage, &m_oCommunicate, oOptions.bUseCheckpointReplayer)
 {
     m_oConfig.SetMasterSM(poMasterSM);
@@ -88,4 +89,5 @@ void Group :: AddStateMachine(StateMachine * poSM)
 }
 
 }
+
 

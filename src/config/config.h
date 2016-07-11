@@ -33,6 +33,8 @@ class Config
 public:
     Config(
         const LogStorage * poLogStorage,
+        const bool bLogSync,
+        const int iSyncInterval,
         const bool bUseMembership,
         const NodeInfo & oMyNode,
         const NodeInfoList & vecNodeInfoList,
@@ -79,6 +81,10 @@ public:
 
     const nodeid_t GetFollowToNodeID() const;
 
+    const bool LogSync() const;
+
+    const int SyncInterval() const;
+
 public:
     void SetMasterSM(InsideSM * poMasterSM);
 
@@ -98,6 +104,8 @@ public:
     const size_t GetMyFollowerCount();
 
 private:
+    bool m_bLogSync;
+    int m_iSyncInterval;
     bool m_bUseMembership;
 
     nodeid_t m_iMyNodeID;

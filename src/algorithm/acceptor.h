@@ -59,6 +59,8 @@ public:
 
     Config * m_poConfig;
     PaxosLog m_oPaxosLog;
+
+    int m_iSyncTimes;
 };
 
 ////////////////////////////////////////////////////////////////

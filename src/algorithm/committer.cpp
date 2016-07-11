@@ -91,9 +91,18 @@ int Committer :: NewValueGetIDNoRetry(const std::string & sValue, uint64_t & llI
     bool bHasLock = m_oWaitLock.Lock(m_iTimeoutMs, iLockUseTimeMs);
     if (!bHasLock)
     {
-        BP->GetCommiterBP()->NewValueGetLockTimeout();
-        PLGErr("Try get lock, but timeout, lockusetime %dms", iLockUseTimeMs);
-        return PaxosTryCommitRet_Timeout; 
+        if (iLockUseTimeMs > 0)
+        {
+            BP->GetCommiterBP()->NewValueGetLockTimeout();
+            PLGErr("Try get lock, but timeout, lockusetime %dms", iLockUseTimeMs);
+            return PaxosTryCommitRet_Timeout; 
+        }
+        else
+        {
+            BP->GetCommiterBP()->NewValueGetLockReject();
+            PLGErr("Try get lock, but too many thread waiting, reject");
+            return PaxosTryCommitRet_TooManyThreadWaiting_Reject;
+        }
     }
 
     int iLeftTimeoutMs = -1;
@@ -140,6 +149,17 @@ void Committer :: SetTimeoutMs(const int iTimeoutMs)
 {
     m_iTimeoutMs = iTimeoutMs;
 }
+
+void Committer :: SetMaxHoldThreads(const int iMaxHoldThreads)
+{
+    m_oWaitLock.SetMaxWaitLogCount(iMaxHoldThreads);
+}
+
+void Committer :: SetProposeWaitTimeThresholdMS(const int iWaitTimeThresholdMS)
+{
+    m_oWaitLock.SetLockWaitTimeThreshold(iWaitTimeThresholdMS);
+}
     
 }
+
 

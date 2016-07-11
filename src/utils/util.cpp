@@ -90,7 +90,7 @@ int FileUtils :: DeleteDir(const std::string & sDirPath)
     dir = opendir(sDirPath.c_str());
     if (dir == nullptr)
     {
-        return -1;
+        return 0;
     }
 
 
@@ -279,4 +279,5 @@ const uint32_t OtherUtils :: FastRand()
 }
 
 }
+
 

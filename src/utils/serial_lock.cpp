@@ -66,3 +66,4 @@ bool SerialLock :: WaitTime(const int iTimeMs)
 
 }
 
+

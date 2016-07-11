@@ -85,3 +85,4 @@ int MasterVariablesStore :: Read(const int iGroupIdx, MasterVariables & oVariabl
 
 }
 
+

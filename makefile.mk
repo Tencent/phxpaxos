@@ -95,3 +95,15 @@ install:
 	mkdir $(PREFIX)/lib -p;\
 	rm $(PREFIX)/lib/* -rf;\
 	cp $(PHX_EXTLIB_PATH)/* $(PREFIX)/lib/ -rf;
+
+version = 0.9.0
+
+dist: clean phxpaxos-$(version).src.tgz
+phxpaxos-$(version).src.tgz:
+	@rm -rf phxpaxos-$(version).src.tgz
+	@find ./* -name "Makefile" | xargs rm -rf
+	@find . -type f | grep -v CVS | grep -v "lib.*.a" | grep -v "license\.py" | grep -v .svn | grep -v .git | sed s:^./:phxpaxos-$(version)/: > MANIFEST
+	@(cd ..; ln -s phxpaxos phxpaxos-$(version))
+	(cd ..; tar cvf - `cat phxpaxos/MANIFEST` | gzip > phxpaxos/phxpaxos-$(version).src.tgz)
+	@(cd ..; rm phxpaxos-$(version))
+

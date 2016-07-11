@@ -220,16 +220,14 @@ int PNode :: Init(const Options & oOptions, NetWork *& poNetWork)
     for (int iGroupIdx = 0; iGroupIdx < oOptions.iGroupCount; iGroupIdx++)
     {
         MasterDamon * poMaster = new MasterDamon(this, iGroupIdx, poLogStorage);
-        
         assert(poMaster != nullptr);
+        m_vecMasterList.push_back(poMaster);
 
         ret = poMaster->Init();
         if (ret != 0)
         {
             return ret;
         }
-
-        m_vecMasterList.push_back(poMaster);
     }
 
     //step4 build grouplist
@@ -406,6 +404,169 @@ void PNode :: ContinuePaxosLogCleaner()
 
 ///////////////////////////////////////////////////////
 
+int PNode :: ProposalMembership(
+        SystemVSM * poSystemVSM, 
+        const int iGroupIdx, 
+        const NodeInfoList & vecNodeInfoList, 
+        const uint64_t llVersion)
+{
+    string sOpValue;
+    int ret = poSystemVSM->Membership_OPValue(vecNodeInfoList, llVersion, sOpValue);
+    if (ret != 0)
+    {
+        return Paxos_SystemError;
+    }
+
+    SMCtx oCtx;
+    int smret = -1;
+    oCtx.m_iSMID = SYSTEM_V_SMID;
+    oCtx.m_pCtx = (void *)&smret;
+
+    uint64_t llInstanceID = 0;
+    ret = Propose(iGroupIdx, sOpValue, llInstanceID, &oCtx);
+    if (ret != 0)
+    {
+        return ret;
+    }
+
+    return smret;
+}
+
+int PNode :: AddMember(const int iGroupIdx, const NodeInfo & oNode)
+{
+    if (!CheckGroupID(iGroupIdx))
+    {
+        return Paxos_GroupIdxWrong;
+    }
+
+    SystemVSM * poSystemVSM = m_vecGroupList[iGroupIdx]->GetConfig()->GetSystemVSM();
+
+    if (poSystemVSM->GetGid() == 0)
+    {
+        return Paxos_MembershipOp_NoGid;
+    }
+
+    uint64_t llVersion = 0;
+    NodeInfoList vecNodeInfoList;
+    poSystemVSM->GetMembership(vecNodeInfoList, llVersion);
+
+    for (auto & oNodeInfo : vecNodeInfoList)
+    {
+        if (oNodeInfo.GetNodeID() == oNode.GetNodeID())
+        {
+            return Paxos_MembershipOp_Add_NodeExist;
+        }
+    }
+
+    vecNodeInfoList.push_back(oNode);
+
+    return ProposalMembership(poSystemVSM, iGroupIdx, vecNodeInfoList, llVersion);
+}
+
+int PNode :: RemoveMember(const int iGroupIdx, const NodeInfo & oNode)
+{
+    if (!CheckGroupID(iGroupIdx))
+    {
+        return Paxos_GroupIdxWrong;
+    }
+
+    SystemVSM * poSystemVSM = m_vecGroupList[iGroupIdx]->GetConfig()->GetSystemVSM();
+
+    if (poSystemVSM->GetGid() == 0)
+    {
+        return Paxos_MembershipOp_NoGid;
+    }
+
+    uint64_t llVersion = 0;
+    NodeInfoList vecNodeInfoList;
+    poSystemVSM->GetMembership(vecNodeInfoList, llVersion);
+
+    bool bNodeExist = false;
+    NodeInfoList vecAfterNodeInfoList;
+    for (auto & oNodeInfo : vecNodeInfoList)
+    {
+        if (oNodeInfo.GetNodeID() == oNode.GetNodeID())
+        {
+            bNodeExist = true;
+        }
+        else
+        {
+            vecAfterNodeInfoList.push_back(oNodeInfo);
+        }
+    }
+
+    if (!bNodeExist)
+    {
+        return Paxos_MembershipOp_Remove_NodeNotExist;
+    }
+
+    return ProposalMembership(poSystemVSM, iGroupIdx, vecAfterNodeInfoList, llVersion);
+}
+
+int PNode :: ChangeMember(const int iGroupIdx, const NodeInfo & oFromNode, const NodeInfo & oToNode)
+{
+    if (!CheckGroupID(iGroupIdx))
+    {
+        return Paxos_GroupIdxWrong;
+    }
+
+    SystemVSM * poSystemVSM = m_vecGroupList[iGroupIdx]->GetConfig()->GetSystemVSM();
+
+    if (poSystemVSM->GetGid() == 0)
+    {
+        return Paxos_MembershipOp_NoGid;
+    }
+
+    uint64_t llVersion = 0;
+    NodeInfoList vecNodeInfoList;
+    poSystemVSM->GetMembership(vecNodeInfoList, llVersion);
+
+    NodeInfoList vecAfterNodeInfoList;
+    bool bFromNodeExist = false;
+    bool bToNodeExist = false;
+    for (auto & oNodeInfo : vecNodeInfoList)
+    {
+        if (oNodeInfo.GetNodeID() == oFromNode.GetNodeID())
+        {
+            bFromNodeExist = true;
+            continue;
+        }
+        else if (oNodeInfo.GetNodeID() == oToNode.GetNodeID())
+        {
+            bToNodeExist = true;
+            continue;
+        }
+
+        vecAfterNodeInfoList.push_back(oNodeInfo);
+    }
+
+    if ((!bFromNodeExist) && bToNodeExist)
+    {
+        return Paxos_MembershipOp_Change_NoChange;
+    }
+
+    vecAfterNodeInfoList.push_back(oToNode);
+
+    return ProposalMembership(poSystemVSM, iGroupIdx, vecAfterNodeInfoList, llVersion);
+}
+
+int PNode :: ShowMembership(const int iGroupIdx, NodeInfoList & vecNodeInfoList)
+{
+    if (!CheckGroupID(iGroupIdx))
+    {
+        return Paxos_GroupIdxWrong;
+    }
+
+    SystemVSM * poSystemVSM = m_vecGroupList[iGroupIdx]->GetConfig()->GetSystemVSM();
+
+    uint64_t llVersion = 0;
+    poSystemVSM->GetMembership(vecNodeInfoList, llVersion);
+
+    return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 const NodeInfo PNode :: GetMaster(const int iGroupIdx)
 {
     if (!CheckGroupID(iGroupIdx))
@@ -447,6 +608,29 @@ int PNode :: DropMaster(const int iGroupIdx)
     m_vecMasterList[iGroupIdx]->DropMaster();
     return 0;
 }
+
+/////////////////////////////////////////////////////////////////////
+
+void PNode :: SetMaxHoldThreads(const int iGroupIdx, const int iMaxHoldThreads)
+{
+    if (!CheckGroupID(iGroupIdx))
+    {
+        return;
+    }
+
+    m_vecGroupList[iGroupIdx]->GetCommitter()->SetMaxHoldThreads(iMaxHoldThreads);
+}
+
+void PNode :: SetProposeWaitTimeThresholdMS(const int iGroupIdx, const int iWaitTimeThresholdMS)
+{
+    if (!CheckGroupID(iGroupIdx))
+    {
+        return;
+    }
+
+    m_vecGroupList[iGroupIdx]->GetCommitter()->SetProposeWaitTimeThresholdMS(iWaitTimeThresholdMS);
+}
     
 }
+
 

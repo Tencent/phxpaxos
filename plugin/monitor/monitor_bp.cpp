@@ -420,6 +420,11 @@ void MonCommiterBP :: NewValueGetLockTimeout()
     m_pIDKeyOssFunc(m_oMonitorConfig.iOssAttrID, 63, 1);
 }
 
+void MonCommiterBP :: NewValueGetLockReject()
+{
+    m_pIDKeyOssFunc(m_oMonitorConfig.iOssAttrID, 109, 1);
+}
+
 void MonCommiterBP :: NewValueGetLockOK(const int iUseTimeMs)
 {
     m_pIDKeyOssFunc(m_oMonitorConfig.iOssAttrID, 64, 1);
@@ -729,4 +734,5 @@ CheckpointBP *  MonitorBP :: GetCheckpointBP()
 }
     
 }
+
 

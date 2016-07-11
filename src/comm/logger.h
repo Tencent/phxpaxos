@@ -59,8 +59,8 @@ public:
     void LogVerbose(const char * pcFormat, ...);
 
 private:
-    LogLevel m_eLogLevel;
     LogFunc m_pLogFunc;
+    LogLevel m_eLogLevel;
     Mutex m_oMutex;
 };
     

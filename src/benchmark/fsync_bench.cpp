@@ -41,8 +41,7 @@ using namespace std;
 void RandValue(const int iSize, string & sValue)
 {
     sValue = "";
-    int iRealSize = rand() % iSize + iSize / 2;
-
+    int iRealSize = iSize; 
     for (int i = 0; i < iRealSize; i++)
     {
         sValue += (rand() % 26 + 'a');
@@ -63,21 +62,36 @@ const uint64_t GetTimestampMS()
     return llNow;
 }
 
-void benchfsync(const std::string & sFilePath)
+void benchfsync(const int iValueSize, const int iWriteCount)
 {
+    string sFilePath = "./bench_fsync_tmp_data.log";
     string sValue;
-    RandValue(100, sValue);
+    RandValue(iValueSize, sValue);
 
-    int fd = open(sFilePath.c_str(), O_CREAT | O_RDWR | O_APPEND, S_IWRITE | S_IREAD);
+    int fd = open(sFilePath.c_str(), O_CREAT | O_RDWR, S_IWRITE | S_IREAD);
     if (fd == -1)
     {
         printf("open file fail %s\n", sFilePath.c_str());
         return;
     }
 
-    uint64_t llBeginTimeMs = GetTimestampMS();
+    int ret = lseek(fd, 100 * 1024 * 1024, SEEK_CUR);
+    if (ret == -1)
+    {
+        printf("lseek fail\n");
+        return;
+    }
 
-    const int iWriteCount = 100;
+    int wlen = write(fd, "\0", 1);
+    if (wlen != 1)
+    {
+        printf("write 1 bytes fail, wlen %d\n", wlen);
+        return;
+    }
+
+    lseek(fd, 0, SEEK_SET);
+
+    uint64_t llBeginTimeMs = GetTimestampMS();
     for (int i = 0; i < iWriteCount; i++)
     {
         int len = write(fd,  sValue.data(), sValue.size());
@@ -87,7 +101,7 @@ void benchfsync(const std::string & sFilePath)
             close(fd);
             return;
         }
-        fsync(fd);
+        fdatasync(fd);
     }
 
     uint64_t llEndTimeMs = GetTimestampMS();
@@ -100,27 +114,15 @@ void benchfsync(const std::string & sFilePath)
 
 int main(int argc, char ** argv)
 {
-    vector<string> filelist;
-    for (int i = 2; i < 30; i++)
+    if (argc < 2)
     {
-        if (argc >= i)
-        {
-            filelist.push_back(argv[i - 1]);
-        }
-        else
-        {
-            break;
-        }
+        printf("%s <value size> <write times>\n", argv[0]);
+        return 0;
     }
 
-    for (size_t i = 0; i < filelist.size(); i++)
-    {
-        if (fork() == 0)
-        {
-            benchfsync(filelist[i]);
-            exit(0);
-        }
-    }
+    int iValueSize = atoi(argv[1]);
+    int iWriteCount = atoi(argv[2]);
+    benchfsync(iValueSize, iWriteCount);
 
     return 0;
 }

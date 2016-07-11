@@ -255,7 +255,7 @@ int CheckpointSender :: SendFile(const StateMachine * poSM, const std::string & 
         return -1;
     }
 
-    size_t iReadLen = 0;
+    ssize_t iReadLen = 0;
     size_t llOffset = 0;
     while (true)
     {
@@ -263,6 +263,12 @@ int CheckpointSender :: SendFile(const StateMachine * poSM, const std::string & 
         if (iReadLen == 0)
         {
             break;
+        }
+
+        if (iReadLen < 0)
+        {
+            close(iFD);
+            return -1;
         }
 
         int ret = SendBuffer(poSM->SMID(), poSM->GetCheckpointInstanceID(m_poConfig->GetMyGroupIdx()), 
@@ -273,9 +279,9 @@ int CheckpointSender :: SendFile(const StateMachine * poSM, const std::string & 
             return ret;
         }
 
-        PLGDebug("Send ok, offset %zu readlen %zu", llOffset, iReadLen);
+        PLGDebug("Send ok, offset %zu readlen %d", llOffset, iReadLen);
 
-        if (iReadLen < sizeof(m_sTmpBuffer))
+        if (iReadLen < (ssize_t)sizeof(m_sTmpBuffer))
         {
             break;
         }
@@ -381,4 +387,5 @@ const bool CheckpointSender :: CheckAck(const uint64_t llSendSequence)
 }
     
 }
+
 

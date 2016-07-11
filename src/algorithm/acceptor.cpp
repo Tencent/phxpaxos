@@ -27,7 +27,7 @@ namespace phxpaxos
 {
 
 AcceptorState :: AcceptorState(const Config * poConfig, const LogStorage * poLogStorage) :
-    m_oPaxosLog(poLogStorage)
+    m_oPaxosLog(poLogStorage), m_iSyncTimes(0)
 {
     m_poConfig = (Config *)poConfig;
     Init();
@@ -102,7 +102,19 @@ int AcceptorState :: Persist(const uint64_t llInstanceID, const uint32_t iLastCh
     oState.set_checksum(m_iChecksum);
 
     WriteOptions oWriteOptions;
-    oWriteOptions.bSync = true;
+    oWriteOptions.bSync = m_poConfig->LogSync();
+    if (oWriteOptions.bSync)
+    {
+        m_iSyncTimes++;
+        if (m_iSyncTimes > m_poConfig->SyncInterval())
+        {
+            m_iSyncTimes = 0;
+        }
+        else
+        {
+            oWriteOptions.bSync = false;
+        }
+    }
 
     int ret = m_oPaxosLog.WriteState(oWriteOptions, m_poConfig->GetMyGroupIdx(), llInstanceID, oState);
     if (ret != 0)
@@ -333,4 +345,5 @@ void Acceptor :: OnAccept(const PaxosMsg & oPaxosMsg)
 }
 
 }
+
 

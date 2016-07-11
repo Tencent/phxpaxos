@@ -24,7 +24,7 @@ See the AUTHORS file for names of contributors.
 
 namespace phxpaxos
 {
-    
+
 int PaxosComparator :: Compare(const leveldb::Slice & a, const leveldb::Slice & b) const
 {
     return PCompare(a, b);
@@ -32,8 +32,17 @@ int PaxosComparator :: Compare(const leveldb::Slice & a, const leveldb::Slice & 
 
 int PaxosComparator :: PCompare(const leveldb::Slice & a, const leveldb::Slice & b) 
 {
-    assert(a.size() == sizeof(uint64_t));
-    assert(b.size() == sizeof(uint64_t));
+    if (a.size() != sizeof(uint64_t))
+    {
+        NLErr("assert a.size %zu b.size %zu", a.size(), b.size());
+        assert(a.size() == sizeof(uint64_t));
+    }
+
+    if (b.size() != sizeof(uint64_t))
+    {
+        NLErr("assert a.size %zu b.size %zu", a.size(), b.size());
+        assert(b.size() == sizeof(uint64_t));
+    }
     
     uint64_t lla = 0;
     uint64_t llb = 0;
@@ -54,6 +63,7 @@ int PaxosComparator :: PCompare(const leveldb::Slice & a, const leveldb::Slice &
 Database :: Database() : m_poLevelDB(nullptr), m_poValueStore(nullptr)
 {
     m_bHasInit = false;
+    m_iMyGroupIdx = -1;
 }
 
 Database :: ~Database()
@@ -92,7 +102,12 @@ int Database :: ClearAllLog()
 
     string sBakPath = m_sDBPath + ".bak";
 
-    FileUtils::DeleteDir(sBakPath);
+    ret = FileUtils::DeleteDir(sBakPath);
+    if (ret != 0)
+    {
+        PLG1Err("Delete bak dir fail, dir %s", sBakPath.c_str());
+        return -1;
+    }
 
     ret = rename(m_sDBPath.c_str(), sBakPath.c_str());
     assert(ret == 0);
@@ -156,7 +171,7 @@ int Database :: Init(const std::string & sDBPath, const int iMyGroupIdx)
     m_poValueStore = new LogStore(); 
     assert(m_poValueStore != nullptr);
 
-    int ret = m_poValueStore->Init(sDBPath, iMyGroupIdx);
+    int ret = m_poValueStore->Init(sDBPath, iMyGroupIdx, (Database *)this);
     if (ret != 0)
     {
         PLG1Err("value store init fail, ret %d", ret);
@@ -164,13 +179,6 @@ int Database :: Init(const std::string & sDBPath, const int iMyGroupIdx)
     }
 
     m_bHasInit = true;
-
-    ret = m_poValueStore->RebuildIndex((Database *)this);
-    if (ret != 0)
-    {
-        PLG1Err("rebuild index fail, ret %d", ret);
-        return -1;
-    }
 
     PLG1Imp("OK, db_path %s", sDBPath.c_str());
 
@@ -182,7 +190,7 @@ const std::string Database :: GetDBPath()
     return m_sDBPath;
 }
 
-int Database :: GetMaxInstanceIDFileID(std::string & sFileID)
+int Database :: GetMaxInstanceIDFileID(std::string & sFileID, uint64_t & llInstanceID)
 {
     uint64_t llMaxInstanceID = 0;
     int ret = GetMaxInstanceID(llMaxInstanceID);
@@ -213,6 +221,8 @@ int Database :: GetMaxInstanceIDFileID(std::string & sFileID)
         PLG1Err("LevelDB.Get fail");
         return -1;
     }
+
+    llInstanceID = llMaxInstanceID;
 
     return 0;
 }
@@ -446,12 +456,6 @@ int Database :: Del(const WriteOptions & oWriteOptions, const uint64_t llInstanc
 
 int Database :: GetMaxInstanceID(uint64_t & llInstanceID)
 {
-    if (!m_bHasInit)
-    {
-        PLG1Err("no init yet");
-        return -1;
-    }
-
     llInstanceID = MINCHOSEN_KEY;
 
     leveldb::Iterator * it = m_poLevelDB->NewIterator(leveldb::ReadOptions());
@@ -631,12 +635,13 @@ int MultiDatabase :: Init(const std::string & sDBPath, const int iGroupCount)
         snprintf(sGroupDBPath, sizeof(sGroupDBPath), "%sg%d", sNewDBPath.c_str(), iGroupIdx);
 
         Database * poDB = new Database();
+        assert(poDB != nullptr);
+        m_vecDBList.push_back(poDB);
+
         if (poDB->Init(sGroupDBPath, iGroupIdx) != 0)
         {
             return -1;
         }
-
-        m_vecDBList.push_back(poDB);
     }
 
     PLImp("OK, DBPath %s groupcount %d", sDBPath.c_str(), iGroupCount);
@@ -775,4 +780,5 @@ int MultiDatabase :: GetMasterVariables(const int iGroupIdx, std::string & sBuff
 }
 
 }
+
 

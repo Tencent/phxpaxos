@@ -129,3 +129,69 @@ TEST(WaitLock, LockTimeout)
 	delete poTest2;
 }
 
+class TooMuchLockWatingTester : public Thread
+{
+public:
+	TooMuchLockWatingTester(WaitLock * poLock, int & iRejectCount)
+		: m_poLock(poLock), m_iRejectCount(iRejectCount)
+	{
+	}
+
+	~TooMuchLockWatingTester() { }
+
+	void run()
+	{
+		int iLockUseTimeMs = 0;
+		int iLockTimeoutMs = -1;
+		bool bHasLock = m_poLock->Lock(iLockTimeoutMs, iLockUseTimeMs);
+		if (bHasLock)
+		{
+		}
+		else
+		{
+            if (iLockUseTimeMs > 0)
+            {
+                int iCut = abs(iLockTimeoutMs - iLockUseTimeMs);
+                EXPECT_TRUE(iCut < 5);
+                return;
+            }
+            else
+            {
+                m_iRejectCount++;
+            }
+		}
+		
+		int iSleepTime = 10;
+		Time::MsSleep(iSleepTime);
+		m_poLock->UnLock();
+	}
+
+private:
+	WaitLock * m_poLock;
+    int & m_iRejectCount;
+};
+
+TEST(WaitLock, TooMuchLockWating)
+{
+	WaitLock oLock;
+    oLock.SetMaxWaitLogCount(5);
+    int iRejectCount = 0;
+
+    std::vector<TooMuchLockWatingTester *> vecTester;
+    for (int i = 0; i < 10; i++)
+    {
+        auto poTester = new TooMuchLockWatingTester(&oLock, iRejectCount);
+        vecTester.push_back(poTester);
+        poTester->start();
+		//Time::MsSleep(10);
+    }
+
+    for (auto & poTester : vecTester)
+    {
+        poTester->join();
+        delete poTester;
+    }
+
+    EXPECT_TRUE(iRejectCount == 4);
+}
+

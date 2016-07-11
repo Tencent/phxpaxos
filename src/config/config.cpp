@@ -29,6 +29,8 @@ namespace phxpaxos
 
 Config :: Config(
         const LogStorage * poLogStorage,
+        const bool bLogSync,
+        const int iSyncInterval,
         const bool bUseMembership,
         const NodeInfo & oMyNode, 
         const NodeInfoList & vecNodeInfoList,
@@ -36,7 +38,9 @@ Config :: Config(
         const int iMyGroupIdx,
         const int iGroupCount,
         MembershipChangeCallback pMembershipChangeCallback)
-    : m_bUseMembership(bUseMembership),
+    : m_bLogSync(bLogSync), 
+    m_iSyncInterval(iSyncInterval),
+    m_bUseMembership(bUseMembership),
     m_iMyNodeID(oMyNode.GetNodeID()), 
     m_iNodeCount(vecNodeInfoList.size()), 
     m_iMyGroupIdx(iMyGroupIdx),
@@ -249,5 +253,16 @@ const size_t Config :: GetMyFollowerCount()
     return m_mapMyFollower.size();
 }
 
+const bool Config :: LogSync() const
+{
+    return m_bLogSync;
 }
+
+const int Config :: SyncInterval() const 
+{
+    return m_iSyncInterval;
+}
+
+}
+
 

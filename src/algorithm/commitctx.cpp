@@ -138,7 +138,7 @@ int CommitCtx :: GetResult(uint64_t & llSuccInstanceID)
 {
     while (!m_bIsCommitEnd)
     {
-        m_oSerialLock.Wait();
+        m_oSerialLock.WaitTime(1000);
     }
 
     if (m_iCommitRet == 0)
@@ -162,4 +162,5 @@ const int CommitCtx :: GetTimeoutMs() const
 }
 
 }
+
 

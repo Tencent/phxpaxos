@@ -122,8 +122,6 @@ public:
     bool m_bIsPreparing;
     bool m_bIsAccepting;
 
-    bool m_bIMLeader;
-
     IOLoop * m_poIOLoop;
 
     uint32_t m_iPrepareTimerID;

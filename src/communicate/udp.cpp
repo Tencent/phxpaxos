@@ -42,6 +42,11 @@ UDPRecv :: UDPRecv(DFNetWork * poDFNetWork)
 
 UDPRecv :: ~UDPRecv()
 {
+    if (m_iSockFD != -1)
+    {
+        close(m_iSockFD);
+        m_iSockFD = -1;
+    }
 }
 
 void UDPRecv :: Stop()
@@ -63,6 +68,9 @@ int UDPRecv :: Init(const int iPort)
     addr.sin_family = AF_INET;
     addr.sin_port = htons(iPort);
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    int enable = 1;
+    setsockopt(m_iSockFD, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
 
     if (bind(m_iSockFD, (struct sockaddr *)&addr, sizeof(addr)) < 0) 
     {
@@ -157,9 +165,11 @@ void UDPSend :: SendMessage(const std::string & sIP, const int iPort, const std:
     addr.sin_port = htons(iPort);
     addr.sin_addr.s_addr = inet_addr(sIP.c_str());
     
-    sendto(m_iSockFD, sMessage.data(), (int)sMessage.size(), 0, (struct sockaddr *)&addr, addr_len);
-
-    BP->GetNetworkBP()->UDPRealSend(sMessage);
+    int ret = sendto(m_iSockFD, sMessage.data(), (int)sMessage.size(), 0, (struct sockaddr *)&addr, addr_len);
+    if (ret > 0)
+    {
+        BP->GetNetworkBP()->UDPRealSend(sMessage);
+    }
 }
 
 void UDPSend :: run()
@@ -218,4 +228,5 @@ int UDPSend :: AddMessage(const std::string & sIP, const int iPort, const std::s
 }
     
 }
+
 

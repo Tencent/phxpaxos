@@ -141,6 +141,7 @@ public:
     void NewValue();
     void NewValueConflict();
     void NewValueGetLockTimeout();
+    void NewValueGetLockReject();
     void NewValueGetLockOK(const int iUseTimeMs);
     void NewValueCommitOK(const int iUseTimeMs);
     void NewValueCommitFail();
