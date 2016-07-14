@@ -18,13 +18,13 @@ And now I want to get 20 paxos group count's benchmark.
 We do this: 
 
 #first run below command on first machine.
-./phxecho 10.10.10.10:11111 10.10.10.10:11111,10.10.10.11:11111,10.10.10.12:11111 n 20
+./phx_paxos_bench 10.10.10.10:11111 10.10.10.10:11111,10.10.10.11:11111,10.10.10.12:11111 n 20
 
 #second run below command on second machine. 
-./phxecho 10.10.10.10:11112 10.10.10.10:11111,10.10.10.11:11111,10.10.10.12:11111 n 20
+./phx_paxos_bench 10.10.10.10:11112 10.10.10.10:11111,10.10.10.11:11111,10.10.10.12:11111 n 20
 
 #last run below command on third machine. Notice that need to appoint bench on args.
-./phxecho 10.10.10.12:11112 10.10.10.10:11111,10.10.10.11:11111,10.10.10.12:11111 y 20
+./phx_paxos_bench 10.10.10.12:11112 10.10.10.10:11111,10.10.10.11:11111,10.10.10.12:11111 y 20
 
 Wait a minutes. then you will get the benchmark(qps) on standard output.
 
