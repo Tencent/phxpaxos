@@ -105,7 +105,7 @@ int main(int argc, char ** argv)
     {
         if (argc >= i)
         {
-            filelist.push_back(argv[u - 1]);
+            filelist.push_back(argv[i - 1]);
         }
         else
         {
