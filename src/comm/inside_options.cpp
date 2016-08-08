@@ -84,7 +84,7 @@ const int InsideOptions :: GetStartAcceptTimeoutMs()
     }
     else
     {
-        return 2000;
+        return 1000;
     }
 }
 

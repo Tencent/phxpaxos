@@ -35,6 +35,7 @@ See the AUTHORS file for names of contributors.
 #include <sys/stat.h> 
 #include <stdio.h>
 #include <string.h>
+#include <chrono>
 
 namespace phxpaxos {
 
@@ -48,8 +49,6 @@ string str(const T& t) {
     os << t;
     return os.str();
 }
-
-uint64_t now(); 
 
 class SysCallException : public exception {
 public:
@@ -89,6 +88,8 @@ class Time
 {
 public:
     static const uint64_t GetTimestampMS();
+
+    static const uint64_t GetSteadyClockMS();
 
     static void MsSleep(const int iTimeMs);
 };

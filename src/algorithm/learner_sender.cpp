@@ -70,7 +70,7 @@ void LearnerSender :: run()
 
 void LearnerSender :: ReleshSending()
 {
-    m_llAbsLastSendTime = Time::GetTimestampMS();
+    m_llAbsLastSendTime = Time::GetSteadyClockMS();
 }
 
 const bool LearnerSender :: IsIMSending()
@@ -80,7 +80,7 @@ const bool LearnerSender :: IsIMSending()
         return false;
     }
 
-    uint64_t llNowTime = Time::GetTimestampMS();
+    uint64_t llNowTime = Time::GetSteadyClockMS();
     uint64_t llPassTime = llNowTime > m_llAbsLastSendTime ? llNowTime - m_llAbsLastSendTime : 0;
 
     if ((int)llPassTime >= LearnerSender_PREPARE_TIMEOUT)
@@ -95,7 +95,7 @@ const bool LearnerSender :: CheckAck(const uint64_t llSendInstanceID)
 {
     while (llSendInstanceID > m_llAckInstanceID + LearnerSender_ACK_LEAD)
     {
-        uint64_t llNowTime = Time::GetTimestampMS();
+        uint64_t llNowTime = Time::GetSteadyClockMS();
         uint64_t llPassTime = llNowTime > m_llAbsLastAckTime ? llNowTime - m_llAbsLastAckTime : 0;
 
         if ((int)llPassTime >= LearnerSender_ACK_TIMEOUT)
@@ -126,7 +126,7 @@ const bool LearnerSender :: Prepare(const uint64_t llBeginInstanceID, const node
         bPrepareRet = true;
 
         m_bIsIMSending = true;
-        m_llAbsLastSendTime = m_llAbsLastAckTime = Time::GetTimestampMS();
+        m_llAbsLastSendTime = m_llAbsLastAckTime = Time::GetSteadyClockMS();
         m_llBeginInstanceID = m_llAckInstanceID = llBeginInstanceID;
         m_iSendToNodeID = iSendToNodeID;
     }
@@ -169,7 +169,7 @@ void LearnerSender :: Ack(const uint64_t llAckInstanceID, const nodeid_t iFromNo
             if (llAckInstanceID > m_llAckInstanceID)
             {
                 m_llAckInstanceID = llAckInstanceID;
-                m_llAbsLastAckTime = Time::GetTimestampMS();
+                m_llAbsLastAckTime = Time::GetSteadyClockMS();
             }
         }
     }

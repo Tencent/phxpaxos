@@ -44,7 +44,7 @@ void RandValue(const int iSize, string & sValue)
     }
 }
 
-const uint64_t GetTimestampMS()
+const uint64_t GetSteadyClockMS()
 {
     uint64_t llNow;
     struct timeval tv; 
@@ -100,7 +100,7 @@ int main(int argc, char ** argv)
     WriteOptions wp;
     wp.bSync = true;
 
-    uint64_t llBeginTimeMs = GetTimestampMS();
+    uint64_t llBeginTimeMs = GetSteadyClockMS();
     for (int i = 0; i < wc; i++)
     {
         AcceptorStateData oState;
@@ -128,7 +128,7 @@ int main(int argc, char ** argv)
         llInstanceID++;
     }
 
-    uint64_t llEndTimeMs = GetTimestampMS();
+    uint64_t llEndTimeMs = GetSteadyClockMS();
     int iRunTimeMs = llEndTimeMs - llBeginTimeMs;
     int qps = (uint64_t)wc * 1000 / iRunTimeMs;
 

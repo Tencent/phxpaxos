@@ -85,14 +85,14 @@ endif
 
 .PHONY:install
 install:
-	prefix_dir=`readlink $(PREFIX) -m`;\
+	@prefix_dir=`readlink $(PREFIX) -m`;\
 	src_dir=`readlink $(SRC_BASE_PATH) -m`;\
 	if ([ "$$prefix_dir" != "$$src_dir" ]); then \
 	echo cp $(PHX_LIB_PATH) $(PREFIX)/include -rf;\
 	cp $(PHXPAXOS_INCLUDE_PATH) $(PREFIX)/include -rf;\
 	fi
 	echo INSTALL to $(PREFIX)/lib;
-	mkdir $(PREFIX)/lib -p;\
+	@mkdir $(PREFIX)/lib -p;\
 	rm $(PREFIX)/lib/* -rf;\
 	cp $(PHX_EXTLIB_PATH)/* $(PREFIX)/lib/ -rf;
 

@@ -197,12 +197,12 @@ void Config :: AddTmpNodeOnlyForLearn(const nodeid_t iTmpNodeID)
         return;
     }
 
-    m_mapTmpNodeOnlyForLearn[iTmpNodeID] = Time::GetTimestampMS() + TmpNodeTimeout;
+    m_mapTmpNodeOnlyForLearn[iTmpNodeID] = Time::GetSteadyClockMS() + TmpNodeTimeout;
 }
 
 const std::map<nodeid_t, uint64_t> & Config :: GetTmpNodeMap()
 {
-    uint64_t llNowTime = Time::GetTimestampMS();
+    uint64_t llNowTime = Time::GetSteadyClockMS();
 
     for (auto it = m_mapTmpNodeOnlyForLearn.begin(); it != end(m_mapTmpNodeOnlyForLearn);)
     {
@@ -224,12 +224,12 @@ const std::map<nodeid_t, uint64_t> & Config :: GetTmpNodeMap()
 void Config :: AddFollowerNode(const nodeid_t iMyFollowerNodeID)
 {
     static int iFollowerTimeout = ASKFORLEARN_NOOP_INTERVAL * 3;
-    m_mapMyFollower[iMyFollowerNodeID] = Time::GetTimestampMS() + iFollowerTimeout;
+    m_mapMyFollower[iMyFollowerNodeID] = Time::GetSteadyClockMS() + iFollowerTimeout;
 }
 
 const std::map<nodeid_t, uint64_t> & Config :: GetMyFollowerMap()
 {
-    uint64_t llNowTime = Time::GetTimestampMS();
+    uint64_t llNowTime = Time::GetSteadyClockMS();
 
     for (auto it = m_mapMyFollower.begin(); it != end(m_mapMyFollower);)
     {

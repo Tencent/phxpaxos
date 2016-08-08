@@ -107,13 +107,14 @@ public:
 
     void wait();
 
-    bool tryWait(const timespec* timeout);
-
     bool tryWait(int ms);
 
 private:
+    bool tryWait(const timespec* timeout);
+
     Mutex& _mutex;
     pthread_cond_t _pc;
+    pthread_condattr_t _pc_attr;
 };
 
 class ThreadAttr {
@@ -186,13 +187,8 @@ public:
     }
 
     bool peek(T& t, int timeoutMS) {
-        uint64_t timeout = phxpaxos::now() + timeoutMS;
-
-        timespec ts;
-        ts.tv_sec = (time_t)(timeout / 1000);
-        ts.tv_nsec = (timeout % 1000) * 1000000;
         while (empty()) {
-            if (!_cond.tryWait(&ts)) {
+            if (!_cond.tryWait(timeoutMS)) {
                 return false;
             }
         }

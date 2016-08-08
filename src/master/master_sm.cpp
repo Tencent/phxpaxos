@@ -73,7 +73,7 @@ int MasterStateMachine :: Init()
         else
         {
             m_iMasterNodeID = oVariables.masternodeid();
-            m_llAbsExpireTime = Time::GetTimestampMS() + oVariables.leasetime();
+            m_llAbsExpireTime = Time::GetSteadyClockMS() + oVariables.leasetime();
         }
     }
     
@@ -130,7 +130,7 @@ int MasterStateMachine :: LearnMaster(
     {
         //other be master
         //use new start timeout
-        m_llAbsExpireTime = Time::GetTimestampMS() + oMasterOper.timeout();
+        m_llAbsExpireTime = Time::GetSteadyClockMS() + oMasterOper.timeout();
 
         PLG1Head("Ohter be master, absexpiretime %lu", m_llAbsExpireTime);
     }
@@ -148,7 +148,7 @@ void MasterStateMachine :: SafeGetMaster(nodeid_t & iMasterNodeID, uint64_t & ll
 {
     ScopedLock<Mutex> oLockGuard(m_oMutex);
 
-    if (Time::GetTimestampMS() >= m_llAbsExpireTime)
+    if (Time::GetSteadyClockMS() >= m_llAbsExpireTime)
     {
         iMasterNodeID = nullnode;
     }
@@ -162,7 +162,7 @@ void MasterStateMachine :: SafeGetMaster(nodeid_t & iMasterNodeID, uint64_t & ll
 
 const nodeid_t MasterStateMachine :: GetMaster() const
 {
-    if (Time::GetTimestampMS() >= m_llAbsExpireTime)
+    if (Time::GetSteadyClockMS() >= m_llAbsExpireTime)
     {
         return nullnode;
     }
@@ -305,7 +305,7 @@ int MasterStateMachine :: UpdateByCheckpoint(const std::string & sCPBuffer, bool
     else
     {
         m_iMasterNodeID = oVariables.masternodeid();
-        m_llAbsExpireTime = Time::GetTimestampMS() + oVariables.leasetime();
+        m_llAbsExpireTime = Time::GetSteadyClockMS() + oVariables.leasetime();
     }
 
     return 0;

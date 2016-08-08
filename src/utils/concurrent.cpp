@@ -23,6 +23,7 @@ See the AUTHORS file for names of contributors.
 #include <iostream>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
 
 static void* mmThreadRun(void* p) {
     phxpaxos::Thread* thread = (phxpaxos::Thread*)p;
@@ -72,7 +73,13 @@ void Mutex::unlock() {
 ///////////////////////////////////////////////////////////Condition
 
 Condition::Condition(Mutex& mutex) : _mutex(mutex) {
-    if (pthread_cond_init(&_pc, 0)) {
+    if (pthread_condattr_init(&_pc_attr)) {
+        throw SyncException(errno, "pthread_condattr_init error");
+    }
+
+    pthread_condattr_setclock(&_pc_attr, CLOCK_MONOTONIC);
+
+    if (pthread_cond_init(&_pc, &_pc_attr)) {
         throw SyncException(errno, "pthread_cond_init error");
     }
 }
@@ -100,7 +107,7 @@ void Condition::wait() {
 }
 
 bool Condition::tryWait(int ms) {
-    uint64_t timeout = phxpaxos::now() + ms;
+    uint64_t timeout = Time::GetSteadyClockMS() + ms;
 
     timespec t;
     t.tv_sec = (time_t)(timeout / 1000);

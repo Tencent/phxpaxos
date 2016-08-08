@@ -58,7 +58,7 @@ const int Timer :: GetNextTimeout() const
     int iNextTimeout = 0;
 
     TimerObj tObj = m_vecTimerHeap.front();
-    uint64_t llNowTime = Time::GetTimestampMS();
+    uint64_t llNowTime = Time::GetSteadyClockMS();
     if (tObj.m_llAbsTime > llNowTime)
     {
         iNextTimeout = (int)(tObj.m_llAbsTime - llNowTime);
@@ -75,7 +75,7 @@ bool Timer :: PopTimeout(uint32_t & iTimerID, int & iType)
     }
 
     TimerObj tObj = m_vecTimerHeap.front();
-    uint64_t llNowTime = Time::GetTimestampMS();
+    uint64_t llNowTime = Time::GetSteadyClockMS();
     if (tObj.m_llAbsTime > llNowTime)
     {
         return false;

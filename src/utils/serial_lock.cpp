@@ -55,13 +55,7 @@ void SerialLock :: Interupt()
 
 bool SerialLock :: WaitTime(const int iTimeMs)
 {
-    uint64_t llTimeout = Time::GetTimestampMS() + iTimeMs;
-
-    timespec ts;
-    ts.tv_sec = (time_t)(llTimeout / 1000);
-    ts.tv_nsec = (llTimeout % 1000) * 1000000;
-    
-    return m_oCond.tryWait(&ts);
+    return m_oCond.tryWait(iTimeMs);
 }
 
 }

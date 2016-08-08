@@ -99,7 +99,7 @@ void WaitLock :: SetLockWaitTimeThreshold(const int iLockWaitTimeThresholdMS)
 
 bool WaitLock :: Lock(const int iTimeoutMs, int & iUseTimeMs)
 {
-    uint64_t llBeginTime = Time::GetTimestampMS();
+    uint64_t llBeginTime = Time::GetSteadyClockMS();
 
     m_oSerialLock.Lock();
     if (!CanLock())
@@ -133,7 +133,7 @@ bool WaitLock :: Lock(const int iTimeoutMs, int & iUseTimeMs)
 
     m_iWaitLockCount--;
 
-    uint64_t llEndTime = Time::GetTimestampMS();
+    uint64_t llEndTime = Time::GetSteadyClockMS();
     iUseTimeMs = llEndTime > llBeginTime ? (int)(llEndTime - llBeginTime) : 0;
 
     RefleshRejectRate(iUseTimeMs);

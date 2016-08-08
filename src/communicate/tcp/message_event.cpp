@@ -52,7 +52,7 @@ MessageEvent :: MessageEvent(
 
     m_iReconnectTimeoutID = 0;
 
-    m_llLastActiveTime = Time::GetTimestampMS();
+    m_llLastActiveTime = Time::GetSteadyClockMS();
     m_sHost = oAddr.getHost();
 
     m_iQueueMemSize = 0;
@@ -81,7 +81,7 @@ const std::string & MessageEvent :: GetSocketHost()
 
 const bool MessageEvent :: IsActive()
 {
-    uint64_t llNowTime = Time::GetTimestampMS();
+    uint64_t llNowTime = Time::GetSteadyClockMS();
     if (llNowTime > m_llLastActiveTime
             && ((int)(llNowTime - m_llLastActiveTime) > CONNECTTION_NONACTIVE_TIMEOUT))
     {
@@ -93,7 +93,7 @@ const bool MessageEvent :: IsActive()
 
 int MessageEvent :: AddMessage(const std::string & sMessage)
 {
-    m_llLastActiveTime = Time::GetTimestampMS();
+    m_llLastActiveTime = Time::GetSteadyClockMS();
 
     m_oMutex.lock();
 
@@ -114,7 +114,7 @@ int MessageEvent :: AddMessage(const std::string & sMessage)
     }
 
     QueueData tData;
-    tData.llEnqueueAbsTime = Time::GetTimestampMS();
+    tData.llEnqueueAbsTime = Time::GetSteadyClockMS();
     tData.psValue = new string(sMessage);
     m_oInQueue.push(tData);
 
@@ -326,7 +326,7 @@ int MessageEvent :: DoOnWrite()
     m_oMutex.unlock();
 
     std::string * poMessage = tData.psValue;
-    uint64_t llNowTime = Time::GetTimestampMS();
+    uint64_t llNowTime = Time::GetSteadyClockMS();
     if (llNowTime > tData.llEnqueueAbsTime 
             && (((int)(llNowTime - tData.llEnqueueAbsTime)) > TCP_OUTQUEUE_DROP_TIMEMS))
     {

@@ -87,7 +87,7 @@ int parse_ipport_list(const char * pcStr, NodeInfoList & vecNodeInfoList)
     return 0;
 }
 
-const uint64_t GetTimestampMS()
+const uint64_t GetSteadyClockMS()
 {
     uint64_t llNow;
     struct timeval tv; 
@@ -143,7 +143,7 @@ private:
 
 void Bench_SmallData(BenchServer & oBenchServer)
 {
-    uint64_t llBeginTimeMs = GetTimestampMS();
+    uint64_t llBeginTimeMs = GetSteadyClockMS();
 
     const int iWriteCount = 1000;
     const int iConcurrentCount = 100;
@@ -162,7 +162,7 @@ void Bench_SmallData(BenchServer & oBenchServer)
         delete vecBenchClient[i];
     }
 
-    uint64_t llEndTimeMs = GetTimestampMS();
+    uint64_t llEndTimeMs = GetSteadyClockMS();
     int iRunTimeMs = llEndTimeMs - llBeginTimeMs;
     int qps = (uint64_t)iWriteCount * iConcurrentCount * 1000 / iRunTimeMs;
 
@@ -171,7 +171,7 @@ void Bench_SmallData(BenchServer & oBenchServer)
 
 void Bench_LargeData(BenchServer & oBenchServer)
 {
-    uint64_t llBeginTimeMs = GetTimestampMS();
+    uint64_t llBeginTimeMs = GetSteadyClockMS();
 
     const int iWriteCount = 100;
     const int iConcurrentCount = 100;
@@ -190,7 +190,7 @@ void Bench_LargeData(BenchServer & oBenchServer)
         delete vecBenchClient[i];
     }
 
-    uint64_t llEndTimeMs = GetTimestampMS();
+    uint64_t llEndTimeMs = GetSteadyClockMS();
     int iRunTimeMs = llEndTimeMs - llBeginTimeMs;
     int qps = (uint64_t)iWriteCount * iConcurrentCount * 1000 / iRunTimeMs;
 

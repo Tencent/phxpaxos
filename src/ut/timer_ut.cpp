@@ -34,7 +34,7 @@ TEST(Timer, AddTimer)
 {
 	Timer oTimer;
 
-	uint64_t llAbsTime = Time::GetTimestampMS() + 30;
+	uint64_t llAbsTime = Time::GetSteadyClockMS() + 30;
 	uint32_t iTimerID = 0;
 	int iType = 321;
 	oTimer.AddTimerWithType(llAbsTime, iType, iTimerID);
@@ -64,9 +64,9 @@ int PopTimeout(Timer & oTimer, std::map<uint32_t, uint64_t> & mapTimerIDtoAbsTim
 
 		if (bHasTimeout)
 		{
-			uint64_t llCut = mapTimerIDtoAbsTime[iTimerID] < Time::GetTimestampMS() ? 
-				Time::GetTimestampMS() - mapTimerIDtoAbsTime[iTimerID]
-				: mapTimerIDtoAbsTime[iTimerID] - Time::GetTimestampMS();
+			uint64_t llCut = mapTimerIDtoAbsTime[iTimerID] < Time::GetSteadyClockMS() ? 
+				Time::GetSteadyClockMS() - mapTimerIDtoAbsTime[iTimerID]
+				: mapTimerIDtoAbsTime[iTimerID] - Time::GetSteadyClockMS();
 			
 			if (llCut > 10)
 			{
@@ -97,7 +97,7 @@ TEST(Timer, PopTimer)
 	int iTimerObjCount = 10;
 	for (int i = 0; i < iTimerObjCount; i++)
 	{
-		uint64_t llAbsTime = Time::GetTimestampMS() + (OtherUtils::FastRand() % 500);
+		uint64_t llAbsTime = Time::GetSteadyClockMS() + (OtherUtils::FastRand() % 500);
 		uint32_t iTimerID = 0;
 
 		oTimer.AddTimer(llAbsTime, iTimerID);

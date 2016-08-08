@@ -195,7 +195,7 @@ bool IOLoop :: AddTimer(const int iTimeout, const int iType, uint32_t & iTimerID
         return true;
     }
     
-    uint64_t llAbsTime = Time::GetTimestampMS() + iTimeout;
+    uint64_t llAbsTime = Time::GetSteadyClockMS() + iTimeout;
     m_oTimer.AddTimerWithType(llAbsTime, iType, iTimerID);
 
     m_mapTimerIDExist[iTimerID] = true;

@@ -79,7 +79,7 @@ const bool CheckpointSender :: IsEnd() const
 
 void CheckpointSender :: run()
 {
-    m_llAbsLastAckTime = Time::GetTimestampMS();
+    m_llAbsLastAckTime = Time::GetSteadyClockMS();
 
     //pause checkpoint replayer
     bool bNeedContinue = false;
@@ -357,14 +357,14 @@ void CheckpointSender :: Ack(const nodeid_t iSendNodeID, const uint64_t llUUID, 
     }
 
     m_llAckSequence++;
-    m_llAbsLastAckTime = Time::GetTimestampMS();
+    m_llAbsLastAckTime = Time::GetSteadyClockMS();
 }
 
 const bool CheckpointSender :: CheckAck(const uint64_t llSendSequence)
 {
     while (llSendSequence > m_llAckSequence + Checkpoint_ACK_LEAD)
     {
-        uint64_t llNowTime = Time::GetTimestampMS();
+        uint64_t llNowTime = Time::GetSteadyClockMS();
         uint64_t llPassTime = llNowTime > m_llAbsLastAckTime ? llNowTime - m_llAbsLastAckTime : 0;
 
         if (m_bIsEnd)

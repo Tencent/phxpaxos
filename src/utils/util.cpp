@@ -30,24 +30,20 @@ See the AUTHORS file for names of contributors.
 
 namespace phxpaxos {
 
-uint64_t now() { 
-    timeval tv;
-    gettimeofday(&tv, 0);
-    return (uint64_t)tv.tv_sec * 1000 + (uint64_t)tv.tv_usec / 1000; 
+using namespace std;
+
+const uint64_t Time :: GetTimestampMS() 
+{
+    auto now_time = chrono::system_clock::now();
+    uint64_t now = (chrono::duration_cast<chrono::milliseconds>(now_time.time_since_epoch())).count();
+    return now;
 }
 
-const uint64_t Time :: GetTimestampMS()
+const uint64_t Time :: GetSteadyClockMS() 
 {
-    uint64_t llNow;
-    struct timeval tv;
-    
-    gettimeofday(&tv, NULL);
-    
-    llNow = tv.tv_sec;
-    llNow *= 1000;
-    llNow += tv.tv_usec / 1000; 
-
-    return llNow;
+    auto now_time = chrono::steady_clock::now();
+    uint64_t now = (chrono::duration_cast<chrono::milliseconds>(now_time.time_since_epoch())).count();
+    return now;
 }
 
 void Time :: MsSleep(const int iTimeMs)
@@ -200,7 +196,7 @@ TimeStat :: TimeStat()
 
 int TimeStat :: Point()
 {
-    uint64_t llNowTime = Time::GetTimestampMS();
+    uint64_t llNowTime = Time::GetSteadyClockMS();
     int llPassTime = 0;
     if (llNowTime > m_llTime)
     {

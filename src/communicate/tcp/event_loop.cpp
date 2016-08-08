@@ -270,7 +270,7 @@ bool EventLoop :: AddTimer(const Event * poEvent, const int iTimeout, const int 
         m_mapEvent[poEvent->GetSocketFd()] = tCtx;
     }
 
-    uint64_t llAbsTime = Time::GetTimestampMS() + iTimeout;
+    uint64_t llAbsTime = Time::GetSteadyClockMS() + iTimeout;
     m_oTimer.AddTimerWithType(llAbsTime, iType, iTimerID);
 
     m_mapTimerID2FD[iTimerID] = poEvent->GetSocketFd();

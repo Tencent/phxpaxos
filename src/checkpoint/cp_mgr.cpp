@@ -104,10 +104,10 @@ int CheckpointMgr :: PrepareForAskforCheckpoint(const nodeid_t iSendNodeID)
 
     if (m_llLastAskforCheckpointTime == 0)
     {
-        m_llLastAskforCheckpointTime = Time::GetTimestampMS();
+        m_llLastAskforCheckpointTime = Time::GetSteadyClockMS();
     }
 
-    uint64_t llNowTime = Time::GetTimestampMS();
+    uint64_t llNowTime = Time::GetSteadyClockMS();
     if (llNowTime > m_llLastAskforCheckpointTime + 60000)
     {
         PLGImp("no majority reply, just ask for checkpoint");

@@ -170,7 +170,10 @@ int Proposer :: NewValue(const std::string & sValue)
 {
     BP->GetProposerBP()->NewProposal(sValue);
 
-    m_oProposerState.SetValue(sValue);
+    if (m_oProposerState.GetValue().size() == 0)
+    {
+        m_oProposerState.SetValue(sValue);
+    }
 
     m_iLastPrepareTimeoutMs = START_PREPARE_TIMEOUTMS;
     m_iLastAcceptTimeoutMs = START_ACCEPT_TIMEOUTMS;

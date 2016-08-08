@@ -48,7 +48,7 @@ void RandValue(const int iSize, string & sValue)
     }
 }
 
-const uint64_t GetTimestampMS()
+const uint64_t GetSteadyClockMS()
 {
     uint64_t llNow;
     struct timeval tv; 
@@ -91,7 +91,7 @@ void benchfsync(const int iValueSize, const int iWriteCount)
 
     lseek(fd, 0, SEEK_SET);
 
-    uint64_t llBeginTimeMs = GetTimestampMS();
+    uint64_t llBeginTimeMs = GetSteadyClockMS();
     for (int i = 0; i < iWriteCount; i++)
     {
         int len = write(fd,  sValue.data(), sValue.size());
@@ -104,7 +104,7 @@ void benchfsync(const int iValueSize, const int iWriteCount)
         fdatasync(fd);
     }
 
-    uint64_t llEndTimeMs = GetTimestampMS();
+    uint64_t llEndTimeMs = GetSteadyClockMS();
     int iRunTimeMs = llEndTimeMs - llBeginTimeMs;
     int qps = (uint64_t)iWriteCount * 1000 / iRunTimeMs;
 

@@ -91,7 +91,7 @@ void MasterDamon :: run()
         
         int iLeaseTime = m_iLeaseTime;
 
-        uint64_t llBeginTime = Time::GetTimestampMS();
+        uint64_t llBeginTime = Time::GetSteadyClockMS();
         
         TryBeMaster(iLeaseTime);
 
@@ -104,7 +104,7 @@ void MasterDamon :: run()
             PLG1Imp("Need drop master, this round wait time %dms", iConitnueLeaseTimeout);
         }
         
-        uint64_t llEndTime = Time::GetTimestampMS();
+        uint64_t llEndTime = Time::GetSteadyClockMS();
         int iRunTime = llEndTime > llBeginTime ? llEndTime - llBeginTime : 0;
         int iNeedSleepTime = iConitnueLeaseTimeout > iRunTime ? iConitnueLeaseTimeout - iRunTime : 0;
 
@@ -143,7 +143,7 @@ void MasterDamon :: TryBeMaster(const int iLeaseTime)
 
     const int iMasterLeaseTimeout = iLeaseTime - 100;
     
-    uint64_t llAbsMasterTimeout = Time::GetTimestampMS() + iMasterLeaseTimeout; 
+    uint64_t llAbsMasterTimeout = Time::GetSteadyClockMS() + iMasterLeaseTimeout; 
     uint64_t llCommitInstanceID = 0;
 
     SMCtx oCtx;

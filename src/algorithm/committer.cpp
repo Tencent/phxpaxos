@@ -109,7 +109,7 @@ int Committer :: NewValueGetIDNoRetry(const std::string & sValue, uint64_t & llI
     if (m_iTimeoutMs > 0)
     {
         iLeftTimeoutMs = m_iTimeoutMs > iLockUseTimeMs ? m_iTimeoutMs - iLockUseTimeMs : 0;
-        if (iLeftTimeoutMs < 100)
+        if (iLeftTimeoutMs < 200)
         {
             PLGErr("Get lock ok, but lockusetime %dms too long, lefttimeout %dms", iLockUseTimeMs, iLeftTimeoutMs);
 

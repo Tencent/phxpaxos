@@ -17,7 +17,7 @@
 # 
 # See the AUTHORS file for names of contributors. 
 
-allobject=system_variables_tools paxos_log_tools 
+allobject=system_variables_tools paxos_log_tools vfile_fetch 
 
 SYSTEM_VARIABLES_TOOLS_OBJ=system_variables_tools.o
 
@@ -38,4 +38,14 @@ PAXOS_LOG_TOOLS_SYS_LIB=
 PAXOS_LOG_TOOLS_INCS=$(SRC_BASE_PATH)/src/tools 
 
 PAXOS_LOG_TOOLS_EXTRA_CPPFLAGS=-Wall -Werror
+
+VFILE_FETCH_OBJ=vfile_fetch.o
+
+VFILE_FETCH_LIB=src/comm:comm src/logstorage:logstorage
+
+VFILE_FETCH_SYS_LIB=
+
+VFILE_FETCH_INCS=$(SRC_BASE_PATH)/src/tools 
+
+VFILE_FETCH_EXTRA_CPPFLAGS=-Wall -Werror
 
