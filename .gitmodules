@@ -1,7 +1,3 @@
-[submodule "third_party/grpc"]
-	path = third_party/grpc
-	url = https://github.com/grpc/grpc
-	branch = release-0_14
 [submodule "third_party/protobuf"]
 	path = third_party/protobuf
 	url = https://github.com/google/protobuf
@@ -16,10 +12,6 @@
 	path = third_party/gtest
 	url = https://github.com/google/googletest
 	branch = release-1.6.0
-[submodule "third_party/openssl"]
-	path = third_party/openssl
-	url = https://github.com/openssl/openssl
-	branch = OpenSSL_1_0_2-stable
 [submodule "third_party/gmock"]
 	path = third_party/gmock
 	url = https://github.com/google/googlemock
