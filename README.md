@@ -4,7 +4,9 @@
 使得一些单机状态服务可以扩展到多机器，从而获得强一致性的多副本以及自动容灾的特性。**
 **这个类库在微信服务里面经过一系列的工程验证，并且我们对它进行过大量的恶劣环境下的测试，使其在一致性的保证上更为健壮。**
 
-作者：Haochuan Cui (lynncui@tencent.com), Ming Chen (mingchen@tencent.com), Junchao Chen (junechen@tencent.com) 和 Duokai Huang (mariohuang@tencent.com) 
+作者：Haochuan Cui, Ming Chen, Junchao Chen 和 Duokai Huang 
+
+联系我们：phxteam@tencent.com
 
 想了解更多，请扫描右侧二维码关注我们的公众号
 
