@@ -1,6 +1,6 @@
 [简体中文README](https://github.com/tencent-wechat/phxpaxos/blob/master/README.zh_CN.md)
 
-**PhxPaxos is a status-synchronization lib based on Paxos protocol, it is totally designed by Wechat independently. It can help your services in synchronizating the status from a single node to another nodes to make services into a multi-copy cluster and fail-over handing automatically by calling functions in our lib.**
+**PhxPaxos is a state-synchronization lib based on Paxos protocol, it is totally designed by Wechat independently. It can help your services in synchronizating the state from a single node to another nodes to make services into a multi-copy cluster and fail-over handing automatically by calling functions in our lib.**
 
 **This lib has been used in Wechat production environment, we also test it in a large number of harsh environments to guarantee a stable consistency.**
 
@@ -21,15 +21,15 @@ Contact us: phxteam@tencent.com
   * Supporting more than one state-machines in a single PhxPaxos Instance.
   * Supporting recover checkpoint by snapshot+paxoslog automatically.
   * Implementing Master election as a state-machine embedded in PhxPaxos
-  * Implementing reconfiguration as a states-machine embedded in PhxPaxos
+  * Implementing reconfiguration as a state-machine embedded in PhxPaxos
   * Using signature algorithm embedded in PhxPaxos to recognise invalid hosts.
   * Using checksum to verifying the data consistency of increment data in realtime.
   * Implementing Network, Stroage, Monitor, Logging module as a plugin, they can be implemented customly 
   * Supporting overload protection in a self-adaption way.
   
-# Limitation
-  * A PhxPaxos instance can only be run in one process( multi-thread supported )。
-  * No RPC support.
+# Limitations
+  * Only a single process (possibly multi-threaded) can run a PhxPaxos instance at a time.
+  * There is no client-server support builtin to the library. An application that needs such support will have to wrap their own server around the library.
   * PhxPaxos can only be run on Linux 64bit platform.
   
 # Performance
