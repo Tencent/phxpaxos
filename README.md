@@ -33,7 +33,7 @@ Contact us: phxteam@tencent.com
   * PhxPaxos can only be run on Linux 64bit platform.
   
 # Performance
-### Enviroment
+### Setup
 
     CPU: 24 x Intel(R) Xeon(R) CPU E5-2420 0 @ 1.90GHz
     Memory: 2 GB
@@ -57,7 +57,7 @@ Contact us: phxteam@tencent.com
 
 # Code Directory Introduction
 **include:** This directory includes all head files while using PhxPaxos. You may make some mistakes if you don't understand all the functions in this directory completely.
->NOTE: All public APIs has been defined in this directory, It is forbidden to call some inner APIs whihs not in this directory. We have no compatibility gurantee for those innser APIs. 
+>NOTE: The public interface is in include/*.h. Callers should not include or rely on the details of any other header files in this package. Those internal APIs may be changed without warning.
 
 **src:** This directory includes all implementation of Phapaxos, You can figure out the working principle of PhxPaoxs by reading this directorys. No neccessary to read it if you are only using PhxPaxos.
 
@@ -70,7 +70,7 @@ Contact us: phxteam@tencent.com
  * PhxEcho: This shows how to program a status-machine and combine it with PhxPaxos.
  * PhxKV: This is a more complete system. which implements a KV state-machine. It shows how to implement a distributed KV storage system by PhxPaxos and how to delete PaxosLog by implementing the Checkpoint API. It also shows to to combine this code into a RPC(etc: GRPC) framework to get a complete distributed KV storage system.
 
-# Public Head Files:
+# Guide to Header Files:
  * **include/node.h** The beginning of PhxPaxos. We strongly suggest you to begin here.
  * **include/options.h** Some configurations and options needed while running PhxPaxos.
  * **include/sm.h** A base class of state-machine.
