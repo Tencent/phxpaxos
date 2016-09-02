@@ -1,4 +1,4 @@
-[中文README](https://github.com/tencent-wechat/phxpaxos/blob/master/README.zh_CN.md)
+[简体中文README](https://github.com/tencent-wechat/phxpaxos/blob/master/README.zh_CN.md)
 
 **PhxPaxos is a status-synchronization lib based on Paxos protocol, it is totally designed by Wechat independently. It can help your services in synchronizating the status from a single node to another nodes to make services into a multi-copy cluster and fail-over handing automatically by calling functions in our lib.**
 
@@ -21,7 +21,7 @@ Contact us: phxteam@tencent.com
   * Supporting more than one state-machines in a single PhxPaxos Instance.
   * Supporting recover checkpoint by snapshot+paxoslog automatically.
   * Implementing Master election as a state-machine embedded in PhxPaxos
-  * Implementing Membership reconfiguration as a states-machine embedded in PhxPaxos
+  * Implementing reconfiguration as a states-machine embedded in PhxPaxos
   * Using signature algorithm embedded in PhxPaxos to recognise invalid hosts.
   * Using checksum to verifying the data consistency of increment data in realtime.
   * Implementing Network, Stroage, Monitor, Logging module as a plugin, they can be implemented customly 
@@ -118,9 +118,9 @@ make
 make install
 ```
 
-# How to Embed PhxPaxos into Your Own Code.
+# How to Wrap Your Own Code Around PhxPaxos.
 ### First choose a single node service.
-We will show you this by a PhxEcho service in our `sample` directory, Echo is a common test functions while writing an RPC service. We will embed PhxPaxos to make Echo into a multi-node service.
+We will show you this by a PhxEcho service in our `sample` directory, Echo is a common test functions while writing an RPC service. We will wrap this service's code around PhxPaxos to make Echo into a multi-node service.
 
 Assume following is the definition fo PhxEchoServer
 ```c++
@@ -133,7 +133,7 @@ public:
     int Echo(const std::string & sEchoReqValue, std::string & sEchoRespValue);
 };
 ```
-Let's embed PhxPaxos into it.
+Let's wrap this code around PhxPaxos.
 
 ### Second, implement a state-machine
 We now define a PhxEchoSM state-machine which inherit from class `StateMachine` as the following
