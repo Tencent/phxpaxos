@@ -63,7 +63,7 @@ Contact us: phxteam@tencent.com
 
 **third_party:** This directory is designed to place all third party libs for compiling and running PhxPaxos. You can get a detail in the following compilation section. We have only two libs requirement: Protobuf and LevelDB.
 
-**plugin:** This directory provides the plugin of Logging module. Loggins is an important way to debug a program. But different organazations always implement it in a totally different way. So PhxPaxos does not provide a specific implementation of Logging, instead, it provides the mechanism of Logging so everyone can implement it customly. We also implement a specific Logging by using GLOG for you. If you are using GLOG this may help you in saving your develop time.
+**plugin:** This directory provides the plugin of Logging module. Loggins is an important way to debug a program. But different organazations always implement it in a totally different way. So PhxPaxos does not provide a specific implementation of Logging, instead, it provides the mechanism of Logging so everyone can implement it customly. We also implement a specific Logging by using GLOG for you. If you are using GLOG this may help you in saving your development time.
 
 **sample:** This directory provides 3 samples based on PhxPaoxs, They representive different depth of using PhxPaxos, from easy to hard.
  * PhxElection: This is a very simple program. It implements a Master Election Program by a Master Election state-machine which is embedded in PhxPaxos.
