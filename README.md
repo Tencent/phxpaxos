@@ -96,7 +96,7 @@ Following is a dependency relationship tablet of all directories.
 We only need 2 third party libs: Protobuf and Leveldb while compiling PhxPaxos library(target is libphxpaoxs.a).But we need GLOG and GRPC while compiling other directories. All these third party libs should be prepared and palced in our `third_party` directory before PhxPaxos compilation. You can `git clone` them by adding `--recursive-submodules` on just download and link them.
 
 ### Compilation Enviroment
- * Linux。
+ * Linux
  * GCC-4.8 or above
  
 ### Compilation and Installation
@@ -122,7 +122,7 @@ make install
 ### First choose a single node service.
 We will show you this by a PhxEcho service in our `sample` directory, Echo is a common test functions while writing an RPC service. We will wrap this service's code around PhxPaxos to make Echo into a multi-node service.
 
-Assume following is the definition fo PhxEchoServer
+First, Assume following is the definition fo PhxEchoServer
 ```c++
 class PhxEchoServer
 {
@@ -149,9 +149,9 @@ public:
     const int SMID() const { return 1; }
 };
 ```
-`SMID()` functions should return a only unique identifier since PhxPaxos support more than 1 state-machines at the same time.
+`SMID()` functions should return an unique identifier since PhxPaxos support more than 1 state-machines at the same time.
 
-`Execute()` is a state transition function of this state-machine. PhxPaxos guarantees all nodes will execute `sPaxosValue` in the same orderto achieve strong consistency (`sPaxosValue` is the input arguments of `Execute()`).  Following is the implementation of this functions:
+`Execute()` is a state transition function of this state-machine. PhxPaxos guarantees all nodes will execute `sPaxosValue` in the same order to achieve strong consistency (`sPaxosValue` is one of input arguments of `Execute()`).  Following is the implementation of this functions:
 
 ```c++
 bool PhxEchoSM :: Execute(const int iGroupIdx, const uint64_t llInstanceID, 
@@ -185,7 +185,7 @@ public:
     void * m_pCtx;
 };
 ```
-`SMCtx` is a context argument which is provide by proposer(we will offer more details in the following introction), transmitted to `Execute()` function by PhxPaxos and finally callback to proposer.
+`SMCtx` is a context argument which is provide by proposer(we will offer more details in the following introduction), transmitted to `Execute()` function by PhxPaxos and finally callback to proposer.
 
 `m_iSMID` is related to `SMID()` function mentioned above.PhxPaxos will transmit this to a specific state-machine which owns the same id.
 
@@ -214,7 +214,7 @@ public:
 
 We finally construct a state-machine and a state transmittion function by classes above.
 
->HINT: What you should to to make a service into a replicated service is to abstract the logic of it. And implement it in a `Execute()` fuction. That's all:)
+>HINT: What you should do to make a service into a replicated service is to abstract the logic of it. And then implement it in a `Execute()` fuction. That's all:)
 
 ### Running PhxPaxos
 After the implementation, We will try to run PhxPaxos with `PhxEchoSM` loaded.
@@ -240,7 +240,7 @@ public:
 
 We add some arguments in construction function, `oMyNode` represents the information(IP, Port, etc...) of this node.
 `vecNodeList` represents informations of all nodes in this cluster.
-These 2 arguments is pre-designed by PhxPaxos.
+These 2 arguments is pre-defined by PhxPaxos.
 
 Except `m_oMyNode` and `m_vecNodeList`, `m_oEchoSM` is a state-machine we just finished, `m_poPaxosNode` represents the instance pointer of PhxPaxos running this time.
 
