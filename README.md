@@ -68,7 +68,7 @@ Contact us: phxteam@tencent.com
 **sample:** This directory provides 3 samples based on PhxPaoxs, They representive different depth of using PhxPaxos, from easy to hard.
  * PhxElection: This is a very simple program. It implements a Master Election Program by a Master Election state-machine which is embedded in PhxPaxos.
  * PhxEcho: This shows how to program a status-machine and combine it with PhxPaxos.
- * PhxKV: This is a more complete system. which implements a KV state-machine. It shows how to implement a distributed KV storage system by PhxPaxos and how to delete PaxosLog by implementing the Checkpoint API. It also shows to to combine this code into a RPC(etc: GRPC) framework to get a complete distributed KV storage system.
+ * PhxKV: This is a more complete system. which implements a KV state-machine. It shows how to implement a distributed KV storage system by PhxPaxos and how to delete PaxosLog by implementing the Checkpoint API. It also shows how to combine this code into a RPC(etc: GRPC) framework to get a complete distributed KV storage system.
 
 # Guide to Header Files:
  * **include/node.h** The beginning of PhxPaxos. We strongly suggest you to begin here.
