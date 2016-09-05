@@ -30,7 +30,7 @@ Contact us: phxteam@tencent.com
 # Limitations
   * Only a single process (possibly multi-threaded) can run a PhxPaxos instance at a time.
   * There is no client-server support builtin to the library. An application that needs such support will have to wrap their own server around the library.
-  * PhxPaxos can only be run on Linux 64bit platform.
+  * PhxPaxos was only tested on Linux 64bit platform so far.
   
 # Performance
 ### Setup
