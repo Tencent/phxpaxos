@@ -258,6 +258,11 @@ const bool Config :: LogSync() const
     return m_bLogSync;
 }
 
+void Config :: SetLogSync(const bool LogSync) 
+{
+    m_bLogSync = LogSync;
+}
+
 const int Config :: SyncInterval() const 
 {
     return m_iSyncInterval;

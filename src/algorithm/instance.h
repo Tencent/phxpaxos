@@ -56,6 +56,8 @@ public:
 
     const uint32_t GetLastChecksum();
 
+    int GetInstanceValue(const uint64_t llInstanceID, std::string & sValue, int & iSMID);
+
 public:
     Committer * GetCommitter();
 

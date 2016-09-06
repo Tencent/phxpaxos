@@ -26,7 +26,7 @@ See the AUTHORS file for names of contributors.
 namespace phxpaxos
 {
 
-#define WAIT_LOCK_USERTIME_AVG_INTERVAL 100
+#define WAIT_LOCK_USERTIME_AVG_INTERVAL 250
 
 class WaitLock
 {
@@ -41,6 +41,14 @@ public:
     void SetMaxWaitLogCount(const int iMaxWaitLockCount);
 
     void SetLockWaitTimeThreshold(const int iLockWaitTimeThresholdMS);
+
+public:
+    //stat
+    int GetNowHoldThreadCount();
+
+    int GetNowAvgThreadWaitTime();
+
+    int GetNowRejectRate();
 
 private:
     void RefleshRejectRate(const int iUseTimeMs);

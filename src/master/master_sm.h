@@ -91,6 +91,8 @@ public:
 
     const nodeid_t GetMaster() const;
 
+    const nodeid_t GetMasterWithVersion(uint64_t & llVersion);
+
     const bool IsIMMaster() const;
 
 public:

@@ -324,14 +324,14 @@ void Proposer :: OnPrepareReply(const PaxosMsg & oPaxosMsg)
     if (!m_bIsPreparing)
     {
         BP->GetProposerBP()->OnPrepareReplyButNotPreparing();
-        PLGErr("Not preparing, skip this msg");
+        //PLGErr("Not preparing, skip this msg");
         return;
     }
 
     if (oPaxosMsg.proposalid() != m_oProposerState.GetProposalID())
     {
         BP->GetProposerBP()->OnPrepareReplyNotSameProposalIDMsg();
-        PLGErr("ProposalID not same, skip this msg");
+        //PLGErr("ProposalID not same, skip this msg");
         return;
     }
 
@@ -410,15 +410,15 @@ void Proposer :: OnAcceptReply(const PaxosMsg & oPaxosMsg)
 
     if (!m_bIsAccepting)
     {
-        PLGErr("Not proposing, skip this msg");
+        //PLGErr("Not proposing, skip this msg");
         BP->GetProposerBP()->OnAcceptReplyButNotAccepting();
         return;
     }
 
     if (oPaxosMsg.proposalid() != m_oProposerState.GetProposalID())
     {
+        //PLGErr("ProposalID not same, skip this msg");
         BP->GetProposerBP()->OnAcceptReplyNotSameProposalIDMsg();
-        PLGErr("ProposalID not same, skip this msg");
         return;
     }
 

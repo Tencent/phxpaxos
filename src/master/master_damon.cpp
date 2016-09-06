@@ -96,6 +96,7 @@ void MasterDamon :: run()
         TryBeMaster(iLeaseTime);
 
         int iConitnueLeaseTimeout = (iLeaseTime - 100) / 3;
+        iConitnueLeaseTimeout = iConitnueLeaseTimeout / 2 + OtherUtils::FastRand() % iConitnueLeaseTimeout;
 
         if (m_bNeedDropMaster)
         {

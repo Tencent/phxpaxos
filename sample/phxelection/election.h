@@ -38,6 +38,8 @@ public:
     int RunPaxos();
 
     const phxpaxos::NodeInfo GetMaster();
+
+    const phxpaxos::NodeInfo GetMasterWithVersion(uint64_t & llVersion);
     
     const bool IsIMMaster();
 

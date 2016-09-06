@@ -104,10 +104,16 @@ const phxpaxos::NodeInfo PhxElection :: GetMaster()
     return m_poPaxosNode->GetMaster(0);
 }
 
+const phxpaxos::NodeInfo PhxElection :: GetMasterWithVersion(uint64_t & llVersion)
+{
+    return m_poPaxosNode->GetMasterWithVersion(0, llVersion);
+}
+
 const bool PhxElection :: IsIMMaster()
 {
     return m_poPaxosNode->IsIMMaster(0);
 }
 
 }
+
 

@@ -483,7 +483,7 @@ int Instance :: ReceiveMsgForProposer(const PaxosMsg & oPaxosMsg)
     if (oPaxosMsg.instanceid() != m_oProposer.GetInstanceID())
     {
         BP->GetInstanceBP()->OnReceivePaxosProposerMsgInotsame();
-        PLGErr("InstanceID not same, skip msg");
+        //PLGErr("InstanceID not same, skip msg");
         return 0;
     }
 
@@ -747,6 +747,35 @@ void Instance :: ChecksumLogic(const PaxosMsg & oPaxosMsg)
     }
 
     assert(oPaxosMsg.lastchecksum() == GetLastChecksum());
+}
+
+//////////////////////////////////////////
+
+int Instance :: GetInstanceValue(const uint64_t llInstanceID, std::string & sValue, int & iSMID)
+{
+    iSMID = 0;
+
+    if (llInstanceID >= m_oAcceptor.GetInstanceID())
+    {
+        return Paxos_GetInstanceValue_Value_Not_Chosen_Yet;
+    }
+
+    AcceptorStateData oState; 
+    int ret = m_oPaxosLog.ReadState(m_poConfig->GetMyGroupIdx(), llInstanceID, oState);
+    if (ret != 0 && ret != 1)
+    {
+        return -1;
+    }
+
+    if (ret == 1)
+    {
+        return Paxos_GetInstanceValue_Value_NotExist;
+    }
+
+    memcpy(&iSMID, oState.acceptedvalue().data(), sizeof(int));
+    sValue = string(oState.acceptedvalue().data() + sizeof(int), oState.acceptedvalue().size() - sizeof(int));
+
+    return 0;
 }
 
 }

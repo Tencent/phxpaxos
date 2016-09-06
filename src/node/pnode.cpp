@@ -577,6 +577,16 @@ const NodeInfo PNode :: GetMaster(const int iGroupIdx)
     return NodeInfo(m_vecMasterList[iGroupIdx]->GetMasterSM()->GetMaster());
 }
 
+const NodeInfo PNode :: GetMasterWithVersion(const int iGroupIdx, uint64_t & llVersion) 
+{
+    if (!CheckGroupID(iGroupIdx))
+    {
+        return NodeInfo(nullnode);
+    }
+
+    return NodeInfo(m_vecMasterList[iGroupIdx]->GetMasterSM()->GetMasterWithVersion(llVersion));
+}
+
 const bool PNode :: IsIMMaster(const int iGroupIdx)
 {
     if (!CheckGroupID(iGroupIdx))
@@ -629,6 +639,28 @@ void PNode :: SetProposeWaitTimeThresholdMS(const int iGroupIdx, const int iWait
     }
 
     m_vecGroupList[iGroupIdx]->GetCommitter()->SetProposeWaitTimeThresholdMS(iWaitTimeThresholdMS);
+}
+
+void PNode :: SetLogSync(const int iGroupIdx, const bool bLogSync)
+{
+    if (!CheckGroupID(iGroupIdx))
+    {
+        return;
+    }
+
+    m_vecGroupList[iGroupIdx]->GetConfig()->SetLogSync(bLogSync);
+}
+
+//////////////////////////////////////////////////////////////////////
+
+int PNode :: GetInstanceValue(const int iGroupIdx, const uint64_t llInstanceID, std::string & sValue, int & iSMID)
+{
+    if (!CheckGroupID(iGroupIdx))
+    {
+        return Paxos_GroupIdxWrong;
+    }
+
+    return m_vecGroupList[iGroupIdx]->GetInstance()->GetInstanceValue(llInstanceID, sValue, iSMID);
 }
     
 }

@@ -428,6 +428,9 @@ void MonCommiterBP :: NewValueGetLockReject()
 void MonCommiterBP :: NewValueGetLockOK(const int iUseTimeMs)
 {
     m_pIDKeyOssFunc(m_oMonitorConfig.iOssAttrID, 64, 1);
+
+    m_pIDKeyOssFunc(m_oMonitorConfig.iUseTimeOssAttrID, 56, iUseTimeMs);
+    m_pIDKeyOssFunc(m_oMonitorConfig.iUseTimeOssAttrID, GetKeyByUseTimeMs(iUseTimeMs) + 56, 1);
 }
 
 void MonCommiterBP :: NewValueCommitOK(const int iUseTimeMs)

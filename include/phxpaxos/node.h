@@ -79,7 +79,7 @@ public:
     virtual void ContinueCheckpointReplayer() = 0;
 
     //Paxos log cleaner working for deleting paxoslog before checkpoint instanceid.
-    //Paxos log cleaner default is running.
+    //Paxos log cleaner default is pausing.
     
     //pause paxos log cleaner.
     virtual void PausePaxosLogCleaner() = 0;
@@ -105,6 +105,9 @@ public:
     
     //Check who is master.
     virtual const NodeInfo GetMaster(const int iGroupIdx) = 0;
+
+    //Check who is master and get version.
+    virtual const NodeInfo GetMasterWithVersion(const int iGroupIdx, uint64_t & llVersion) = 0;
     
     //Check is i'm master.
     virtual const bool IsIMMaster(const int iGroupIdx) = 0;
@@ -122,6 +125,12 @@ public:
 
     //To avoid threads be holded too long time, we use this threshold to reject some propose to control thread's wait time.
     virtual void SetProposeWaitTimeThresholdMS(const int iGroupIdx, const int iWaitTimeThresholdMS) = 0;
+
+    //write disk
+    virtual void SetLogSync(const int iGroupIdx, const bool bLogSync) = 0;
+
+    //for sk
+    virtual int GetInstanceValue(const int iGroupIdx, const uint64_t llInstanceID, std::string & sValue, int & iSMID) = 0;
 
 protected:
     friend class NetWork; 

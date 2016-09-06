@@ -114,11 +114,13 @@ int main(int argc, char ** argv)
     while (true)
     {
         ::sleep(1);
-        NodeInfo oMasterNode = oElection.GetMaster();
-        printf("master: nodeid %lu ip %s port %d\n", 
-                oMasterNode.GetNodeID(), oMasterNode.GetIP().c_str(), oMasterNode.GetPort());
+        uint64_t llVersion = 0;
+        NodeInfo oMasterNode = oElection.GetMasterWithVersion(llVersion);
+        printf("master: nodeid %lu version %lu ip %s port %d\n", 
+                oMasterNode.GetNodeID(), llVersion, oMasterNode.GetIP().c_str(), oMasterNode.GetPort());
     }
 
     return 0;
 }
+
 

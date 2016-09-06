@@ -85,6 +85,8 @@ public:
 
     const int SyncInterval() const;
 
+    void SetLogSync(const bool bLogSync);
+
 public:
     void SetMasterSM(InsideSM * poMasterSM);
 

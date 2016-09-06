@@ -27,7 +27,7 @@ See the AUTHORS file for names of contributors.
 namespace phxpaxos
 {
 
-#define CAN_DELETE_DELTA 10000000 
+#define CAN_DELETE_DELTA 1000000 
 #define DELETE_SAVE_INTERVAL 100
 
 class Config;

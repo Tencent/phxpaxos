@@ -20,6 +20,7 @@ See the AUTHORS file for names of contributors.
 */
 
 #include "log_store.h"
+#include <stdarg.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -59,9 +60,7 @@ LogStore :: ~LogStore()
 int LogStore :: Init(const std::string & sPath, const int iMyGroupIdx, Database * poDatabase)
 {
     m_iMyGroupIdx = iMyGroupIdx;
-    
     m_sPath = sPath + "/" + "vfile";
-
     if (access(m_sPath.c_str(), F_OK) == -1)
     {
         if (mkdir(m_sPath.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1)
@@ -70,6 +69,8 @@ int LogStore :: Init(const std::string & sPath, const int iMyGroupIdx, Database 
             return -1;
         }
     }
+
+    m_oFileLogger.Init(m_sPath);
 
     string sMetaFilePath = m_sPath + "/meta";
     
@@ -139,6 +140,9 @@ int LogStore :: Init(const std::string & sPath, const int iMyGroupIdx, Database 
         return -1;
     }
 
+    m_oFileLogger.Log("init write fileid %d now_w_offset %d filesize %d", 
+            m_iFileID, m_iNowFileOffset, m_iNowFileSize);
+
     PLG1Head("ok, path %s fileid %d meta checksum %u nowfilesize %d nowfilewriteoffset %d", 
             m_sPath.c_str(), m_iFileID, iMetaChecksum, m_iNowFileSize, m_iNowFileOffset);
 
@@ -207,7 +211,11 @@ int LogStore :: IncreaseFileID()
         return -1;
     }
 
-    fsync(m_iMetaFd);
+    int ret = fsync(m_iMetaFd);
+    if (ret != 0)
+    {
+        return -1;
+    }
 
     m_iFileID++;
 
@@ -260,6 +268,7 @@ int LogStore :: DeleteFile(const int iFileID)
         }
         
         m_iDeletedMaxFileID = iDeleteFileID;
+        m_oFileLogger.Log("delete fileid %d", iDeleteFileID);
     }
 
     return ret;
@@ -267,11 +276,14 @@ int LogStore :: DeleteFile(const int iFileID)
 
 int LogStore :: GetFileFD(const int iNeedWriteSize, int & iFd, int & iFileID, int & iOffset)
 {
-    iOffset = lseek(m_iFd, m_iNowFileOffset, SEEK_SET);
-    if (iOffset == -1)
+    if (m_iFd == -1)
     {
+        PLG1Err("File aready broken, fileid %d", m_iFileID);
         return -1;
     }
+
+    iOffset = lseek(m_iFd, m_iNowFileOffset, SEEK_SET);
+    assert(iOffset != -1);
 
     if (iOffset + iNeedWriteSize > m_iNowFileSize)
     {
@@ -281,22 +293,24 @@ int LogStore :: GetFileFD(const int iNeedWriteSize, int & iFd, int & iFileID, in
         int ret = IncreaseFileID();
         if (ret != 0)
         {
+            m_oFileLogger.Log("new file increase fileid fail, now fileid %d", m_iFileID);
             return ret;
         }
 
         ret = OpenFile(m_iFileID, m_iFd);
         if (ret != 0)
         {
+            m_oFileLogger.Log("new file open file fail, now fileid %d", m_iFileID);
             return ret;
         }
 
         iOffset = lseek(m_iFd, 0, SEEK_END);
         if (iOffset != 0)
         {
-            if (iOffset == -1)
-            {
-                return -1;
-            }
+            assert(iOffset != -1);
+
+            m_oFileLogger.Log("new file but file aready exist, now fileid %d exist filesize %d", 
+                    m_iFileID, iOffset);
 
             PLG1Err("IncreaseFileID success, but file exist, data wrong, file size %d", iOffset);
             assert(false);
@@ -307,9 +321,15 @@ int LogStore :: GetFileFD(const int iNeedWriteSize, int & iFd, int & iFileID, in
         if (ret != 0)
         {
             PLG1Err("new file expand fail, fileid %d fd %d", m_iFileID, m_iFd);
+
+            m_oFileLogger.Log("new file expand file fail, now fileid %d", m_iFileID);
+
             close(m_iFd);
+            m_iFd = -1;
             return -1;
         }
+
+        m_oFileLogger.Log("new file expand ok, fileid %d filesize %d", m_iFileID, m_iNowFileSize);
     }
 
     iFd = m_iFd;
@@ -594,12 +614,14 @@ int LogStore :: RebuildIndexForOneFile(const int iFileID, const int iOffset,
     int iFileLen = lseek(iFd, 0, SEEK_END);
     if (iFileLen == -1)
     {
+        close(iFd);
         return -1;
     }
     
     off_t iSeekPos = lseek(iFd, iOffset, SEEK_SET);
     if (iSeekPos == -1)
     {
+        close(iFd);
         return -1;
     }
 
@@ -694,6 +716,8 @@ int LogStore :: RebuildIndexForOneFile(const int iFileID, const int iOffset,
 
     if (bNeedTruncate)
     {
+        m_oFileLogger.Log("truncate fileid %d offset %d filesize %d", 
+                iFileID, iNowOffset, iFileLen);
         if (truncate(sFilePath, iNowOffset) != 0)
         {
             PLG1Err("truncate fail, file path %s truncate to length %d errno %d", 
@@ -703,6 +727,54 @@ int LogStore :: RebuildIndexForOneFile(const int iFileID, const int iOffset,
     }
 
     return ret;
+}
+
+//////////////////////////////////////////////////////////
+
+LogStoreLogger :: LogStoreLogger()
+    : m_iLogFd(-1)
+{
+}
+
+LogStoreLogger :: ~LogStoreLogger()
+{
+    if (m_iLogFd != -1)
+    {
+        close(m_iLogFd);
+    }
+}
+
+void LogStoreLogger :: Init(const std::string & sPath)
+{
+    char sFilePath[512] = {0};
+    snprintf(sFilePath, sizeof(sFilePath), "%s/LOG", sPath.c_str());
+    m_iLogFd = open(sFilePath, O_CREAT | O_RDWR | O_APPEND, S_IWRITE | S_IREAD);
+}
+
+void LogStoreLogger :: Log(const char * pcFormat, ...)
+{
+    if (m_iLogFd == -1)
+    {
+        return;
+    }
+
+    uint64_t llNowTime = Time::GetTimestampMS();
+    time_t tNowTimeSeconds = (time_t)(llNowTime / 1000);
+    tm * local_time = localtime(&tNowTimeSeconds);
+    char sTimePrefix[64] = {0};
+    strftime(sTimePrefix, sizeof(sTimePrefix), "%Y-%m-%d %H:%M:%S", local_time);
+
+    char sPrefix[128] = {0};
+    snprintf(sPrefix, sizeof(sPrefix), "%s:%d ", sTimePrefix, (int)(llNowTime % 1000));
+    string sNewFormat = string(sPrefix) + pcFormat + "\n";
+
+    char sBuf[1024] = {0};
+    va_list args;
+    va_start(args, pcFormat);
+    vsnprintf(sBuf, sizeof(sBuf), sNewFormat.c_str(), args);
+    va_end(args);
+
+    write(m_iLogFd, sBuf, strnlen(sBuf, sizeof(sBuf)));
 }
     
 }

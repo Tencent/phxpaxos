@@ -103,6 +103,8 @@ int BenchServer :: RunPaxos()
         oOptions.vecGroupSMInfoList.push_back(oSMInfo);
     }
 
+    //oOptions.eLogLevel = LogLevel::LogLevel_Error;
+
     ret = Node::RunNode(oOptions, m_poPaxosNode);
     if (ret != 0)
     {

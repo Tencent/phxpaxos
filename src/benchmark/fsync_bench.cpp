@@ -112,6 +112,7 @@ void benchfsync(const int iValueSize, const int iWriteCount)
     close(fd);
 }
 
+/*
 int main(int argc, char ** argv)
 {
     if (argc < 2)
@@ -125,4 +126,57 @@ int main(int argc, char ** argv)
     benchfsync(iValueSize, iWriteCount);
 
     return 0;
+}
+*/
+
+#define BUF_SIZE 512 
+ 
+int main(int argc, char * argv[])
+{
+    if (argc < 2)
+    {
+        printf("%s <value size> <write times>\n", argv[0]);
+        return 0;
+    }
+
+    int iValueSize = atoi(argv[1]);
+    int iWriteCount = atoi(argv[2]);
+
+    int fd;
+    int ret;
+    unsigned char *buf;
+    ret = posix_memalign((void **)&buf, 512, BUF_SIZE);
+    if (ret) {
+        perror("posix_memalign failed");
+        exit(1);
+    }
+    memset(buf, 'c', BUF_SIZE);
+ 
+    fd = open("./direct_io.data", O_WRONLY | O_DIRECT | O_CREAT | O_SYNC, 0755);
+    if (fd < 0){
+        perror("open ./direct_io.data failed");
+        exit(1);
+    }
+ 
+    
+    uint64_t llBeginTimeMs = GetSteadyClockMS();
+    for (int i = 0; i < iWriteCount; i++)
+    {
+        uint64_t llBegin = GetSteadyClockMS();
+        ret = write(fd, buf, BUF_SIZE);
+        if (ret < 0) {
+            perror("write ./direct_io.data failed");
+        }
+        uint64_t llEnd = GetSteadyClockMS();
+        printf("%dms\n", llEnd - llBegin);
+    }
+ 
+    free(buf);
+    close(fd);
+
+    uint64_t llEndTimeMs = GetSteadyClockMS();
+    int iRunTimeMs = llEndTimeMs - llBeginTimeMs;
+    int qps = (uint64_t)iWriteCount * 1000 / iRunTimeMs;
+
+    printf("qps %d\n", qps);
 }

@@ -170,6 +170,13 @@ const nodeid_t MasterStateMachine :: GetMaster() const
     return m_iMasterNodeID;
 }
 
+const nodeid_t MasterStateMachine :: GetMasterWithVersion(uint64_t & llVersion) 
+{
+    nodeid_t iMasterNodeID = nullnode;
+    SafeGetMaster(iMasterNodeID, llVersion);
+    return iMasterNodeID;
+}
+
 const bool MasterStateMachine :: IsIMMaster() const
 {
     nodeid_t iMasterNodeID = GetMaster();

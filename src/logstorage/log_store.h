@@ -34,6 +34,19 @@ class Database;
 
 #define FILEID_LEN (sizeof(int) + sizeof(int) + sizeof(uint32_t))
 
+class LogStoreLogger
+{
+public:
+    LogStoreLogger();
+    ~LogStoreLogger();
+
+    void Init(const std::string & sPath);
+    void Log(const char * pcFormat, ...);
+
+private:
+    int m_iLogFd;
+};
+
 class LogStore
 {
 public:
@@ -95,6 +108,7 @@ private:
 
 private:
     TimeStat m_oTimeStat;
+    LogStoreLogger m_oFileLogger;
 };
-    
+
 }

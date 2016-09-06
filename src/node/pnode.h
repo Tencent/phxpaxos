@@ -87,6 +87,8 @@ public:
     
     const NodeInfo GetMaster(const int iGroupIdx);
 
+    const NodeInfo GetMasterWithVersion(const int iGroupIdx, uint64_t & llVersion);
+
     const bool IsIMMaster(const int iGroupIdx);
 
     int SetMasterLease(const int iGroupIdx, const int iLeaseTimeMs);
@@ -97,6 +99,11 @@ public:
     void SetMaxHoldThreads(const int iGroupIdx, const int iMaxHoldThreads);
 
     void SetProposeWaitTimeThresholdMS(const int iGroupIdx, const int iWaitTimeThresholdMS);
+
+    void SetLogSync(const int iGroupIdx, const bool bLogSync);
+
+public:
+    int GetInstanceValue(const int iGroupIdx, const uint64_t llInstanceID, std::string & sValue, int & iSMID);
 
 private:
     int CheckOptions(const Options & oOptions);

@@ -31,6 +31,8 @@ namespace phxpaxos
 #define LOGGER (Logger::Instance())
 #define LOG_ERROR(format, args...)\
        LOGGER->LogError(format, ## args);
+#define LOG_STATUS(format, args...)\
+       LOGGER->LogStatus(format, ## args);
 #define LOG_WARNING(format, args...)\
        LOGGER->LogWarning(format, ## args);
 #define LOG_INFO(format, args...)\
@@ -51,6 +53,8 @@ public:
     void SetLogFunc(LogFunc pLogFunc);
 
     void LogError(const char * pcFormat, ...);
+
+    void LogStatus(const char * pcFormat, ...);
 
     void LogWarning(const char * pcFormat, ...);
     

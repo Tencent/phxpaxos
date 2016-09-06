@@ -50,6 +50,8 @@ enum PaxosNodeFunctionRet
     Paxos_MembershipOp_Add_NodeExist = 1002,
     Paxos_MembershipOp_Remove_NodeNotExist = 1003,
     Paxos_MembershipOp_Change_NoChange = 1004,
+    Paxos_GetInstanceValue_Value_NotExist = 1005,
+    Paxos_GetInstanceValue_Value_Not_Chosen_Yet = 1006,
 };
 
 }

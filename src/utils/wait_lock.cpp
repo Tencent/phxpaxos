@@ -74,14 +74,14 @@ void WaitLock :: RefleshRejectRate(const int iUseTimeMs)
         {
             if (m_iRejectRate != 98)
             {
-                m_iRejectRate = m_iRejectRate + 5 > 98 ? 98 : m_iRejectRate + 5;
+                m_iRejectRate = m_iRejectRate + 3 > 98 ? 98 : m_iRejectRate + 3;
             }
         }
         else
         {
             if (m_iRejectRate != 0)
             {
-                m_iRejectRate = m_iRejectRate - 5 < 0 ? 0 : m_iRejectRate - 5;
+                m_iRejectRate = m_iRejectRate - 3 < 0 ? 0 : m_iRejectRate - 3;
             }
         }
     }
@@ -155,6 +155,23 @@ void WaitLock :: UnLock()
     m_oSerialLock.Interupt();
 
     m_oSerialLock.UnLock();
+}
+
+////////////////////////////////////////////
+
+int WaitLock :: GetNowHoldThreadCount()
+{
+    return m_iWaitLockCount;
+}
+
+int WaitLock :: GetNowAvgThreadWaitTime()
+{
+    return m_iAvgLockUseTime;
+}
+
+int WaitLock :: GetNowRejectRate()
+{
+    return m_iRejectRate;
 }
 
 }

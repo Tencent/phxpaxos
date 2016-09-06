@@ -30,6 +30,7 @@ namespace phxpaxos
 Committer :: Committer(Config * poConfig, CommitCtx * poCommitCtx, IOLoop * poIOLoop, SMFac * poSMFac)
     : m_poConfig(poConfig), m_poCommitCtx(poCommitCtx), m_poIOLoop(poIOLoop), m_poSMFac(poSMFac), m_iTimeoutMs(-1)
 {
+    m_llLastLogTime = Time::GetSteadyClockMS();
 }
 
 Committer :: ~Committer()
@@ -87,6 +88,8 @@ int Committer :: NewValueGetID(const std::string & sValue, uint64_t & llInstance
 int Committer :: NewValueGetIDNoRetry(const std::string & sValue, uint64_t & llInstanceID, 
         StateMachine * poSM, SMCtx * poSMCtx)
 {
+    LogStatus();
+
     int iLockUseTimeMs = 0;
     bool bHasLock = m_oWaitLock.Lock(m_iTimeoutMs, iLockUseTimeMs);
     if (!bHasLock)
@@ -158,6 +161,21 @@ void Committer :: SetMaxHoldThreads(const int iMaxHoldThreads)
 void Committer :: SetProposeWaitTimeThresholdMS(const int iWaitTimeThresholdMS)
 {
     m_oWaitLock.SetLockWaitTimeThreshold(iWaitTimeThresholdMS);
+}
+
+////////////////////////////////////////////////////
+
+void Committer :: LogStatus()
+{
+    uint64_t llNowTime = Time::GetSteadyClockMS();
+    if (llNowTime > m_llLastLogTime
+            && llNowTime - m_llLastLogTime > 1000)
+    {
+        m_llLastLogTime = llNowTime;
+        PLGStatus("wait threads %d avg thread wait ms %d reject rate %d",
+                m_oWaitLock.GetNowHoldThreadCount(), m_oWaitLock.GetNowAvgThreadWaitTime(),
+                m_oWaitLock.GetNowRejectRate());
+    }
 }
     
 }

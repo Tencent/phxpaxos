@@ -56,6 +56,9 @@ public:
     void SetProposeWaitTimeThresholdMS(const int iWaitTimeThresholdMS);
 
 private:
+    void LogStatus();
+
+private:
     Config * m_poConfig;
     CommitCtx * m_poCommitCtx;
     IOLoop * m_poIOLoop;
@@ -63,6 +66,8 @@ private:
 
     WaitLock m_oWaitLock;
     int m_iTimeoutMs;
+
+    uint64_t m_llLastLogTime;
 };
     
 }
