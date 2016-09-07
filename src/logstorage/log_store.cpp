@@ -774,7 +774,12 @@ void LogStoreLogger :: Log(const char * pcFormat, ...)
     vsnprintf(sBuf, sizeof(sBuf), sNewFormat.c_str(), args);
     va_end(args);
 
-    write(m_iLogFd, sBuf, strnlen(sBuf, sizeof(sBuf)));
+    int iLen = strnlen(sBuf, sizeof(sBuf));
+    ssize_t iWriteLen = write(m_iLogFd, sBuf, iLen);
+    if (iWriteLen != iLen)
+    {
+        PLErr("fail, len %d writelen %d", iLen, iWriteLen);
+    }
 }
     
 }

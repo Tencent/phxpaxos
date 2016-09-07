@@ -20,12 +20,19 @@ GRPC_LIBE_PATH=$(SRC_BASE_PATH)/third_party/grpc/lib
 OPEN_SSL_LIB_PATH=$(SRC_BASE_PATH)/third_party/openssl/lib
 PHXPAXOS_LIB_PATH=$(SRC_BASE_PATH)/lib
 
+ifeq ($(debug),y)
+# (1) Debug
+	OPT = -g2
+else
+# (2) Production
+	OPT = -O2
+endif
 
 CXX=g++
-CXXFLAGS+=-std=c++11
+CXXFLAGS+=-std=c++11 $(OPT)
 CPPFLAGS+=-I$(SRC_BASE_PATH) -I$(PROTOBUF_INCLUDE_PATH)  -I$(LEVELDB_INCLUDE_PATH)
 CPPFLAGS+=-I$(GLOG_INCLUDE_PATH) 
-CPPFLAGS+=-Wall -g -fPIC -m64  -Wno-unused-local-typedefs
+CPPFLAGS+=-Wall -fPIC -m64  -Wno-unused-local-typedefs
 
 #LDFLAGS+=-shared
 #LDFLAGS+=-static 

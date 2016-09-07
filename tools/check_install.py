@@ -6,7 +6,7 @@ base_dir=""
 lib_dir=""
 bin_dir=""
 
-third_party_list=["PROTOBUF", "LEVELDB", "GLOG"]
+third_party_list=["PROTOBUF", "LEVELDB"]
 
 def GetPath(key):
 	makefile_def=open("makefile.mk")
