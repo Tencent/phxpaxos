@@ -36,8 +36,9 @@ CPPFLAGS+=-Wall -fPIC -m64  -Wno-unused-local-typedefs
 
 #LDFLAGS+=-shared
 #LDFLAGS+=-static 
-LDFLAGS+=-L$(PHX_LIB_PATH) -L$(PROTOBUF_LIB_PATH) -L$(LEVELDB_LIB_PATH)
-LDFLAGS+=-L$(GLOG_LIB_PATH) -L$(GRPC_LIBE_PATH) -L$(OPEN_SSL_LIB_PATH) -g
+LDFLAGS += -L$(PHX_LIB_PATH) -L$(PROTOBUF_LIB_PATH) -L$(LEVELDB_LIB_PATH)
+LDFLAGS += -L$(GLOG_LIB_PATH) -L$(GRPC_LIBE_PATH) -L$(OPEN_SSL_LIB_PATH) -g
+LDFLAGS += -Wl,--no-as-needed
 
 
 #=====================================================================================================
