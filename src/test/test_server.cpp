@@ -126,6 +126,11 @@ int TestServer :: Ready()
     {
         printf("ready paxos ok, ip %s port %d\n", m_oMyNode.GetIP().c_str(), m_oMyNode.GetPort());
     }
+    else 
+    {
+        printf("ready paxos fail, ip %s port %d ret %d\n", 
+                m_oMyNode.GetIP().c_str(), m_oMyNode.GetPort(), ret);
+    }
 
     return ret;
 }

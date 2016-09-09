@@ -271,7 +271,7 @@ const bool SystemVSM :: IsValidNodeID(const nodeid_t iNodeID)
 
 const bool SystemVSM :: IsIMInMembership()
 {
-    return IsValidNodeID(m_iMyNodeID);
+    return m_setNodeID.find(m_iMyNodeID) != end(m_setNodeID);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
