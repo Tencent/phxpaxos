@@ -4,7 +4,7 @@
 
 **This lib has been used in Wechat production environment, we also test it in a large number of harsh environments to guarantee a stable consistency.**
 
-Authors: Haochuan Cui, Ming Chen, Junchao Chen 和 Duokai Huang 
+Authors: Haochuan Cui, Ming Chen, Junchao Chen and Duokai Huang 
 
 Contact us: phxteam@tencent.com
 
