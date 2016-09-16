@@ -10,6 +10,8 @@ Contact us: phxteam@tencent.com
 
 [Principle details(Chinese)](http://mp.weixin.qq.com/s?__biz=MzI4NDMyNTU2Mw==&mid=2247483695&idx=1&sn=91ea422913fc62579e020e941d1d059e#rd)
 
+PhxPaxos [![Build Status](https://travis-ci.org/tencent-wechat/phxpaxos.png)](https://travis-ci.org/tencent-wechat/phxpaxos)
+
 # Features
   * Purely based on [Paxos Made Simple](http://research.microsoft.com/en-us/um/people/lamport/pubs/paxos-simple.pdf) by Lamport. 
   * Transfering message in a async mechanism architecture.
