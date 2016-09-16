@@ -1,0 +1,12 @@
+# Ubuntu 14.04 Trusty support
+sudo: required
+dist: trusty
+
+language: cpp
+compiler: g++
+git:
+    submodules: false
+script:
+    - ./build.sh
+notifications:
+    email: true
