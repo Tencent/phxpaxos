@@ -31,6 +31,8 @@ int Node :: RunNode(const Options & oOptions, Node *& poNode)
     {
         InsideOptions::Instance()->SetAsLargeBufferMode();
     }
+    
+    InsideOptions::Instance()->SetGroupCount(oOptions.iGroupCount);
         
     poNode = nullptr;
     NetWork * poNetWork = nullptr;

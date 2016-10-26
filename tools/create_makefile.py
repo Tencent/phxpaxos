@@ -203,7 +203,7 @@ def GetSubDirList(path):
 				sub_dir_list.append( dir )
 	return sub_dir_list
 
-def PrintMakeAllSubDir(dir_list):
+def PrintMakeAllSubDir(dir_list, clean_lib=False):
 
 	if( len(dir_list) > 0 ):
 		makefile.write( "SUBDIRS=%s\n\n" % ' '.join(dir_list) )
@@ -219,9 +219,14 @@ def PrintMakeAllSubDir(dir_list):
 		makefile.write("\t@for sub_dir in $^; do \\\n")
 		makefile.write("\tmake -C $$sub_dir clean;\\\n")
 		makefile.write("\tdone\n")
+		if(clean_lib):
+			makefile.write("\trm -f %s/*.a %s/*.a %s/*.a $(SRC_BASE_PATH)/lib/*.a\n" % (lib_path, ext_lib_path, sbin_path) );
 		makefile.write("\trm -rf *.o *.pb.* %s " % ' '.join(clean_dir));
+
 	else:
 		makefile.write("clean:\n")
+		if(clean_lib):
+			makefile.write("\trm -f %s/*.a %s/*.a %s/*.a $(SRC_BASE_PATH)/lib/*.a\n" % (lib_path, ext_lib_path, sbin_path) );
 		makefile.write("\trm -rf *.o *.pb.* %s " % ' '.join(clean_dir));
 
 def Process(path, library_list, elibrary_list, binary_list):
@@ -303,7 +308,7 @@ def CreateMakeFile(path):
 		Process(path[len(base_path):], library_list, elibrary_list, binary_list)
 
 		sub_dir_list = GetSubDirList(path)
-		PrintMakeAllSubDir(sub_dir_list)
+		PrintMakeAllSubDir(sub_dir_list, path==base_path)
 
 		for target in elibrary_list:
 			makefile.write("lib%s.a %s/lib%s.a " % (target, lib_path,target));
@@ -312,7 +317,7 @@ def CreateMakeFile(path):
 		makefile.write("\n\n");
 	else:
 		sub_dir_list = GetSubDirList(path)
-		PrintMakeAllSubDir(sub_dir_list)
+		PrintMakeAllSubDir(sub_dir_list, path==base_path)
 
 	makefile.close()
 

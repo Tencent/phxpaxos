@@ -102,14 +102,14 @@ int MessageEvent :: AddMessage(const std::string & sMessage)
         BP->GetNetworkBP()->TcpQueueFull();
         m_oMutex.unlock();
 
-        PLErr("queue length %d too long, can't enqueue", m_oInQueue.size());
+        //PLErr("queue length %d too long, can't enqueue", m_oInQueue.size());
         return -2;
     }
 
     if (m_iQueueMemSize > MAX_QUEUE_MEM_SIZE)
     {
         m_oMutex.unlock();
-        PLErr("queue memsize %d too large, can't enqueue", m_iQueueMemSize);
+        //PLErr("queue memsize %d too large, can't enqueue", m_iQueueMemSize);
         return -2;
     }
 
@@ -320,6 +320,11 @@ int MessageEvent :: DoOnWrite()
     }
 
     m_oMutex.lock();
+    if (m_oInQueue.empty())
+    {
+        m_oMutex.unlock();
+        return 0;
+    }
     QueueData tData = m_oInQueue.front();
     m_oInQueue.pop();
     m_iQueueMemSize -= tData.psValue->size();
@@ -327,11 +332,12 @@ int MessageEvent :: DoOnWrite()
 
     std::string * poMessage = tData.psValue;
     uint64_t llNowTime = Time::GetSteadyClockMS();
-    if (llNowTime > tData.llEnqueueAbsTime 
-            && (((int)(llNowTime - tData.llEnqueueAbsTime)) > TCP_OUTQUEUE_DROP_TIMEMS))
+    int iDelayMs = llNowTime > tData.llEnqueueAbsTime ? (int)(llNowTime - tData.llEnqueueAbsTime) : 0;
+    BP->GetNetworkBP()->TcpOutQueue(iDelayMs);
+    if (iDelayMs > TCP_OUTQUEUE_DROP_TIMEMS)
     {
-        PLErr("drop request because enqueue timeout, enqueuetime %lu nowtime %lu",
-                llNowTime, tData.llEnqueueAbsTime);
+        //PLErr("drop request because enqueue timeout, nowtime %lu unqueuetime %lu",
+                //llNowTime, tData.llEnqueueAbsTime);
         delete poMessage;
         return 0;
     }
@@ -446,8 +452,10 @@ void MessageEvent :: ReConnect()
 {
     BP->GetNetworkBP()->TcpReconnect();
 
-    //reset event
+    //reset 
     m_iEvents = 0;
+    m_iLeftWriteLen = 0;
+    m_iLastWritePos = 0;
 
     m_oSocket.reset();
     m_oSocket.setNonBlocking(true);

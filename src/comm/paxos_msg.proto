@@ -73,3 +73,14 @@ message MasterVariables
 	required uint64 Version = 2;
 	required uint32 LeaseTime = 3;
 };
+
+message PaxosValue
+{
+    required int32 SMID = 1;
+    required bytes Value = 2;
+};
+
+message BatchPaxosValues
+{
+    repeated PaxosValue Values = 1;
+};

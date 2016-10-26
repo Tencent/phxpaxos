@@ -79,7 +79,7 @@ void Notify :: SendNotify()
     ssize_t iWriteLen = write(m_iPipeFD[1], (void *)"a", 1);
     if (iWriteLen != 1)
     {
-        PLErr("notify error, writelen %d", iWriteLen);
+        //PLErr("notify error, writelen %d", iWriteLen);
     }
 }
 

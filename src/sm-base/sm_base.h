@@ -27,16 +27,19 @@ See the AUTHORS file for names of contributors.
 
 namespace phxpaxos
 {
+
+class BatchSMCtx
+{
+public:
+    std::vector<SMCtx *> m_vecSMCtxList;
+};
     
 class SMFac
 {
 public:
-    SMFac();
+    SMFac(const int iMyGroupIdx);
     ~SMFac();
     
-    bool DoExecute(StateMachine * poSM, const int iGroupIdx, const uint64_t llInstanceID, 
-            const std::string & sPaxosValue, SMCtx * poSMCtx);
-
     bool Execute(const int iGroupIdx, const uint64_t llInstanceID, 
             const std::string & sPaxosValue, SMCtx * poSMCtx);
 
@@ -51,11 +54,22 @@ public:
 
     std::vector<StateMachine *> GetSMList();
 
-public:
-    
+private:
+    bool BatchExecute(const int iGroupIdx, const uint64_t llInstanceID, 
+            const std::string & sBodyValue, BatchSMCtx * poBatchSMCtx);
+
+    bool DoExecute(const int iGroupIdx, const uint64_t llInstanceID, 
+            const std::string & sBodyValue, const int iSMID, SMCtx * poSMCtx);
+
+    bool BatchExecuteForCheckpoint(const int iGroupIdx, const uint64_t llInstanceID, 
+            const std::string & sBodyValue);
+
+    bool DoExecuteForCheckpoint(const int iGroupIdx, const uint64_t llInstanceID, 
+            const std::string & sBodyValue, const int iSMID);
 
 private:
     std::vector<StateMachine *> m_vecSMList;
+    int m_iMyGroupIdx;
 };
     
 }

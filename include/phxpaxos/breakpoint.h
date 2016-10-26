@@ -122,6 +122,12 @@ public:
     virtual void NewValueGetLockOK(const int iUseTimeMs) { }
     virtual void NewValueCommitOK(const int iUseTimeMs) { }
     virtual void NewValueCommitFail() { }
+
+    virtual void BatchPropose() { }
+    virtual void BatchProposeOK() { }
+    virtual void BatchProposeFail() { }
+    virtual void BatchProposeWaitTimeMs(const int iWaitTimeMs) { }
+    virtual void BatchProposeDoPropose(const int iBatchCount) { }
 };
 
 class IOLoopBP
@@ -148,6 +154,7 @@ public:
     virtual void TcpReadOneMessageOk(const int iLen) { }
     virtual void TcpOnReadMessageLenError() { }
     virtual void TcpReconnect() { }
+    virtual void TcpOutQueue(const int iDelayMs) { }
     virtual void SendRejectByTooLargeSize() { }
     virtual void Send(const std::string & sMessage) { }
     virtual void SendTcp(const std::string & sMessage) { }

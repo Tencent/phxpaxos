@@ -120,12 +120,14 @@ void TcpAcceptor :: run()
 
 void TcpAcceptor :: CreateEvent()
 {
+    m_oMutex.lock();
+
     if (m_oFDQueue.empty())
     {
+        m_oMutex.unlock();
         return;
     }
     
-    m_oMutex.lock();
     int iCreatePerTime = 200;
     while ((!m_oFDQueue.empty()) && iCreatePerTime--)
     {

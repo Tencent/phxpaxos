@@ -93,6 +93,13 @@ const bool LearnerSender :: IsIMSending()
 
 const bool LearnerSender :: CheckAck(const uint64_t llSendInstanceID)
 {
+    if (llSendInstanceID < m_llAckInstanceID)
+    {
+        PLGImp("Already catch up, ack instanceid %lu now send instanceid %lu", 
+                m_llAckInstanceID, llSendInstanceID);
+        return false;
+    }
+
     while (llSendInstanceID > m_llAckInstanceID + LearnerSender_ACK_LEAD)
     {
         uint64_t llNowTime = Time::GetSteadyClockMS();
@@ -101,14 +108,15 @@ const bool LearnerSender :: CheckAck(const uint64_t llSendInstanceID)
         if ((int)llPassTime >= LearnerSender_ACK_TIMEOUT)
         {
             BP->GetLearnerBP()->SenderAckTimeout();
-            PLGErr("Ack timeout, last acktime %lu", m_llAbsLastAckTime);
+            PLGErr("Ack timeout, last acktime %lu now send instanceid %lu", 
+                    m_llAbsLastAckTime, llSendInstanceID);
             return false;
         }
 
         BP->GetLearnerBP()->SenderAckDelay();
         //PLGErr("Need sleep to slow down send speed, sendinstaceid %lu ackinstanceid %lu",
                 //llSendInstanceID, m_llAckInstanceID);
-        Time::MsSleep(50);
+        Time::MsSleep(10);
     }
 
     return true;
@@ -202,6 +210,15 @@ void LearnerSender :: SendLearnedValue(const uint64_t llBeginInstanceID, const n
     
     uint32_t iLastChecksum = 0;
 
+    //control send speed to avoid affecting the network too much.
+    int iSendQps = LearnerSender_SEND_QPS;
+    int iSleepMs = iSendQps > 1000 ? 1 : 1000 / iSendQps;
+    int iSendInterval = iSendQps > 1000 ? iSendQps / 1000 + 1 : 1; 
+
+    PLGDebug("SendQps %d SleepMs %d SendInterval %d",
+            iSendQps, iSleepMs, iSendInterval);
+
+    int iSendCount = 0;
     while (llSendInstanceID < m_poLearner->GetInstanceID())
     {    
         ret = SendOne(llSendInstanceID, iSendToNodeID, iLastChecksum);
@@ -214,12 +231,21 @@ void LearnerSender :: SendLearnedValue(const uint64_t llBeginInstanceID, const n
 
         if (!CheckAck(llSendInstanceID))
         {
-            return;
+            break;
         }
 
+        iSendCount++;
         llSendInstanceID++;
         ReleshSending();
+
+        if (iSendCount >= iSendInterval)
+        {
+            iSendCount = 0;
+            Time::MsSleep(iSleepMs);
+        }
     }
+
+    PLGImp("SendDone, SendEndInstanceID %lu", llSendInstanceID);
 }
 
 int LearnerSender :: SendOne(const uint64_t llSendInstanceID, const nodeid_t iSendToNodeID, uint32_t & iLastChecksum)

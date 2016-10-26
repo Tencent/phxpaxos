@@ -75,6 +75,7 @@ Status PhxKVServiceImpl :: GetLocal(ServerContext* context, const KVOperator * r
     else if (status == PhxKVStatus::KEY_NOTEXIST)
     {
         reply->mutable_data()->set_isdeleted(true);
+        reply->mutable_data()->set_version(llReadVersion);
     }
 
     reply->set_ret((int)status);

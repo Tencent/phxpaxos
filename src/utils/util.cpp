@@ -191,7 +191,7 @@ int FileUtils :: IterDir(const std::string & sDirPath, std::vector<std::string> 
 
 TimeStat :: TimeStat()
 {
-    m_llTime = 0;
+    m_llTime = Time::GetSteadyClockMS();
 }
 
 int TimeStat :: Point()

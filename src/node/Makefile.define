@@ -17,9 +17,9 @@
 # 
 # See the AUTHORS file for names of contributors. 
 
-allobject=libnode.a 
+allobject=libnode.a test_propose_batch 
 
-NODE_OBJ=group.o pnode.o node.o
+NODE_OBJ=group.o pnode.o node.o propose_batch.o
 
 NODE_LIB=node src/comm:comm src/logstorage:logstorage src/communicate:communicate include:include src/algorithm:algorithm src/config:config src/master:master
 
@@ -28,4 +28,14 @@ NODE_SYS_LIB=
 NODE_INCS=$(SRC_BASE_PATH)/src/node 
 
 NODE_EXTRA_CPPFLAGS=-Wall -Werror
+
+TEST_PROPOSE_BATCH_OBJ=test_propose_batch.o
+
+TEST_PROPOSE_BATCH_LIB=src/node:node
+
+TEST_PROPOSE_BATCH_SYS_LIB=
+
+TEST_PROPOSE_BATCH_INCS=$(SRC_BASE_PATH)/src/node 
+
+TEST_PROPOSE_BATCH_EXTRA_CPPFLAGS=-Wall -Werror
 

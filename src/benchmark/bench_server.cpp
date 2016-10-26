@@ -104,12 +104,19 @@ int BenchServer :: RunPaxos()
     }
 
     //oOptions.eLogLevel = LogLevel::LogLevel_Error;
+    oOptions.bUseBatchPropose = true;
 
     ret = Node::RunNode(oOptions, m_poPaxosNode);
     if (ret != 0)
     {
         printf("run paxos fail, ret %d\n", ret);
         return ret;
+    }
+
+    for (int iGroupIdx = 0; iGroupIdx < m_iGroupCount; iGroupIdx++)
+    {
+        m_poPaxosNode->SetBatchDelayTimeMs(iGroupIdx, 10);
+        m_poPaxosNode->SetBatchCount(iGroupIdx, 10);
     }
 
     printf("run paxos ok\n");

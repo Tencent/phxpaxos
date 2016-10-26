@@ -146,6 +146,12 @@ public:
     void NewValueCommitOK(const int iUseTimeMs);
     void NewValueCommitFail();
 
+    void BatchPropose();
+    void BatchProposeOK();
+    void BatchProposeFail();
+    void BatchProposeWaitTimeMs(const int iWaitTimeMs);
+    void BatchProposeDoPropose(const int iBatchCount);
+
 private:
     MonitorConfig m_oMonitorConfig;
     IDKeyOssFunc m_pIDKeyOssFunc;
@@ -181,6 +187,7 @@ public:
     void TcpReadOneMessageOk(const int iLen);
     void TcpOnReadMessageLenError();
     void TcpReconnect();
+    void TcpOutQueue(const int iDelayMs);
     void SendRejectByTooLargeSize();
     void Send(const std::string & sMessage);
     void SendTcp(const std::string & sMessage);

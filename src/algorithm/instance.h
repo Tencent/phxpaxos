@@ -79,11 +79,11 @@ public:
     
     void OnReceiveCheckpointMsg(const CheckpointMsg & oCheckpointMsg);
 
-    int OnReceivePaxosMsg(const PaxosMsg & oPaxosMsg);
+    int OnReceivePaxosMsg(const PaxosMsg & oPaxosMsg, const bool bIsRetry = false);
     
     int ReceiveMsgForProposer(const PaxosMsg & oPaxosMsg);
     
-    int ReceiveMsgForAcceptor(const PaxosMsg & oPaxosMsg);
+    int ReceiveMsgForAcceptor(const PaxosMsg & oPaxosMsg, const bool bIsRetry);
     
     int ReceiveMsgForLearner(const PaxosMsg & oPaxosMsg);
 
@@ -97,7 +97,6 @@ public:
         const uint64_t llInstanceID, 
         const std::string & sValue, 
         const bool bIsMyCommit,
-        StateMachine * poSM,
         SMCtx * poSMCtx);
 
 private:
@@ -113,6 +112,8 @@ private:
 private:
     Config * m_poConfig;
     MsgTransport * m_poMsgTransport;
+
+    SMFac m_oSMFac;
 
     IOLoop m_oIOLoop;
 
@@ -131,8 +132,6 @@ private:
     Committer m_oCommitter;
 
 private:
-    SMFac m_oSMFac;
-
     CheckpointMgr m_oCheckpointMgr;
 
 private:

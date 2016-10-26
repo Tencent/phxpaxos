@@ -101,6 +101,7 @@ void benchfsync(const int iValueSize, const int iWriteCount)
             close(fd);
             return;
         }
+        uint64_t llEnd = GetSteadyClockMS();
         fdatasync(fd);
     }
 
@@ -152,7 +153,7 @@ int main(int argc, char * argv[])
     }
     memset(buf, 'c', BUF_SIZE);
  
-    fd = open("./direct_io.data", O_WRONLY | O_DIRECT | O_CREAT | O_SYNC, 0755);
+    fd = open("./direct_io.data", O_WRONLY | O_DIRECT | O_CREAT /*| O_SYNC*/, 0755);
     if (fd < 0){
         perror("open ./direct_io.data failed");
         exit(1);
@@ -168,7 +169,7 @@ int main(int argc, char * argv[])
             perror("write ./direct_io.data failed");
         }
         uint64_t llEnd = GetSteadyClockMS();
-        printf("%dms\n", llEnd - llBegin);
+        //printf("%dms\n", llEnd - llBegin);
     }
  
     free(buf);

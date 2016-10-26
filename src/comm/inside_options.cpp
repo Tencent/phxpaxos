@@ -30,6 +30,7 @@ InsideOptions :: InsideOptions()
 {
     m_bIsLargeBufferMode = false;
     m_bIsIMFollower = false;
+    m_iGroupCount = 1;
 }
 
 InsideOptions :: ~InsideOptions()
@@ -50,6 +51,11 @@ void InsideOptions :: SetAsLargeBufferMode()
 void InsideOptions :: SetAsFollower()
 {
     m_bIsIMFollower = true;
+}
+
+void InsideOptions :: SetGroupCount(const int iGroupCount)
+{
+    m_iGroupCount = iGroupCount;
 }
 
 const int InsideOptions :: GetMaxBufferSize()
@@ -109,6 +115,18 @@ const int InsideOptions :: GetMaxAcceptTimeoutMs()
     else
     {
         return 8000;
+    }
+}
+
+const int InsideOptions :: GetMaxIOLoopQueueLen()
+{
+    if (m_bIsLargeBufferMode)
+    {
+        return 1024 / m_iGroupCount + 100;
+    }
+    else
+    {
+        return 10240 / m_iGroupCount + 1000;
     }
 }
 
@@ -231,6 +249,30 @@ const int InsideOptions :: GetTcpConnectionNonActiveTimeout()
     else
     {
         return 60000;
+    }
+}
+
+const int InsideOptions :: GetLearnerSenderSendQps()
+{
+    if (m_bIsLargeBufferMode)
+    {
+        return 10000 / m_iGroupCount;
+    }
+    else
+    {
+        return 100000 / m_iGroupCount;
+    }
+}
+
+const int InsideOptions :: GetCleanerDeleteQps()
+{
+    if (m_bIsLargeBufferMode)
+    {
+        return 30000 / m_iGroupCount;
+    }
+    else
+    {
+        return 300000 / m_iGroupCount;
     }
 }
 

@@ -42,7 +42,7 @@ bool TestSM :: CheckExecuteValueCorrect(const std::vector<pair<uint64_t, std::st
 {
     if (vecOtherExecuted.size() != m_vecExecuted.size())
     {
-        printf("size not same, other.size %zu excute.size %zu",
+        printf("size not same, other.size %zu excute.size %zu\n",
                 vecOtherExecuted.size(), m_vecExecuted.size());
         return false;
     }
@@ -55,14 +55,14 @@ bool TestSM :: CheckExecuteValueCorrect(const std::vector<pair<uint64_t, std::st
     uint64_t llNowInstanceID = m_vecExecuted[0].first;
     for (auto & it : m_vecExecuted)
     {
-        if (it.first != llNowInstanceID)
+        if (it.first < llNowInstanceID)
         {
-            printf("instanceid not serial, expect %lu actual %lu\n",
-                    llNowInstanceID, it.first);
+            printf("instanceid not serial, actual %lu now %lu\n",
+                    it.first, llNowInstanceID);
             return false;
         }
 
-        llNowInstanceID++;
+        llNowInstanceID = it.first;
     }
 
     for (size_t i = 0; i < m_vecExecuted.size(); i++)

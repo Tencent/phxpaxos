@@ -218,6 +218,11 @@ public:
     //If you use checkpoint replayer feature, set as true.
     //Default is false;
     bool bUseCheckpointReplayer;
+
+    //optional
+    //Only bUseBatchPropose is true can use API BatchPropose in node.h
+    //Default is false;
+    bool bUseBatchPropose;
 };
     
 }

@@ -36,7 +36,7 @@ public:
     CommitCtx(Config * poConfig);
     ~CommitCtx();
 
-    void NewCommit(std::string * psValue, StateMachine * poSM, SMCtx * poSMCtx, const int iTimeoutMs);
+    void NewCommit(std::string * psValue, SMCtx * poSMCtx, const int iTimeoutMs);
     
     const bool IsNewCommit() const;
 
@@ -44,8 +44,7 @@ public:
 
     void StartCommit(const uint64_t llInstanceID);
 
-    bool IsMyCommit(const uint64_t llInstanceID, const std::string & sLearnValue, 
-            StateMachine *& poSM, SMCtx *& poSMCtx);
+    bool IsMyCommit(const uint64_t llInstanceID, const std::string & sLearnValue, SMCtx *& poSMCtx);
 
 public:
     void SetResult(const int iCommitRet, const uint64_t llInstanceID, const std::string & sLearnValue);
@@ -66,7 +65,6 @@ private:
     int m_iTimeoutMs;
 
     std::string * m_psValue;
-    StateMachine * m_poSM;
     SMCtx * m_poSMCtx;
     SerialLock m_oSerialLock;
 };

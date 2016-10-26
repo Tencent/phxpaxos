@@ -122,6 +122,7 @@ Options :: Options()
     pLogFunc = nullptr;
     eLogLevel = LogLevel::LogLevel_None;
     bUseCheckpointReplayer = false;
+    bUseBatchPropose = false;
 }
     
 }

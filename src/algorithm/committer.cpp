@@ -40,15 +40,15 @@ Committer :: ~Committer()
 int Committer :: NewValue(const std::string & sValue)
 {
     uint64_t llInstanceID = 0;
-    return NewValueGetID(sValue, llInstanceID, nullptr, nullptr);
+    return NewValueGetID(sValue, llInstanceID, nullptr);
 }
 
 int Committer :: NewValueGetID(const std::string & sValue, uint64_t & llInstanceID)
 {
-    return NewValueGetID(sValue, llInstanceID, nullptr, nullptr);
+    return NewValueGetID(sValue, llInstanceID, nullptr);
 }
 
-int Committer :: NewValueGetID(const std::string & sValue, uint64_t & llInstanceID, StateMachine * poSM, SMCtx * poSMCtx)
+int Committer :: NewValueGetID(const std::string & sValue, uint64_t & llInstanceID, SMCtx * poSMCtx)
 {
     BP->GetCommiterBP()->NewValue();
 
@@ -59,7 +59,7 @@ int Committer :: NewValueGetID(const std::string & sValue, uint64_t & llInstance
         TimeStat oTimeStat;
         oTimeStat.Point();
 
-        ret = NewValueGetIDNoRetry(sValue, llInstanceID, poSM, poSMCtx);
+        ret = NewValueGetIDNoRetry(sValue, llInstanceID, poSMCtx);
         if (ret != PaxosTryCommitRet_Conflict)
         {
             if (ret == 0)
@@ -85,8 +85,7 @@ int Committer :: NewValueGetID(const std::string & sValue, uint64_t & llInstance
     return ret;
 }
 
-int Committer :: NewValueGetIDNoRetry(const std::string & sValue, uint64_t & llInstanceID, 
-        StateMachine * poSM, SMCtx * poSMCtx)
+int Committer :: NewValueGetIDNoRetry(const std::string & sValue, uint64_t & llInstanceID, SMCtx * poSMCtx)
 {
     LogStatus();
 
@@ -128,16 +127,12 @@ int Committer :: NewValueGetIDNoRetry(const std::string & sValue, uint64_t & llI
     BP->GetCommiterBP()->NewValueGetLockOK(iLockUseTimeMs);
 
     //pack smid to value
-    int iSMID = poSM != nullptr ? poSM->SMID() : 0;
-    if (iSMID == 0)
-    {
-        iSMID = poSMCtx != nullptr ? poSMCtx->m_iSMID : 0;
-    }
+    int iSMID = poSMCtx != nullptr ? poSMCtx->m_iSMID : 0;
     
     string sPackSMIDValue = sValue;
     m_poSMFac->PackPaxosValue(sPackSMIDValue, iSMID);
 
-    m_poCommitCtx->NewCommit(&sPackSMIDValue, poSM, poSMCtx, iLeftTimeoutMs);
+    m_poCommitCtx->NewCommit(&sPackSMIDValue, poSMCtx, iLeftTimeoutMs);
     m_poIOLoop->AddNotify();
 
     int ret = m_poCommitCtx->GetResult(llInstanceID);

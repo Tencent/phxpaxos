@@ -37,19 +37,31 @@ PNode :: ~PNode()
         poMaster->StopMaster();
     }
 
-    //2.step: stop network.
+    //2.step: stop proposebatch
+    for (auto & poProposeBatch : m_vecProposeBatch)
+    {
+        poProposeBatch->Stop();
+    }
+
+    //3.step: stop network.
     m_oDefaultNetWork.StopNetWork();
 
-    //3.step: delete paxos instance.
+    //4.step: delete paxos instance.
     for (auto & poGroup : m_vecGroupList)
     {
         delete poGroup;
     }
 
-    //4. step: delete master state machine.
+    //5. step: delete master state machine.
     for (auto & poMaster : m_vecMasterList)
     {
         delete poMaster;
+    }
+
+    //6. step: delete proposebatch;
+    for (auto & poProposeBatch : m_vecProposeBatch)
+    {
+        delete poProposeBatch;
     }
 }
 
@@ -131,15 +143,15 @@ int PNode :: CheckOptions(const Options & oOptions)
         return -2;
     }
 
-    if (oOptions.iGroupCount > 300)
+    if (oOptions.iGroupCount > 200)
     {
         PLErr("group count %d is too large", oOptions.iGroupCount);
         return -2;
     }
 
-    if (oOptions.iGroupCount < 0)
+    if (oOptions.iGroupCount <= 0)
     {
-        PLErr("group count %d is small than zero", oOptions.iGroupCount);
+        PLErr("group count %d is small than zero or equal to zero", oOptions.iGroupCount);
         return -2;
     }
     
@@ -234,16 +246,25 @@ int PNode :: Init(const Options & oOptions, NetWork *& poNetWork)
     for (int iGroupIdx = 0; iGroupIdx < oOptions.iGroupCount; iGroupIdx++)
     {
         Group * poGroup = new Group(poLogStorage, poNetWork, m_vecMasterList[iGroupIdx]->GetMasterSM(), iGroupIdx, oOptions);
-
         assert(poGroup != nullptr);
-
         m_vecGroupList.push_back(poGroup);
     }
 
-    //step5 init statemachine
+    //step5 build batchpropose
+    if (oOptions.bUseBatchPropose)
+    {
+        for (int iGroupIdx = 0; iGroupIdx < oOptions.iGroupCount; iGroupIdx++)
+        {
+            ProposeBatch * poProposeBatch = new ProposeBatch(iGroupIdx, this, &m_oNotifierPool);
+            assert(poProposeBatch != nullptr);
+            m_vecProposeBatch.push_back(poProposeBatch);
+        }
+    }
+
+    //step6 init statemachine
     InitStateMachine(oOptions);    
 
-    //step6 init group
+    //step7 init group
     for (auto & poGroup : m_vecGroupList)
     {
         int ret = poGroup->Init();
@@ -278,16 +299,6 @@ int PNode :: Propose(const int iGroupIdx, const std::string & sValue, uint64_t &
     return m_vecGroupList[iGroupIdx]->GetCommitter()->NewValueGetID(sValue, llInstanceID);
 }
 
-int PNode :: Propose(const int iGroupIdx, const std::string & sValue, uint64_t & llInstanceID, StateMachine * poSM)
-{
-    if (!CheckGroupID(iGroupIdx))
-    {
-        return Paxos_GroupIdxWrong;
-    }
-
-    return m_vecGroupList[iGroupIdx]->GetCommitter()->NewValueGetID(sValue, llInstanceID, poSM, nullptr);
-}
-
 int PNode :: Propose(const int iGroupIdx, const std::string & sValue, uint64_t & llInstanceID, SMCtx * poSMCtx)
 {
     if (!CheckGroupID(iGroupIdx))
@@ -295,7 +306,7 @@ int PNode :: Propose(const int iGroupIdx, const std::string & sValue, uint64_t &
         return Paxos_GroupIdxWrong;
     }
 
-    return m_vecGroupList[iGroupIdx]->GetCommitter()->NewValueGetID(sValue, llInstanceID, nullptr, poSMCtx);
+    return m_vecGroupList[iGroupIdx]->GetCommitter()->NewValueGetID(sValue, llInstanceID, poSMCtx);
 }
 
 const uint64_t PNode :: GetNowInstanceID(const int iGroupIdx)
@@ -653,14 +664,97 @@ void PNode :: SetLogSync(const int iGroupIdx, const bool bLogSync)
 
 //////////////////////////////////////////////////////////////////////
 
-int PNode :: GetInstanceValue(const int iGroupIdx, const uint64_t llInstanceID, std::string & sValue, int & iSMID)
+int PNode :: GetInstanceValue(const int iGroupIdx, const uint64_t llInstanceID, 
+        std::vector<std::pair<std::string, int> > & vecValues)
 {
     if (!CheckGroupID(iGroupIdx))
     {
         return Paxos_GroupIdxWrong;
     }
 
-    return m_vecGroupList[iGroupIdx]->GetInstance()->GetInstanceValue(llInstanceID, sValue, iSMID);
+    string sValue;
+    int iSMID = 0;
+    int ret = m_vecGroupList[iGroupIdx]->GetInstance()->GetInstanceValue(llInstanceID, sValue, iSMID);
+    if (ret != 0)
+    {
+        return ret;
+    }
+
+    if (iSMID == BATCH_PROPOSE_SMID)
+    {
+        BatchPaxosValues oBatchValues;
+        bool bSucc = oBatchValues.ParseFromArray(sValue.data(), sValue.size());
+        if (!bSucc)
+        {
+            return Paxos_SystemError;
+        }
+
+        for (int i = 0; i < oBatchValues.values_size(); i++)
+        {
+            const PaxosValue & oValue = oBatchValues.values(i);
+            vecValues.push_back(make_pair(oValue.value(), oValue.smid()));
+        }
+    }
+    else
+    {
+        vecValues.push_back(make_pair(sValue, iSMID));
+    }
+
+    return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+int PNode :: BatchPropose(const int iGroupIdx, const std::string & sValue, 
+        uint64_t & llInstanceID, uint32_t & iBatchIndex)
+{
+    return BatchPropose(iGroupIdx, sValue, llInstanceID, iBatchIndex, nullptr);
+}
+
+int PNode :: BatchPropose(const int iGroupIdx, const std::string & sValue, 
+        uint64_t & llInstanceID, uint32_t & iBatchIndex, SMCtx * poSMCtx)
+{
+    if (!CheckGroupID(iGroupIdx))
+    {
+        return Paxos_GroupIdxWrong;
+    }
+
+    if (m_vecProposeBatch.size() == 0)
+    {
+        return Paxos_SystemError;
+    }
+
+    return m_vecProposeBatch[iGroupIdx]->Propose(sValue, llInstanceID, iBatchIndex, poSMCtx);
+}
+
+void PNode :: SetBatchCount(const int iGroupIdx, const int iBatchCount)
+{
+    if (!CheckGroupID(iGroupIdx))
+    {
+        return;
+    }
+
+    if (m_vecProposeBatch.size() == 0)
+    {
+        return;
+    }
+
+    m_vecProposeBatch[iGroupIdx]->SetBatchCount(iBatchCount);
+}
+
+void PNode :: SetBatchDelayTimeMs(const int iGroupIdx, const int iBatchDelayTimeMs)
+{
+    if (!CheckGroupID(iGroupIdx))
+    {
+        return;
+    }
+
+    if (m_vecProposeBatch.size() == 0)
+    {
+        return;
+    }
+
+    m_vecProposeBatch[iGroupIdx]->SetBatchDelayTimeMs(iBatchDelayTimeMs);
 }
     
 }

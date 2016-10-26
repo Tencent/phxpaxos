@@ -39,6 +39,8 @@ public:
 
     int Write(const std::string & sTestValue, uint64_t & llInstanceID);
 
+    int BatchWrite(const std::string & sTestValue, uint64_t & llInstanceID, uint32_t & iBatchIndex);
+
     int Ready();
 
     TestSM * GetSM();

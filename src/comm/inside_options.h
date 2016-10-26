@@ -32,7 +32,7 @@ namespace phxpaxos
 #define START_ACCEPT_TIMEOUTMS (InsideOptions::Instance()->GetStartAcceptTimeoutMs())
 #define MAX_PREPARE_TIMEOUTMS (InsideOptions::Instance()->GetMaxPrepareTimeoutMs())
 #define MAX_ACCEPT_TIMEOUTMS (InsideOptions::Instance()->GetMaxAcceptTimeoutMs())
-#define QUEUE_MAXLENGTH (InsideOptions::Instance()->GetMaxQueueLen())
+#define QUEUE_MAXLENGTH (InsideOptions::Instance()->GetMaxIOLoopQueueLen())
 #define ASKFORLEARN_NOOP_INTERVAL (InsideOptions::Instance()->GetAskforLearnInterval())
 #define SENDLEARNVALUE_ACK_LEAD (InsideOptions::Instance()->GetLeanerReceiver_Ack_Lead())
 #define LearnerSender_PREPARE_TIMEOUT (InsideOptions::Instance()->GetLeanerSenderPrepareTimeoutMs())
@@ -43,6 +43,8 @@ namespace phxpaxos
 #define TCP_OUTQUEUE_DROP_TIMEMS (InsideOptions::Instance()->GetTcpOutQueueDropTimeMs())
 #define LOG_FILE_MAX_SIZE (InsideOptions::Instance()->GetLogFileMaxSize())
 #define CONNECTTION_NONACTIVE_TIMEOUT (InsideOptions::Instance()->GetTcpConnectionNonActiveTimeout())
+#define LearnerSender_SEND_QPS (InsideOptions::Instance()->GetLearnerSenderSendQps())
+#define Cleaner_DELETE_QPS (InsideOptions::Instance()->GetCleanerDeleteQps())
 
 class InsideOptions
 {
@@ -56,6 +58,8 @@ public:
 
     void SetAsFollower();
 
+    void SetGroupCount(const int iGroupCount);
+
 public:
     const int GetMaxBufferSize();
 
@@ -66,6 +70,8 @@ public:
     const int GetMaxPrepareTimeoutMs();
 
     const int GetMaxAcceptTimeoutMs();
+
+    const int GetMaxIOLoopQueueLen();
 
     const int GetMaxQueueLen();
 
@@ -85,9 +91,14 @@ public:
 
     const int GetTcpConnectionNonActiveTimeout();
 
+    const int GetLearnerSenderSendQps();
+
+    const int GetCleanerDeleteQps();
+
 private:
     bool m_bIsLargeBufferMode;
     bool m_bIsIMFollower;
+    int m_iGroupCount;
 };
     
 }

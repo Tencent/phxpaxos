@@ -25,6 +25,8 @@ See the AUTHORS file for names of contributors.
 #include "phxpaxos/options.h"
 #include <typeinfo>
 #include <inttypes.h>
+#include <map>
+#include <vector>
 
 namespace phxpaxos
 {
@@ -52,6 +54,24 @@ public:
 
     virtual const nodeid_t GetMyNodeID() const = 0;
 
+    //Batch propose.
+    
+    //Only set options::bUserBatchPropose as true can use this batch API.
+    //Warning: BatchProposal will have same llInstanceID returned but different iBatchIndex.
+    //Batch values's execute order in StateMachine is certain, the return value iBatchIndex
+    //means the execute order index, start from 0.
+    virtual int BatchPropose(const int iGroupIdx, const std::string & sValue, 
+            uint64_t & llInstanceID, uint32_t & iBatchIndex) = 0;
+
+    virtual int BatchPropose(const int iGroupIdx, const std::string & sValue, uint64_t & llInstanceID, 
+            uint32_t & iBatchIndex, SMCtx * poSMCtx) = 0;
+
+    //PhxPaxos will batch proposal while waiting proposals count reach to BatchCount, 
+    //or wait time reach to BatchDelayTimeMs.
+    virtual void SetBatchCount(const int iGroupIdx, const int iBatchCount) = 0;
+
+    virtual void SetBatchDelayTimeMs(const int iGroupIdx, const int iBatchDelayTimeMs) = 0;
+
     //State machine.
     
     //This function will add state machine to all group.
@@ -66,6 +86,7 @@ public:
     
     //Set the number you want to keep paxoslog's count.
     //We will only delete paxoslog before checkpoint instanceid.
+    //If llHoldCount < 300, we will set it to 300. Not suggest too small holdcount.
     virtual void SetHoldPaxosLogCount(const uint64_t llHoldCount) = 0;
 
     //Replayer is to help sm make checkpoint.
@@ -129,8 +150,11 @@ public:
     //write disk
     virtual void SetLogSync(const int iGroupIdx, const bool bLogSync) = 0;
 
-    //for sk
-    virtual int GetInstanceValue(const int iGroupIdx, const uint64_t llInstanceID, std::string & sValue, int & iSMID) = 0;
+    //Not suggest to use this function
+    //pair: value,smid.
+    //Because of BatchPropose, a InstanceID maybe include multi-value.
+    virtual int GetInstanceValue(const int iGroupIdx, const uint64_t llInstanceID, 
+            std::vector<std::pair<std::string, int> > & vecValues) = 0;
 
 protected:
     friend class NetWork; 

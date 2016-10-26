@@ -209,7 +209,7 @@ int UDPSend :: AddMessage(const std::string & sIP, const int iPort, const std::s
     if ((int)m_oSendQueue.size() > UDP_QUEUE_MAXLEN)
     {
         BP->GetNetworkBP()->UDPQueueFull();
-        PLErr("queue length %d too long, can't enqueue", m_oSendQueue.size());
+        //PLErr("queue length %d too long, can't enqueue", m_oSendQueue.size());
 
         m_oSendQueue.unlock();
 

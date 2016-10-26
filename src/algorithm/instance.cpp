@@ -32,7 +32,8 @@ Instance :: Instance(
         const LogStorage * poLogStorage,
         const MsgTransport * poMsgTransport,
         const bool bUseCheckpointReplayer)
-    : m_oIOLoop((Config *)poConfig, this),
+    : m_oSMFac(poConfig->GetMyGroupIdx()),
+    m_oIOLoop((Config *)poConfig, this),
     m_oAcceptor(poConfig, poMsgTransport, this, poLogStorage), 
     m_oLearner(poConfig, poMsgTransport, this, &m_oAcceptor, poLogStorage, &m_oIOLoop, &m_oCheckpointMgr, &m_oSMFac),
     m_oProposer(poConfig, poMsgTransport, this, &m_oLearner, &m_oIOLoop),
@@ -406,7 +407,7 @@ void Instance :: OnReceiveCheckpointMsg(const CheckpointMsg & oCheckpointMsg)
     }
 }
 
-int Instance :: OnReceivePaxosMsg(const PaxosMsg & oPaxosMsg)
+int Instance :: OnReceivePaxosMsg(const PaxosMsg & oPaxosMsg, const bool bIsRetry)
 {
     BP->GetInstanceBP()->OnReceivePaxosMsg();
 
@@ -448,7 +449,7 @@ int Instance :: OnReceivePaxosMsg(const PaxosMsg & oPaxosMsg)
         }
 
         ChecksumLogic(oPaxosMsg);
-        return ReceiveMsgForAcceptor(oPaxosMsg);
+        return ReceiveMsgForAcceptor(oPaxosMsg, bIsRetry);
     }
     else if (oPaxosMsg.msgtype() == MsgType_PaxosLearner_AskforLearn
             || oPaxosMsg.msgtype() == MsgType_PaxosLearner_SendLearnValue
@@ -499,7 +500,7 @@ int Instance :: ReceiveMsgForProposer(const PaxosMsg & oPaxosMsg)
     return 0;
 }
 
-int Instance :: ReceiveMsgForAcceptor(const PaxosMsg & oPaxosMsg)
+int Instance :: ReceiveMsgForAcceptor(const PaxosMsg & oPaxosMsg, const bool bIsRetry)
 {
     if (m_poConfig->IsIMFollower())
     {
@@ -535,21 +536,31 @@ int Instance :: ReceiveMsgForAcceptor(const PaxosMsg & oPaxosMsg)
             m_oAcceptor.OnAccept(oPaxosMsg);
         }
     }
-    else if (oPaxosMsg.instanceid() > m_oAcceptor.GetInstanceID())
+    else if ((!bIsRetry) && (oPaxosMsg.instanceid() > m_oAcceptor.GetInstanceID()))
     {
+        //retry msg can't retry again.
         if (oPaxosMsg.instanceid() >= m_oLearner.GetSeenLatestInstanceID())
         {
-            //need retry msg precondition
-            //1. prepare or accept msg
-            //2. msg.instanceid > nowinstanceid. 
-            //    (if < nowinstanceid, this msg is expire)
-            //3. msg.instanceid >= seen latestinstanceid. 
-            //    (if < seen latestinstanceid, proposer don't need reply with this instanceid anymore.)
-            m_oIOLoop.AddRetryPaxosMsg(oPaxosMsg);
-            
-            BP->GetInstanceBP()->OnReceivePaxosAcceptorMsgAddRetry();
+            if (oPaxosMsg.instanceid() < m_oAcceptor.GetInstanceID() + RETRY_QUEUE_MAX_LEN)
+            {
+                //need retry msg precondition
+                //1. prepare or accept msg
+                //2. msg.instanceid > nowinstanceid. 
+                //    (if < nowinstanceid, this msg is expire)
+                //3. msg.instanceid >= seen latestinstanceid. 
+                //    (if < seen latestinstanceid, proposer don't need reply with this instanceid anymore.)
+                //4. msg.instanceid close to nowinstanceid.
+                m_oIOLoop.AddRetryPaxosMsg(oPaxosMsg);
+                
+                BP->GetInstanceBP()->OnReceivePaxosAcceptorMsgAddRetry();
 
-            PLGErr("InstanceID not same, get in to retry logic");
+                //PLGErr("InstanceID not same, get in to retry logic");
+            }
+            else
+            {
+                //retry msg not series, no use.
+                m_oIOLoop.ClearRetryQueue();
+            }
         }
     }
 
@@ -591,9 +602,8 @@ int Instance :: ReceiveMsgForLearner(const PaxosMsg & oPaxosMsg)
     {
         BP->GetInstanceBP()->OnInstanceLearned();
 
-        StateMachine * poSM = nullptr;
         SMCtx * poSMCtx = nullptr;
-        bool bIsMyCommit = m_oCommitCtx.IsMyCommit(m_oLearner.GetInstanceID(), m_oLearner.GetLearnValue(), poSM, poSMCtx);
+        bool bIsMyCommit = m_oCommitCtx.IsMyCommit(m_oLearner.GetInstanceID(), m_oLearner.GetLearnValue(), poSMCtx);
 
         if (!bIsMyCommit)
         {
@@ -607,7 +617,7 @@ int Instance :: ReceiveMsgForLearner(const PaxosMsg & oPaxosMsg)
             PLGHead("My commit ok, usetime %dms", iUseTimeMs);
         }
 
-        if (!SMExecute(m_oLearner.GetInstanceID(), m_oLearner.GetLearnValue(), bIsMyCommit, poSM, poSMCtx))
+        if (!SMExecute(m_oLearner.GetInstanceID(), m_oLearner.GetLearnValue(), bIsMyCommit, poSMCtx))
         {
             BP->GetInstanceBP()->OnInstanceLearnedSMExecuteFail();
 
@@ -703,17 +713,9 @@ bool Instance :: SMExecute(
         const uint64_t llInstanceID, 
         const std::string & sValue, 
         const bool bIsMyCommit,
-        StateMachine * poSM,
         SMCtx * poSMCtx)
 {
-    if (bIsMyCommit && poSM != nullptr)
-    {
-        return m_oSMFac.DoExecute(poSM, m_poConfig->GetMyGroupIdx(), llInstanceID, sValue, poSMCtx);
-    }
-    else 
-    {
-        return m_oSMFac.Execute(m_poConfig->GetMyGroupIdx(), llInstanceID, sValue, poSMCtx);
-    }
+    return m_oSMFac.Execute(m_poConfig->GetMyGroupIdx(), llInstanceID, sValue, poSMCtx);
 }
 
 ////////////////////////////////

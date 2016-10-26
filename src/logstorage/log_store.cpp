@@ -239,9 +239,17 @@ int LogStore :: OpenFile(const int iFileID, int & iFd)
 
 int LogStore :: DeleteFile(const int iFileID)
 {
+    if (m_iDeletedMaxFileID == -1)
+    {
+        if (iFileID - 2000 > 0)
+        {
+            m_iDeletedMaxFileID = iFileID - 2000;
+        }
+    }
+
     if (iFileID <= m_iDeletedMaxFileID)
     {
-        PLG1Debug("file aready deleted, fileid %d deletedmaxfileid %d", iFileID, m_iDeletedMaxFileID);
+        PLG1Debug("file already deleted, fileid %d deletedmaxfileid %d", iFileID, m_iDeletedMaxFileID);
         return 0;
     }
     
@@ -254,7 +262,7 @@ int LogStore :: DeleteFile(const int iFileID)
         ret = access(sFilePath, F_OK);
         if (ret == -1)
         {
-            PLG1Err("file aready deleted, filepath %s", sFilePath);
+            PLG1Debug("file already deleted, filepath %s", sFilePath);
             m_iDeletedMaxFileID = iDeleteFileID;
             ret = 0;
             continue;

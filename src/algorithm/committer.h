@@ -42,9 +42,9 @@ public:
 public:
     int NewValueGetID(const std::string & sValue, uint64_t & llInstanceID);
     
-    int NewValueGetID(const std::string & sValue, uint64_t & llInstanceID, StateMachine * poSM, SMCtx * poSMCtx);
+    int NewValueGetID(const std::string & sValue, uint64_t & llInstanceID, SMCtx * poSMCtx);
     
-    int NewValueGetIDNoRetry(const std::string & sValue, uint64_t & llInstanceID, StateMachine * poSM, SMCtx * poSMCtx);
+    int NewValueGetIDNoRetry(const std::string & sValue, uint64_t & llInstanceID, SMCtx * poSMCtx);
 
     int NewValue(const std::string & sValue);
 

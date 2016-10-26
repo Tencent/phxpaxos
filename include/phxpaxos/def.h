@@ -26,6 +26,7 @@ namespace phxpaxos
 
 #define SYSTEM_V_SMID 100000000
 #define MASTER_V_SMID 100000001
+#define BATCH_PROPOSE_SMID 100000002
 
 enum PaxosTryCommitRet
 {

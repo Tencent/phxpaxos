@@ -81,7 +81,13 @@ void Cleaner :: run()
     m_bIsStart = true;
     Continue();
 
-    uint64_t llInstanceID = m_poCheckpointMgr->GetMinChosenInstanceID();
+    //control delete speed to avoid affecting the io too much.
+    int iDeleteQps = Cleaner_DELETE_QPS;
+    int iSleepMs = iDeleteQps > 1000 ? 1 : 1000 / iDeleteQps;
+    int iDeleteInterval = iDeleteQps > 1000 ? iDeleteQps / 1000 + 1 : 1; 
+
+    PLGDebug("DeleteQps %d SleepMs %d DeleteInterval %d",
+            iDeleteQps, iSleepMs, iDeleteInterval);
 
     while (true)
     {
@@ -99,34 +105,45 @@ void Cleaner :: run()
             continue;
         }
 
+        uint64_t llInstanceID = m_poCheckpointMgr->GetMinChosenInstanceID();
         uint64_t llCPInstanceID = m_poSMFac->GetCheckpointInstanceID(m_poConfig->GetMyGroupIdx()) + 1;
-        while (llInstanceID + m_llHoldCount < llCPInstanceID)
+        uint64_t llMaxChosenInstanceID = m_poCheckpointMgr->GetMaxChosenInstanceID();
+
+        int iDeleteCount = 0;
+        while ((llInstanceID + m_llHoldCount < llCPInstanceID)
+                && (llInstanceID + m_llHoldCount < llMaxChosenInstanceID))
         {
             bool bDeleteRet = DeleteOne(llInstanceID);
             if (bDeleteRet)
             {
-                PLGImp("delete one done, instanceid %lu", llInstanceID);
+                //PLGImp("delete one done, instanceid %lu", llInstanceID);
                 llInstanceID++;
+                iDeleteCount++;
+                if (iDeleteCount >= iDeleteInterval)
+                {
+                    iDeleteCount = 0;
+                    Time::MsSleep(iSleepMs);
+                }
             }
             else
             {
-                PLGErr("delete system fail, instanceid %lu", llInstanceID);
+                PLGDebug("delete system fail, instanceid %lu", llInstanceID);
                 break;
             }
         }
 
         if (llCPInstanceID == 0)
         {
-            PLGImp("sleep a while, max deleted instanceid %lu checkpoint instanceid (no checkpoint) now instanceid %lu",
+            PLGStatus("sleep a while, max deleted instanceid %lu checkpoint instanceid (no checkpoint) now instanceid %lu",
                     llInstanceID, m_poCheckpointMgr->GetMaxChosenInstanceID());
         }
         else
         {
-            PLGImp("sleep a while, max deleted instanceid %lu checkpoint instanceid %lu now instanceid %lu",
+            PLGStatus("sleep a while, max deleted instanceid %lu checkpoint instanceid %lu now instanceid %lu",
                     llInstanceID, llCPInstanceID, m_poCheckpointMgr->GetMaxChosenInstanceID());
         }
 
-        Time::MsSleep(1000);
+        Time::MsSleep(OtherUtils::FastRand() % 500 + 500);
     }
 }
 
@@ -197,6 +214,9 @@ bool Cleaner :: DeleteOne(const uint64_t llInstanceID)
         }
 
         m_llLastSave = llInstanceID;
+
+        PLGImp("delete %d instance done, now minchosen instanceid %lu", 
+                DELETE_SAVE_INTERVAL, llInstanceID + 1);
     }
 
     return true;
@@ -204,7 +224,14 @@ bool Cleaner :: DeleteOne(const uint64_t llInstanceID)
 
 void Cleaner :: SetHoldPaxosLogCount(const uint64_t llHoldCount)
 {
-    m_llHoldCount = llHoldCount;
+    if (llHoldCount < 300)
+    {
+        m_llHoldCount = 300;
+    }
+    else
+    {
+        m_llHoldCount = llHoldCount;
+    }
 }
 
 }

@@ -366,7 +366,7 @@ void Proposer :: OnPrepareReply(const PaxosMsg & oPaxosMsg)
     {
         BP->GetProposerBP()->PrepareNotPass();
         PLGImp("[Not Pass] wait 30ms and restart prepare");
-        AddPrepareTimer(30);
+        AddPrepareTimer(OtherUtils::FastRand() % 30 + 10);
     }
 
     PLGHead("END");
@@ -452,7 +452,7 @@ void Proposer :: OnAcceptReply(const PaxosMsg & oPaxosMsg)
     {
         BP->GetProposerBP()->AcceptNotPass();
         PLGImp("[Not pass] wait 30ms and Restart prepare");
-        AddAcceptTimer(30);
+        AddAcceptTimer(OtherUtils::FastRand() % 30 + 10);
     }
 
     PLGHead("END");

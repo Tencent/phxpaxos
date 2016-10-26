@@ -107,10 +107,10 @@ int IOLoop :: AddRetryPaxosMsg(const PaxosMsg & oPaxosMsg)
 {
     BP->GetIOLoopBP()->EnqueueRetryMsg();
 
-    if (m_oRetryQueue.size() > 100)
+    if (m_oRetryQueue.size() > RETRY_QUEUE_MAX_LEN)
     {
         BP->GetIOLoopBP()->EnqueueRetryMsgRejectByFullQueue();
-        return -2;
+        m_oRetryQueue.pop();
     }
     
     m_oRetryQueue.push(oPaxosMsg);
@@ -126,6 +126,14 @@ void IOLoop :: Stop()
     }
 }
 
+void IOLoop :: ClearRetryQueue()
+{
+    while (!m_oRetryQueue.empty())
+    {
+        m_oRetryQueue.pop();
+    }
+}
+
 void IOLoop :: DealWithRetry()
 {
     if (m_oRetryQueue.empty())
@@ -133,24 +141,37 @@ void IOLoop :: DealWithRetry()
         return;
     }
     
+    bool bHaveRetryOne = false;
     while (!m_oRetryQueue.empty())
     {
         PaxosMsg & oPaxosMsg = m_oRetryQueue.front();
-        if (oPaxosMsg.instanceid() <= m_poInstance->GetNowInstanceID())
-        {
-            if (oPaxosMsg.instanceid() == m_poInstance->GetNowInstanceID())
-            {
-                BP->GetIOLoopBP()->DealWithRetryMsg();
-                PLGHead("retry msg. instanceid %lu", oPaxosMsg.instanceid());
-                m_poInstance->OnReceivePaxosMsg(oPaxosMsg);
-            }
-
-            m_oRetryQueue.pop();
-        }
-        else
+        if (oPaxosMsg.instanceid() > m_poInstance->GetNowInstanceID() + 1)
         {
             break;
         }
+        else if (oPaxosMsg.instanceid() == m_poInstance->GetNowInstanceID() + 1)
+        {
+            //only after retry i == now_i, than we can retry i + 1.
+            if (bHaveRetryOne)
+            {
+                BP->GetIOLoopBP()->DealWithRetryMsg();
+                PLGDebug("retry msg (i+1). instanceid %lu", oPaxosMsg.instanceid());
+                m_poInstance->OnReceivePaxosMsg(oPaxosMsg, true);
+            }
+            else
+            {
+                break;
+            }
+        }
+        else if (oPaxosMsg.instanceid() == m_poInstance->GetNowInstanceID())
+        {
+            BP->GetIOLoopBP()->DealWithRetryMsg();
+            PLGDebug("retry msg. instanceid %lu", oPaxosMsg.instanceid());
+            m_poInstance->OnReceivePaxosMsg(oPaxosMsg);
+            bHaveRetryOne = true;
+        }
+
+        m_oRetryQueue.pop();
     }
 }
 

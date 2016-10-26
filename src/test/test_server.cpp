@@ -87,10 +87,14 @@ int TestServer :: RunPaxos()
     oOptions.oMyNode = m_oMyNode;
     oOptions.vecNodeInfoList = m_vecNodeList;
 
+    oOptions.bUseMembership = true;
+
     GroupSMInfo oSMInfo;
     oSMInfo.iGroupIdx = 0;
     oSMInfo.vecSMList.push_back(&m_oTestSM);
     oOptions.vecGroupSMInfoList.push_back(oSMInfo);
+
+    oOptions.bUseBatchPropose = true;
 
     ret = Node::RunNode(oOptions, m_poPaxosNode);
     if (ret != 0)
@@ -98,6 +102,9 @@ int TestServer :: RunPaxos()
         printf("run paxos fail, ret %d\n", ret);
         return ret;
     }
+
+    m_poPaxosNode->SetBatchDelayTimeMs(0, 20);
+    m_poPaxosNode->SetBatchCount(0, 10);
 
     printf("run paxos ok, ip %s port %d\n", m_oMyNode.GetIP().c_str(), m_oMyNode.GetPort());
     return 0;
@@ -110,6 +117,21 @@ int TestServer :: Write(const std::string & sTestValue, uint64_t & llInstanceID)
     oCtx.m_pCtx = nullptr;
 
     int ret = m_poPaxosNode->Propose(0, sTestValue, llInstanceID, &oCtx);
+    if (ret != 0)
+    {
+        return ret;
+    }
+
+    return 0;
+}
+
+int TestServer :: BatchWrite(const std::string & sTestValue, uint64_t & llInstanceID, uint32_t & iBatchIndex)
+{
+    SMCtx oCtx;
+    oCtx.m_iSMID = 1;
+    oCtx.m_pCtx = nullptr;
+
+    int ret = m_poPaxosNode->BatchPropose(0, sTestValue, llInstanceID, iBatchIndex, &oCtx);
     if (ret != 0)
     {
         return ret;

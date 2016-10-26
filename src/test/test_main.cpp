@@ -34,12 +34,14 @@ See the AUTHORS file for names of contributors.
 #include "utils_include.h"
 #include <map>
 #include <vector>
+#include <algorithm>
 
 using namespace phxpaxos_test;
 using namespace phxpaxos;
 using namespace std;
 
 int giRunNodeCount = 3;
+bool gbTestBatch = false;
 
 void RandValue(const int iSize, string & sValue)
 {
@@ -48,26 +50,33 @@ void RandValue(const int iSize, string & sValue)
 
     for (int i = 0; i < iRealSize; i++)
     {
-        sValue += ('a' + (rand() % 26));
+        sValue += 'a';
     }
 }
 
 class TestSuccWrite
 {
 public:
-    TestSuccWrite() { }
+    TestSuccWrite() 
+    { 
+        m_llMaxInstanceID = 0;
+    }
 
-    int AddSuccWrite(const uint64_t llInstanceID, const string & sWriteValue)
+    int AddSuccWrite(const uint64_t llInstanceID, const uint32_t iBatchIndex, const string & sWriteValue)
     {
         m_oMutex.lock();
-
-        if (m_mapSuccWrite.find(llInstanceID) != end(m_mapSuccWrite))
+        if (llInstanceID < m_llMaxInstanceID)
         {
             m_oMutex.unlock();
             return -1;
         }
+        m_llMaxInstanceID = llInstanceID;
 
-        m_mapSuccWrite[llInstanceID] = sWriteValue;
+        SuccWriteValue oValue;
+        oValue.sValue = sWriteValue;
+        oValue.llInstanceID = llInstanceID;
+        oValue.iBatchIndex = iBatchIndex;
+        m_vecSuccWrite.push_back(oValue);
         m_oMutex.unlock();
 
         return 0;
@@ -75,25 +84,38 @@ public:
 
     vector<pair<uint64_t, string> > ToVector()
     {
-        m_oMutex.lock();
-
-        if (m_vecSuccWrite.size() != m_mapSuccWrite.size())
+        sort(m_vecSuccWrite.begin(), m_vecSuccWrite.end());
+        vector<pair<uint64_t, string> > vecSuccWrite;
+        for (size_t i = 0; i < m_vecSuccWrite.size(); i++)
         {
-            m_vecSuccWrite.clear();
-            for (auto & it : m_mapSuccWrite)
+            vecSuccWrite.push_back(make_pair(m_vecSuccWrite[i].llInstanceID, m_vecSuccWrite[i].sValue));
+        }
+        return vecSuccWrite;
+    }
+
+    struct SuccWriteValue
+    {
+        string sValue;
+        uint64_t llInstanceID;
+        uint32_t iBatchIndex;
+
+        bool operator < (const SuccWriteValue & obj) const
+        {
+            if (llInstanceID == obj.llInstanceID)
             {
-                m_vecSuccWrite.push_back(make_pair(it.first, it.second));
+                return iBatchIndex < obj.iBatchIndex;
+            }
+            else
+            {
+                return llInstanceID < obj.llInstanceID;
             }
         }
-
-        m_oMutex.unlock();
-        return m_vecSuccWrite;
-    }
+    };
 
 public:
     Mutex m_oMutex;
-    map<uint64_t, string> m_mapSuccWrite;
-    vector<pair<uint64_t, string> > m_vecSuccWrite;
+    vector<SuccWriteValue> m_vecSuccWrite;
+    uint64_t m_llMaxInstanceID;
 };
 
 TestSuccWrite goSuccWrite;
@@ -117,7 +139,17 @@ public:
             while (true)
             {
                 uint64_t llInstanceID = 0;
-                int ret = m_poTestServer->Write(sValue, llInstanceID);
+                uint32_t iBatchIndex = 0;
+                int ret = -1;
+                if (gbTestBatch)
+                {
+                    ret = m_poTestServer->BatchWrite(sValue, llInstanceID, iBatchIndex);
+                }
+                else
+                {
+                    ret = m_poTestServer->Write(sValue, llInstanceID);
+                }
+
                 if (ret != PaxosTryCommitRet_OK && ret != PaxosTryCommitRet_Conflict)
                 {
                     printf("write fail, ret %d\n", ret);
@@ -130,10 +162,11 @@ public:
                 }
                 else
                 {
-                    ret = goSuccWrite.AddSuccWrite(llInstanceID, sValue);
+                    ret = goSuccWrite.AddSuccWrite(llInstanceID, iBatchIndex, sValue);
                     if (ret != 0)
                     {
-                        printf("this instance already exist, is error, instanceid %lu value %s\n", llInstanceID, sValue.c_str());
+                        printf("this instance already exist, is error, instanceid %lu valuesize %zu ret %d\n", 
+                                llInstanceID, sValue.size(), ret);
                         m_iRunRet = -1;
                         return;
                     }
@@ -151,6 +184,53 @@ private:
     int m_iAvgValueSize;
 
     int m_iRunRet;
+};
+
+class TestClientPool
+{
+public:
+    TestClientPool(TestServer * poTestServer, const int iWriteCount, const int iAvgValueSize)
+    {
+        int iClientCount = 100;
+        for (int i = 0; i < iClientCount; i++)
+        {
+            auto poClient = new TestClient(poTestServer, iWriteCount / iClientCount, iAvgValueSize);
+            poClient->start();
+            m_vecTestClient.push_back(poClient);
+        }
+    }
+
+    ~TestClientPool()
+    {
+        for (auto & poClient : m_vecTestClient)
+        {
+            delete poClient;
+        }
+    }
+
+    void Stop()
+    {
+        for (auto & poClient : m_vecTestClient)
+        {
+            poClient->join();
+        }
+    }
+
+    const int RunRet()
+    {
+        for (auto & poClient : m_vecTestClient)
+        {
+            if (poClient->RunRet() != 0)
+            {
+                return poClient->RunRet();
+            }
+        }
+
+        return 0;
+    }
+
+private:
+    vector<TestClient *> m_vecTestClient;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -241,12 +321,12 @@ bool Test_OnlyOneNode_Write(vector<TestServer *> & vecTestServerList)
 
     TestServer * poTestServer = vecTestServerList[0];
 
-    TestClient oClient(poTestServer, 100, 20);
-    oClient.start();
-    oClient.join();
+    TestClientPool oClient(poTestServer, 100, 20);
+    oClient.Stop();
 
     printf("write done, usetime %dms, runret %s, nowsuccwritecount %zu\n",
-            oTimeStat.Point(), oClient.RunRet() == 0 ? "succ" : "fail", goSuccWrite.m_mapSuccWrite.size());
+            oTimeStat.Point(), oClient.RunRet() == 0 ? "succ" : "fail", goSuccWrite.m_vecSuccWrite.size());
+
     if (oClient.RunRet() != 0)
     {
         return false;
@@ -268,18 +348,17 @@ bool Test_AllNode_Write_Parallel(vector<TestServer *> & vecTestServerList)
     TimeStat oTimeStat;
     oTimeStat.Point();
 
-    vector<TestClient *> vecClient;
+    vector<TestClientPool *> vecClient;
     for (auto & poTestServer : vecTestServerList)
     {
-        TestClient * poClient = new TestClient(poTestServer, 100, 20);
-        poClient->start();
+        TestClientPool * poClient = new TestClientPool(poTestServer, 100, 20);
         vecClient.push_back(poClient);
     }
 
     bool bRunRet = true;
     for (auto & poClient : vecClient)
     {
-        poClient->join();
+        poClient->Stop();
         if (poClient->RunRet() != 0)
         {
             bRunRet = false;
@@ -288,7 +367,7 @@ bool Test_AllNode_Write_Parallel(vector<TestServer *> & vecTestServerList)
     }
 
     printf("write done, usetime %dms, runret %s, succwritecount %zu\n",
-            oTimeStat.Point(), bRunRet ? "succ" : "fail", goSuccWrite.m_mapSuccWrite.size());
+            oTimeStat.Point(), bRunRet ? "succ" : "fail", goSuccWrite.m_vecSuccWrite.size());
     if (!bRunRet)
     {
         return false;
@@ -333,11 +412,15 @@ int main(int argc, char ** argv)
 {
     if (argc < 2)
     {
-        printf("%s <run node count>\n", argv[0]);
+        printf("%s <run node count> <test batch y/n ?>\n", argv[0]);
         return -1;
     }
 
     giRunNodeCount = atoi(argv[1]);
+    if (argc >= 3)
+    {
+        gbTestBatch = string(argv[2]) == "y" ? true : false;
+    }
 
     vector<TestServer *> vecTestServerList;
 

@@ -21,6 +21,7 @@ See the AUTHORS file for names of contributors.
 
 #include "db.h"
 #include "commdef.h"
+#include "utils_include.h"
 
 namespace phxpaxos
 {
@@ -158,7 +159,8 @@ int Database :: Init(const std::string & sDBPath, const int iMyGroupIdx)
     leveldb::Options oOptions;
     oOptions.create_if_missing = true;
     oOptions.comparator = &m_oPaxosCmp;
-    //oOptions.write_buffer_size = 1024 * 1024 * 10;
+    //every group have different buffer size to avoid all group compact at the same time.
+    oOptions.write_buffer_size = 1024 * 1024 + iMyGroupIdx * 10 * 1024;
 
     leveldb::Status oStatus = leveldb::DB::Open(oOptions, sDBPath, &m_poLevelDB);
 
@@ -420,31 +422,35 @@ int Database :: Del(const WriteOptions & oWriteOptions, const uint64_t llInstanc
     }
 
     string sKey = GenKey(llInstanceID);
-    string sFileID;
-    
-    leveldb::Status oStatus = m_poLevelDB->Get(leveldb::ReadOptions(), sKey, &sFileID);
-    if (!oStatus.ok())
-    {
-        if (oStatus.IsNotFound())
-        {
-            PLG1Debug("LevelDB.Get not found, instanceid %lu", llInstanceID);
-            return 0;
-        }
-        
-        PLG1Err("LevelDB.Get fail, instanceid %lu", llInstanceID);
-        return -1;
-    }
 
-    int ret = m_poValueStore->Del(sFileID, llInstanceID);
-    if (ret != 0)
+    if (OtherUtils::FastRand() % 100 < 1)
     {
-        return ret;
+        //no need to del vfile every times.
+        string sFileID;
+        leveldb::Status oStatus = m_poLevelDB->Get(leveldb::ReadOptions(), sKey, &sFileID);
+        if (!oStatus.ok())
+        {
+            if (oStatus.IsNotFound())
+            {
+                PLG1Debug("LevelDB.Get not found, instanceid %lu", llInstanceID);
+                return 0;
+            }
+            
+            PLG1Err("LevelDB.Get fail, instanceid %lu", llInstanceID);
+            return -1;
+        }
+
+        int ret = m_poValueStore->Del(sFileID, llInstanceID);
+        if (ret != 0)
+        {
+            return ret;
+        }
     }
 
     leveldb::WriteOptions oLevelDBWriteOptions;
     oLevelDBWriteOptions.sync = oWriteOptions.bSync;
     
-    oStatus = m_poLevelDB->Delete(oLevelDBWriteOptions, sKey);
+    leveldb::Status oStatus = m_poLevelDB->Delete(oLevelDBWriteOptions, sKey);
     if (!oStatus.ok())
     {
         PLG1Err("LevelDB.Delete fail, instanceid %lu", llInstanceID);

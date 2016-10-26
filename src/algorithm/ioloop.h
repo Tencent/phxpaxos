@@ -32,6 +32,8 @@ See the AUTHORS file for names of contributors.
 namespace phxpaxos
 {
 
+#define RETRY_QUEUE_MAX_LEN 300
+
 class Instance;
 
 class IOLoop : public Thread
@@ -47,6 +49,8 @@ public:
     void OneLoop(const int iTimeoutMs);
 
     void DealWithRetry();
+
+    void ClearRetryQueue();
 
 public:
     int AddMessage(const char * pcMessage, const int iMessageLen);

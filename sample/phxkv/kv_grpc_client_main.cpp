@@ -56,7 +56,7 @@ void GetGlobal(PhxKVClient & oPhxKVClient, const string & sKey)
     }
     else if (ret == 1)
     {
-        printf("GetGlobal key %s not exist\n", sKey.c_str());
+        printf("GetGlobal key %s not exist, version %lu\n", sKey.c_str(), iReadVersion);
     }
     else if (ret == 101)
     {
@@ -80,7 +80,7 @@ void GetLocal(PhxKVClient & oPhxKVClient, const string & sKey)
     }
     else if (ret == 1)
     {
-        printf("GetLocal key %s not exist\n", sKey.c_str());
+        printf("GetLocal key %s not exist, version %lu\n", sKey.c_str(), iReadVersion);
     }
     else
     {
