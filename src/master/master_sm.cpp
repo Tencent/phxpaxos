@@ -101,7 +101,7 @@ int MasterStateMachine :: LearnMaster(
         const MasterOperator & oMasterOper, 
         const uint64_t llAbsMasterTimeout)
 {
-    ScopedLock<Mutex> oLockGuard(m_oMutex);
+    std::lock_guard<std::mutex> oLockGuard(m_oMutex);
 
     if (oMasterOper.version() != m_llMasterVersion)
     {
@@ -146,7 +146,7 @@ int MasterStateMachine :: LearnMaster(
 
 void MasterStateMachine :: SafeGetMaster(nodeid_t & iMasterNodeID, uint64_t & llMasterVersion)
 {
-    ScopedLock<Mutex> oLockGuard(m_oMutex);
+    std::lock_guard<std::mutex> oLockGuard(m_oMutex);
 
     if (Time::GetSteadyClockMS() >= m_llAbsExpireTime)
     {

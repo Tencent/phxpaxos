@@ -21,6 +21,7 @@ See the AUTHORS file for names of contributors.
 
 #pragma once
 
+#include <mutex>
 #include "event_base.h"
 #include "utils_include.h"
 #include "commdef.h"
@@ -111,7 +112,7 @@ private:
 
     std::queue<QueueData> m_oInQueue;
     int m_iQueueMemSize;
-    Mutex m_oMutex;
+    std::mutex m_oMutex;
 
     uint64_t m_llLastActiveTime;
 

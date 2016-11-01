@@ -298,7 +298,7 @@ void Learner :: OnAskforLearn(const PaxosMsg & oPaxosMsg)
                 if (ret == 0)
                 {
                     BallotNumber oBallot(oState.acceptedid(), oState.acceptednodeid());
-                    SendLearnValue(oPaxosMsg.nodeid(), oPaxosMsg.instanceid(), oBallot, oState.acceptedvalue(), 0);
+                    SendLearnValue(oPaxosMsg.nodeid(), oPaxosMsg.instanceid(), oBallot, oState.acceptedvalue(), 0, false);
                 }
             }
             

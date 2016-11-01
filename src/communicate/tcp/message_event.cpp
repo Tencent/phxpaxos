@@ -94,21 +94,17 @@ const bool MessageEvent :: IsActive()
 int MessageEvent :: AddMessage(const std::string & sMessage)
 {
     m_llLastActiveTime = Time::GetSteadyClockMS();
-
-    m_oMutex.lock();
+    std::lock_guard<std::mutex> oLockGuard(m_oMutex);
 
     if ((int)m_oInQueue.size() > TCP_QUEUE_MAXLEN)
     {
         BP->GetNetworkBP()->TcpQueueFull();
-        m_oMutex.unlock();
-
         //PLErr("queue length %d too long, can't enqueue", m_oInQueue.size());
         return -2;
     }
 
     if (m_iQueueMemSize > MAX_QUEUE_MEM_SIZE)
     {
-        m_oMutex.unlock();
         //PLErr("queue memsize %d too large, can't enqueue", m_iQueueMemSize);
         return -2;
     }

@@ -21,6 +21,7 @@ See the AUTHORS file for names of contributors.
 
 #pragma once
 
+#include <mutex>
 #include "utils_include.h"
 #include "message_event.h"
 
@@ -60,7 +61,7 @@ private:
         SocketAddress oAddr;
     };
     std::queue<AcceptData *> m_oFDQueue;
-    Mutex m_oMutex;
+    std::mutex m_oMutex;
 
     std::vector<MessageEvent *> m_vecCreatedEvent;
 

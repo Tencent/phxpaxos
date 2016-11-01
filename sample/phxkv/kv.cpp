@@ -123,7 +123,7 @@ KVClientRet KVClient :: Set(const std::string & sKey, const std::string & sValue
         return KVCLIENT_SYS_FAIL;
     }
 
-    ScopedLock<Mutex> oLockGuard(m_oMutex);
+    std::lock_guard<std::mutex> oLockGuard(m_oMutex);
     
     uint64_t llServerVersion = 0;
     std::string sServerValue;
@@ -172,7 +172,7 @@ KVClientRet KVClient :: Del(const std::string & sKey, const uint64_t llVersion)
         return KVCLIENT_SYS_FAIL;
     }
 
-    ScopedLock<Mutex> oLockGuard(m_oMutex);
+    std::lock_guard<std::mutex> oLockGuard(m_oMutex);
     
     uint64_t llServerVersion = 0;
     std::string sServerValue;

@@ -21,6 +21,7 @@ See the AUTHORS file for names of contributors.
 
 #pragma once
 
+#include <mutex>
 #include "phxpaxos/log.h"
 #include "utils_include.h"
 #include <string>
@@ -65,7 +66,7 @@ public:
 private:
     LogFunc m_pLogFunc;
     LogLevel m_eLogLevel;
-    Mutex m_oMutex;
+    std::mutex m_oMutex;
 };
     
 }

@@ -35,87 +35,12 @@ See the AUTHORS file for names of contributors.
 #include <map>
 #include <iostream>
 #include <string>
-
-#ifndef _XOPEN_SOURCE
-#define _XOPEN_SOURCE 600
-#endif
-
-#include <semaphore.h>
+#include <condition_variable>
+#include <mutex>
 
 namespace phxpaxos {
 
 using std::deque;
-
-class Mutex : public Noncopyable {
-public:
-    Mutex();
-
-    ~Mutex();
-
-    void lock();
-
-    bool tryLock();
-
-    void unlock();
-
-private:
-
-    friend class Condition;
-
-    pthread_mutex_t _pm;
-};
-
-template <class Lock>
-class ScopedLock : public Noncopyable {
-public:
-    ScopedLock(Lock& lock, bool locked = false) : _locked(locked), _lock(lock) {
-        this->lock();
-    }
-
-    ~ScopedLock() {
-        this->unlock();
-    }
-
-    void lock() {
-        if (!_locked) {
-            _lock.lock();
-            _locked = true;
-        }
-    }
-
-    void unlock() {
-        if (_locked) {
-            _lock.unlock();
-            _locked = false;
-        }
-    }
-
-private:
-    bool _locked;
-    Lock& _lock;
-};
-
-class Condition : public Noncopyable {
-public:
-    Condition(Mutex& mutex);
-
-    ~Condition();
-
-    void signal();
-
-    void broadcast();
-
-    void wait();
-
-    bool tryWait(int ms);
-
-private:
-    bool tryWait(const timespec* timeout);
-
-    Mutex& _mutex;
-    pthread_cond_t _pc;
-    pthread_condattr_t _pc_attr;
-};
 
 class ThreadAttr {
 public:
@@ -165,22 +90,22 @@ protected:
 };
 
 template <class T>
-class Queue : public Noncopyable {
+class Queue {
 public:
-    Queue() : _cond(_mutex), _size(0) {}
+    Queue() : _lock(_mutex), _size(0) { _lock.unlock(); }
 
     virtual ~Queue() {}
 
     T& peek() {
         while (empty()) {
-            _cond.wait();
+            _cond.wait(_lock);
         }
         return _storage.front();
     }
 
     size_t peek(T& value) {
         while (empty()) {
-            _cond.wait();
+            _cond.wait(_lock);
         }
         value = _storage.front();
         return _size;
@@ -188,7 +113,7 @@ public:
 
     bool peek(T& t, int timeoutMS) {
         while (empty()) {
-            if (!_cond.tryWait(timeoutMS)) {
+            if (_cond.wait_for(_lock, std::chrono::milliseconds(timeoutMS)) == std::cv_status::timeout) {
                 return false;
             }
         }
@@ -198,7 +123,7 @@ public:
 
     size_t pop(T* values, size_t n) {
         while (empty()) {
-            _cond.wait();
+            _cond.wait(_lock);
         }
 
         size_t i = 0;
@@ -225,7 +150,7 @@ public:
         }
 
         if (signal) {
-            _cond.signal();
+            _cond.notify_one();
         }
 
         return ++_size;
@@ -244,11 +169,11 @@ public:
     }
 
     void signal() {
-        _cond.signal();
+        _cond.notify_one();
     }
 
     void broadcast() {
-        _cond.broadcast();
+        _cond.notify_all();
     }
 
     virtual void lock() {
@@ -267,72 +192,11 @@ public:
     }
 
 protected:
-    Mutex _mutex;
-    Condition _cond;
+    std::mutex _mutex;
+    std::unique_lock<std::mutex> _lock;
+    std::condition_variable _cond;
     deque<T> _storage;
     size_t _size;
-};
-
-template <class T, class C = std::less<T>, class S = std::vector<T> >
-class Heap : public Noncopyable {
-public:
-    typedef S Storage;
-    typedef typename Storage::const_iterator const_iterator;
-    typedef typename Storage::iterator iterator;
-
-    void push(const T& data) {
-        _storage.push_back(data);
-        std::push_heap(_storage.begin(), _storage.end(), C());
-    }
-
-    T& peek() {
-        return _storage.front();
-    }
-
-    void pop() {
-        std::pop_heap(_storage.begin(), _storage.end(), C());
-        _storage.pop_back();
-    }
-
-    bool empty() const {
-        return _storage.empty();
-    }
-
-    size_t size() const {
-        return _storage.size();
-    }
-
-    void clear() {
-        _storage.clear();
-    }
-
-    const_iterator begin() const {
-        return _storage.begin();
-    }
-
-    iterator begin() {
-        return _storage.begin();
-    }
-
-    const_iterator end() const {
-       return _storage.end();
-    }
-
-    iterator end() {
-       return _storage.end();
-    }
-
-    void lock() {
-        _mutex.lock();
-    }
-
-    void unlock() {
-        _mutex.unlock();
-    }
-
-private:
-    Storage _storage;
-    phxpaxos::Mutex _mutex;
 };
 
 class SyncException : public SysCallException {

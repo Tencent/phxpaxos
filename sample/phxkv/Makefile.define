@@ -19,7 +19,7 @@
 
 allobject=elibphxkv_client.a phxkv_client_tools phxkv_grpcserver 
 
-PHXKV_CLIENT_OBJ=phxkv.pb.o phxkv.grpc.pb.o kv_grpc_client.o kv_grpc_client_main.o utils.o
+PHXKV_CLIENT_OBJ=phxkv.pb.o phxkv.grpc.pb.o kv_grpc_client.o kv_grpc_client_main.o
 
 PHXKV_CLIENT_LIB=phxkv_client
 
@@ -39,7 +39,7 @@ PHXKV_CLIENT_TOOLS_INCS=$(SRC_BASE_PATH)/sample/phxkv
 
 PHXKV_CLIENT_TOOLS_EXTRA_CPPFLAGS=-Wall
 
-PHXKV_GRPCSERVER_OBJ=phxkv.pb.o phxkv.grpc.pb.o kv.o kvsm.o kv_paxos.o log.o kv_grpc_server.o kv_grpc_server_main.o utils.o
+PHXKV_GRPCSERVER_OBJ=phxkv.pb.o phxkv.grpc.pb.o kv.o kvsm.o kv_paxos.o log.o kv_grpc_server.o kv_grpc_server_main.o
 
 PHXKV_GRPCSERVER_LIB=
 

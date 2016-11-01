@@ -22,6 +22,7 @@ See the AUTHORS file for names of contributors.
 #pragma once
 
 #include <string>
+#include <mutex>
 #include "commdef.h"
 #include "utils_include.h"
 #include "commdef.h"
@@ -97,8 +98,8 @@ private:
     BytesBuffer m_oTmpBuffer;
     BytesBuffer m_oTmpAppendBuffer;
 
-    Mutex m_oMutex;
-    Mutex m_oReadMutex;
+    std::mutex m_oMutex;
+    std::mutex m_oReadMutex;
 
     int m_iDeletedMaxFileID;
     int m_iMyGroupIdx;

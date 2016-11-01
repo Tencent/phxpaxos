@@ -23,6 +23,7 @@ See the AUTHORS file for names of contributors.
 
 #include <string>
 #include <map>
+#include <mutex>
 #include "message_event.h"
 #include "utils_include.h"
 
@@ -56,7 +57,7 @@ private:
 private:
     std::map<uint64_t, MessageEvent *> m_mapEvent;
     std::vector<MessageEvent *> m_vecEvent;
-    Mutex m_oMutex;
+    std::mutex m_oMutex;
     
 };
     

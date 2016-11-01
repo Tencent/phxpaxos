@@ -349,7 +349,7 @@ int LogStore :: GetFileFD(const int iNeedWriteSize, int & iFd, int & iFileID, in
 int LogStore :: Append(const WriteOptions & oWriteOptions, const uint64_t llInstanceID, const std::string & sBuffer, std::string & sFileID)
 {
     m_oTimeStat.Point();
-    ScopedLock<Mutex> oLock(m_oMutex);
+    std::lock_guard<std::mutex> oLock(m_oMutex);
 
     int iFd = -1;
     int iFileID = -1;
@@ -434,7 +434,7 @@ int LogStore :: Read(const std::string & sFileID, uint64_t & llInstanceID, std::
         return -1;
     }
     
-    ScopedLock<Mutex> oLock(m_oReadMutex);
+    std::lock_guard<std::mutex> oLock(m_oReadMutex);
 
     m_oTmpBuffer.Ready(iLen);
     iReadLen = read(iFd, m_oTmpBuffer.GetPtr(), iLen);

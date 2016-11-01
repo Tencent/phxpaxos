@@ -20,6 +20,7 @@ See the AUTHORS file for names of contributors.
 */
 
 #include "test_server.h"
+#include <mutex>
 #include <stdio.h>
 #include <iostream>
 #include <string>
@@ -113,7 +114,7 @@ public:
     };
 
 public:
-    Mutex m_oMutex;
+    std::mutex m_oMutex;
     vector<SuccWriteValue> m_vecSuccWrite;
     uint64_t m_llMaxInstanceID;
 };

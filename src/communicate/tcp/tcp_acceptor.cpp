@@ -120,11 +120,10 @@ void TcpAcceptor :: run()
 
 void TcpAcceptor :: CreateEvent()
 {
-    m_oMutex.lock();
+    std::lock_guard<std::mutex> oLockGuard(m_oMutex);
 
     if (m_oFDQueue.empty())
     {
-        m_oMutex.unlock();
         return;
     }
     
@@ -143,13 +142,12 @@ void TcpAcceptor :: CreateEvent()
 
         delete poData;
     }
-
-    m_oMutex.unlock();
 }
 
 void TcpAcceptor :: ClearEvent()
 {
-    m_oMutex.lock();
+    std::lock_guard<std::mutex> oLockGuard(m_oMutex);
+
     for (auto it = m_vecCreatedEvent.begin(); it != end(m_vecCreatedEvent);)
     {
         if ((*it)->IsDestroy())
@@ -162,7 +160,6 @@ void TcpAcceptor :: ClearEvent()
             it++;
         }
     }
-    m_oMutex.unlock();
 }
     
 }

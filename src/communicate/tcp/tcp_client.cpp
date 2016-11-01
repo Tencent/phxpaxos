@@ -58,7 +58,7 @@ MessageEvent * TcpClient :: GetEvent(const std::string & sIP, const int iPort)
     uint32_t iIP = (uint32_t)inet_addr(sIP.c_str());
     uint64_t llNodeID = (((uint64_t)iIP) << 32) | iPort;
 
-    ScopedLock<Mutex> oLockGuard(m_oMutex);
+    std::lock_guard<std::mutex> oLockGuard(m_oMutex);
 
     auto it = m_mapEvent.find(llNodeID);
     if (it != end(m_mapEvent))

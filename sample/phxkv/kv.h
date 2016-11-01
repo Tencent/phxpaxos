@@ -21,9 +21,9 @@ See the AUTHORS file for names of contributors.
 
 #pragma once
 
+#include <mutex>
 #include "leveldb/db.h"
 #include <string>
-#include "utils.h"
 
 namespace phxkv
 {
@@ -61,7 +61,7 @@ public:
 private:
     leveldb::DB * m_poLevelDB;
     bool m_bHasInit;
-    Mutex m_oMutex;
+    std::mutex m_oMutex;
 };
     
 }

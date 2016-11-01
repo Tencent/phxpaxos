@@ -21,7 +21,8 @@ See the AUTHORS file for names of contributors.
 
 #pragma once
 
-#include "concurrent.h"
+#include <mutex>
+#include <condition_variable>
 
 namespace phxpaxos
 {
@@ -41,8 +42,9 @@ public:
     bool WaitTime(const int iTimeMs);
 
 private:
-    Mutex m_oMutex;
-    Condition m_oCond;
+    std::mutex m_oMutex;
+    std::unique_lock<std::mutex> m_oLock;
+    std::condition_variable m_oCond;
 };
 
 }

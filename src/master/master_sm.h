@@ -21,6 +21,7 @@ See the AUTHORS file for names of contributors.
 
 #pragma once
 
+#include <mutex>
 #include "phxpaxos/sm.h"
 #include "commdef.h"
 #include "phxpaxos/def.h"
@@ -125,7 +126,7 @@ private:
     int m_iLeaseTime;
     uint64_t m_llAbsExpireTime;
 
-    Mutex m_oMutex;
+    std::mutex m_oMutex;
 };
     
 }

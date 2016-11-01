@@ -111,6 +111,7 @@ int main(int argc, char ** argv)
         return -1;
     }
 
+
     while (true)
     {
         ::sleep(1);
@@ -119,6 +120,7 @@ int main(int argc, char ** argv)
         printf("master: nodeid %lu version %lu ip %s port %d\n", 
                 oMasterNode.GetNodeID(), llVersion, oMasterNode.GetIP().c_str(), oMasterNode.GetPort());
     }
+
 
     return 0;
 }
