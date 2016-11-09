@@ -94,7 +94,7 @@ const bool MessageEvent :: IsActive()
 int MessageEvent :: AddMessage(const std::string & sMessage)
 {
     m_llLastActiveTime = Time::GetSteadyClockMS();
-    std::lock_guard<std::mutex> oLockGuard(m_oMutex);
+    std::unique_lock<std::mutex> oLock(m_oMutex);
 
     if ((int)m_oInQueue.size() > TCP_QUEUE_MAXLEN)
     {
@@ -116,7 +116,7 @@ int MessageEvent :: AddMessage(const std::string & sMessage)
 
     m_iQueueMemSize += sMessage.size();
 
-    m_oMutex.unlock();
+    oLock.unlock();
 
     JumpoutEpollWait();
 
