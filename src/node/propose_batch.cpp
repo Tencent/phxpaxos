@@ -49,24 +49,34 @@ PendingProposal :: PendingProposal()
 
 ProposeBatch :: ProposeBatch(const int iGroupIdx, Node * poPaxosNode, NotifierPool * poNotifierPool)
     : m_iMyGroupIdx(iGroupIdx), m_poPaxosNode(poPaxosNode), 
-    m_poNotifierPool(poNotifierPool), m_bIsEnd(false), m_iNowQueueValueSize(0),
+    m_poNotifierPool(poNotifierPool), m_bIsEnd(false), m_bIsStarted(false), m_iNowQueueValueSize(0),
     m_iBatchCount(5), m_iBatchDelayTimeMs(20), m_iBatchMaxSize(500 * 1024),
-    m_oThread(&ProposeBatch::Run, this)
+    m_poThread(nullptr)
 {
 }
 
 ProposeBatch :: ~ProposeBatch()
 {
+    delete m_poThread;
+}
+
+void ProposeBatch :: Start()
+{
+    m_poThread = new std::thread(&ProposeBatch::Run, this);
+    assert(m_poThread != nullptr);
 }
 
 void ProposeBatch :: Stop()
 {
-    std::unique_lock<std::mutex> oLock(m_oMutex);
-    m_bIsEnd = true;
-    m_oCond.notify_all();
-    oLock.unlock();
+    if (m_bIsStarted)
+    {
+        std::unique_lock<std::mutex> oLock(m_oMutex);
+        m_bIsEnd = true;
+        m_oCond.notify_all();
+        oLock.unlock();
 
-    m_oThread.join();
+        m_poThread->join();
+    }
 }
 
 void ProposeBatch :: SetBatchCount(const int iBatchCount)
@@ -166,6 +176,7 @@ void ProposeBatch :: AddProposal(const std::string & sValue, uint64_t & llInstan
 
 void ProposeBatch :: Run()
 {
+    m_bIsStarted = true;
     //daemon thread for very low qps.
     TimeStat oTimeStat;
     while (true)

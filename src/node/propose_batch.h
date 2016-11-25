@@ -57,6 +57,8 @@ public:
     ProposeBatch(const int iGroupIdx, Node * poPaxosNode, NotifierPool * poNotifierPool);
     virtual ~ProposeBatch();
 
+    void Start();
+
     void Run();
 
     void Stop();
@@ -86,6 +88,7 @@ private:
     std::condition_variable m_oCond;
     std::queue<PendingProposal> m_oQueue;
     bool m_bIsEnd;
+    bool m_bIsStarted;
     int m_iNowQueueValueSize;
 
 private:
@@ -93,7 +96,7 @@ private:
     int m_iBatchDelayTimeMs;
     int m_iBatchMaxSize;
 
-    std::thread m_oThread;
+    std::thread * m_poThread;
 };
 
 }

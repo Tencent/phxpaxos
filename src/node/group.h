@@ -21,6 +21,7 @@ See the AUTHORS file for names of contributors.
 
 #pragma once
 
+#include <thread>
 #include "comm_include.h"
 #include "config_include.h"
 #include "instance.h"
@@ -43,7 +44,13 @@ public:
 
     ~Group();
 
-    int Init();
+    void StartInit();
+
+    void Init();
+
+    int GetInitRet();
+
+    void Start();
 
     Config * GetConfig();
 
@@ -61,6 +68,9 @@ private:
     Communicate m_oCommunicate;
     Config m_oConfig;
     Instance m_oInstance;
+
+    int m_iInitRet;
+    std::thread * m_poThread;
 };
     
 }

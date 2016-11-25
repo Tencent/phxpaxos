@@ -29,6 +29,7 @@ TcpIOThread :: TcpIOThread(NetWork * poNetWork)
     : m_oTcpAcceptor(&m_oEventLoop, poNetWork),
     m_oTcpClient(&m_oEventLoop, poNetWork)
 {
+    m_bIsStarted = false;
     m_oEventLoop.SetTcpAcceptor(&m_oTcpAcceptor);
     m_oEventLoop.SetTcpClient(&m_oTcpClient);
 
@@ -44,9 +45,12 @@ TcpIOThread :: ~TcpIOThread()
 void TcpIOThread :: Stop()
 {
     m_oTcpAcceptor.Stop();
-    m_oEventLoop.Stop();
 
-    join();
+    if (m_bIsStarted)
+    {
+        m_oEventLoop.Stop();
+        join();
+    }
 
     PLHead("TcpIOThread [END]");
 }
@@ -59,6 +63,7 @@ int TcpIOThread :: Init(const std::string & sListenIp, const int iListenPort)
 
 void TcpIOThread :: run()
 {
+    m_bIsStarted = true;
     m_oTcpAcceptor.start();
     m_oEventLoop.StartLoop();
 }

@@ -47,6 +47,7 @@ CheckpointSender :: CheckpointSender(
 {
     m_bIsEnded = false;
     m_bIsEnd = false;
+    m_bIsStarted = false;
     m_llUUID = (m_poConfig->GetMyNodeID() ^ m_poLearner->GetInstanceID()) + OtherUtils::FastRand();
     m_llSequence = 0;
 
@@ -60,7 +61,7 @@ CheckpointSender :: ~CheckpointSender()
 
 void CheckpointSender :: Stop()
 {
-    if (!m_bIsEnded)
+    if (m_bIsStarted && !m_bIsEnded)
     {
         m_bIsEnd = true;
         join();
@@ -79,6 +80,7 @@ const bool CheckpointSender :: IsEnd() const
 
 void CheckpointSender :: run()
 {
+    m_bIsStarted = true;
     m_llAbsLastAckTime = Time::GetSteadyClockMS();
 
     //pause checkpoint replayer

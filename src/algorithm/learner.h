@@ -84,7 +84,7 @@ public:
             const SMFac * poSMFac);
     virtual ~Learner();
 
-    void Init();
+    void StartLearnerSender();
 
     virtual void InitForNewPaxosInstance();
 

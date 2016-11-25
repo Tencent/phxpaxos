@@ -59,8 +59,6 @@ Instance :: ~Instance()
 
 int Instance :: Init()
 {
-    m_oLearner.Init();
-
     //Must init acceptor first, because the max instanceid is record in acceptor state.
     int ret = m_oAcceptor.Init();
     if (ret != 0)
@@ -98,6 +96,11 @@ int Instance :: Init()
     {
         if (llNowInstanceID > m_oAcceptor.GetInstanceID())
         {
+            ret = ProtectionLogic_IsCheckpointInstanceIDCorrect(llNowInstanceID, m_oAcceptor.GetInstanceID());
+            if (ret != 0)
+            {
+                return ret;
+            }
             m_oAcceptor.InitForNewPaxosInstance();
         }
         
@@ -120,14 +123,72 @@ int Instance :: Init()
 
     m_oLearner.Reset_AskforLearn_Noop();
 
+    PLGImp("OK");
+
+    return 0;
+}
+
+void Instance :: Start()
+{
+    //start learner sender
+    m_oLearner.StartLearnerSender();
     //start ioloop
     m_oIOLoop.start();
     //start checkpoint replayer and cleaner
     m_oCheckpointMgr.Start();
+}
 
-    PLGImp("OK");
+int Instance :: ProtectionLogic_IsCheckpointInstanceIDCorrect(const uint64_t llCPInstanceID, const uint64_t llLogMaxInstanceID) 
+{
+    if (llCPInstanceID <= llLogMaxInstanceID + 1)
+    {
+        return 0;
+    }
 
-    return 0;
+    //checkpoint_instanceid larger than log_maxinstanceid+1 will appear in the following situations 
+    //1. Pull checkpoint from other node automatically and restart. (normal case)
+    //2. Paxos log was manually all deleted. (may be normal case)
+    //3. Paxos log is lost because Options::bSync set as false. (bad case)
+    //4. Checkpoint data corruption results an error checkpoint_instanceid. (bad case)
+    //5. Checkpoint data copy from other node manually. (bad case)
+    //In these bad cases, paxos log between [log_maxinstanceid, checkpoint_instanceid) will not exist
+    //and checkpoint data maybe wrong, we can't ensure consistency in this case.
+
+    if (llLogMaxInstanceID == 0)
+    {
+        //case 1. Automatically pull checkpoint will delete all paxos log first.
+        //case 2. No paxos log. 
+        //If minchosen instanceid < checkpoint instanceid.
+        //Then Fix minchosen instanceid to avoid that paxos log between [log_maxinstanceid, checkpoint_instanceid) not exist.
+        //if minchosen isntanceid > checkpoint.instanceid.
+        //That probably because the automatic pull checkpoint did not complete successfully.
+        uint64_t llMinChosenInstanceID = m_oCheckpointMgr.GetMinChosenInstanceID();
+        if (m_oCheckpointMgr.GetMinChosenInstanceID() != llCPInstanceID)
+        {
+            int ret = m_oCheckpointMgr.SetMinChosenInstanceID(llCPInstanceID);
+            if (ret != 0)
+            {
+                PLGErr("SetMinChosenInstanceID fail, now minchosen %lu max instanceid %lu checkpoint instanceid %lu",
+                        m_oCheckpointMgr.GetMinChosenInstanceID(), llLogMaxInstanceID, llCPInstanceID);
+                return -1;
+            }
+
+            PLGStatus("Fix minchonse instanceid ok, old minchosen %lu now minchosen %lu max %lu checkpoint %lu",
+                    llMinChosenInstanceID, m_oCheckpointMgr.GetMinChosenInstanceID(),
+                    llLogMaxInstanceID, llCPInstanceID);
+        }
+
+        return 0;
+    }
+    else
+    {
+        //other case.
+        PLGErr("checkpoint instanceid %lu larger than log max instanceid %lu. "
+                "Please ensure that your checkpoint data is correct. "
+                "If you ensure that, just delete all paxos log data and restart.",
+                llCPInstanceID, llLogMaxInstanceID);
+        return -2;
+    }
 }
 
 int Instance :: InitLastCheckSum()
@@ -483,6 +544,26 @@ int Instance :: ReceiveMsgForProposer(const PaxosMsg & oPaxosMsg)
     
     if (oPaxosMsg.instanceid() != m_oProposer.GetInstanceID())
     {
+        if (oPaxosMsg.instanceid() + 1 == m_oProposer.GetInstanceID())
+        {
+            //Exipred reply msg on last instance.
+            //If the response of a node is always slower than the majority node, 
+            //then the message of the node is always ignored even if it is a reject reply.
+            //In this case, if we do not deal with these reject reply, the node that 
+            //gave reject reply will always give reject reply. 
+            //This causes the node to remain in catch-up state.
+            //
+            //To avoid this problem, we need to deal with the expired reply.
+            if (oPaxosMsg.msgtype() == MsgType_PaxosPrepareReply)
+            {
+                m_oProposer.OnExpiredPrepareReply(oPaxosMsg);
+            }
+            else if (oPaxosMsg.msgtype() == MsgType_PaxosAcceptReply)
+            {
+                m_oProposer.OnExpiredAcceptReply(oPaxosMsg);
+            }
+        }
+
         BP->GetInstanceBP()->OnReceivePaxosProposerMsgInotsame();
         //PLGErr("InstanceID not same, skip msg");
         return 0;

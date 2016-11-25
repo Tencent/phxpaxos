@@ -372,6 +372,16 @@ void Proposer :: OnPrepareReply(const PaxosMsg & oPaxosMsg)
     PLGHead("END");
 }
 
+void Proposer :: OnExpiredPrepareReply(const PaxosMsg & oPaxosMsg)
+{
+    if (oPaxosMsg.rejectbypromiseid() != 0)
+    {
+        PLGDebug("[Expired Prepare Reply Reject] RejectByPromiseID %lu", oPaxosMsg.rejectbypromiseid());
+        m_bWasRejectBySomeone = true;
+        m_oProposerState.SetOtherProposalID(oPaxosMsg.rejectbypromiseid());
+    }
+}
+
 void Proposer :: Accept()
 {
     PLGHead("START ProposalID %lu ValueSize %zu ValueLen %zu", 
@@ -456,6 +466,16 @@ void Proposer :: OnAcceptReply(const PaxosMsg & oPaxosMsg)
     }
 
     PLGHead("END");
+}
+
+void Proposer :: OnExpiredAcceptReply(const PaxosMsg & oPaxosMsg)
+{
+    if (oPaxosMsg.rejectbypromiseid() != 0)
+    {
+        PLGDebug("[Expired Accept Reply Reject] RejectByPromiseID %lu", oPaxosMsg.rejectbypromiseid());
+        m_bWasRejectBySomeone = true;
+        m_oProposerState.SetOtherProposalID(oPaxosMsg.rejectbypromiseid());
+    }
 }
 
 void Proposer :: OnPrepareTimeout()

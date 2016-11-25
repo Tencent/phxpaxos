@@ -44,6 +44,7 @@ int Node :: RunNode(const Options & oOptions, Node *& poNode)
     int ret = poRealNode->Init(oOptions, poNetWork);
     if (ret != 0)
     {
+        delete poRealNode;
         return ret;
     }
 

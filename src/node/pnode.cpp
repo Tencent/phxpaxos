@@ -186,7 +186,13 @@ void PNode :: InitStateMachine(const Options & oOptions)
         {
             AddStateMachine(oGroupSMInfo.iGroupIdx, poSM);
         }
+    }
+}
 
+void PNode :: RunMaster(const Options & oOptions)
+{
+    for (auto & oGroupSMInfo : oOptions.vecGroupSMInfoList)
+    {
         //check if need to run master.
         if (oGroupSMInfo.bIsUseMaster)
         {
@@ -199,6 +205,14 @@ void PNode :: InitStateMachine(const Options & oOptions)
                 PLImp("I'm follower, not run master damon.");
             }
         }
+    }
+}
+
+void PNode :: RunProposeBatch()
+{
+    for (auto & poProposeBatch : m_vecProposeBatch)
+    {
+        poProposeBatch->Start();
     }
 }
 
@@ -231,7 +245,7 @@ int PNode :: Init(const Options & oOptions, NetWork *& poNetWork)
     //step3 build masterlist
     for (int iGroupIdx = 0; iGroupIdx < oOptions.iGroupCount; iGroupIdx++)
     {
-        MasterDamon * poMaster = new MasterDamon(this, iGroupIdx, poLogStorage);
+        MasterMgr * poMaster = new MasterMgr(this, iGroupIdx, poLogStorage);
         assert(poMaster != nullptr);
         m_vecMasterList.push_back(poMaster);
 
@@ -264,15 +278,36 @@ int PNode :: Init(const Options & oOptions, NetWork *& poNetWork)
     //step6 init statemachine
     InitStateMachine(oOptions);    
 
-    //step7 init group
+    //step7 parallel init group
     for (auto & poGroup : m_vecGroupList)
     {
-        int ret = poGroup->Init();
-        if (ret != 0)
+        poGroup->StartInit();
+    }
+
+    for (auto & poGroup : m_vecGroupList)
+    {
+        int initret = poGroup->GetInitRet();
+        if (initret != 0)
         {
-            return ret;
+            ret = initret;
         }
     }
+
+    if (ret != 0)
+    {
+        return ret;
+    }
+
+    //last step. must init ok, then should start threads.
+    //because that stop threads is slower, if init fail, we need much time to stop many threads.
+    //so we put start threads in the last step.
+    for (auto & poGroup : m_vecGroupList)
+    {
+        //start group's thread first.
+        poGroup->Start();
+    }
+    RunMaster(oOptions);
+    RunProposeBatch();
 
     PLHead("OK");
 

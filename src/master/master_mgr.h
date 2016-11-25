@@ -21,52 +21,51 @@ See the AUTHORS file for names of contributors.
 
 #pragma once
 
-#include <mutex>
+#include "commdef.h"
 #include "utils_include.h"
-#include "message_event.h"
+#include "phxpaxos/node.h"
+#include "master_sm.h"
 
-namespace phxpaxos
+namespace phxpaxos 
 {
 
-class EventLoop;
-class NetWork;
-
-class TcpAcceptor : public Thread
+class MasterMgr : public Thread
 {
 public:
-    TcpAcceptor(
-            EventLoop * poEventLoop,
-            NetWork * poNetWork);
-    ~TcpAcceptor();
+    MasterMgr(const Node * poPaxosNode, const int iGroupIdx, const LogStorage * poLogStorage);
+    ~MasterMgr();
 
-    void Listen(const std::string & sListenIP, const int iListenPort);
+    void RunMaster();
+    
+    void StopMaster();
+
+    int Init();
 
     void run();
 
-    void Stop();
+    void SetLeaseTime(const int iLeaseTimeMs);
 
-    void CreateEvent();
+    void TryBeMaster(const int iLeaseTime);
 
-    void ClearEvent();
+    void DropMaster();
 
-private:
-    ServerSocket m_oSocket;
-    EventLoop * m_poEventLoop;
-    NetWork * m_poNetWork;
+public:
+    MasterStateMachine * GetMasterSM();
 
 private:
-    struct AcceptData
-    {
-        int fd;
-        SocketAddress oAddr;
-    };
-    std::queue<AcceptData *> m_oFDQueue;
-    std::mutex m_oMutex;
+    Node * m_poPaxosNode;
 
-    std::vector<MessageEvent *> m_vecCreatedEvent;
+    MasterStateMachine m_oDefaultMasterSM;
+
+private:
+    int m_iLeaseTime;
 
     bool m_bIsEnd;
     bool m_bIsStarted;
+
+    int m_iMyGroupIdx;
+
+    bool m_bNeedDropMaster;
 };
     
 }

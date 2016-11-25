@@ -34,7 +34,8 @@ Group :: Group(LogStorage * poLogStorage,
     m_oConfig(poLogStorage, oOptions.bSync, oOptions.iSyncInterval, oOptions.bUseMembership, 
             oOptions.oMyNode, oOptions.vecNodeInfoList, oOptions.vecFollowerNodeInfoList, 
             iGroupIdx, oOptions.iGroupCount, oOptions.pMembershipChangeCallback),
-    m_oInstance(&m_oConfig, poLogStorage, &m_oCommunicate, oOptions.bUseCheckpointReplayer)
+    m_oInstance(&m_oConfig, poLogStorage, &m_oCommunicate, oOptions.bUseCheckpointReplayer),
+    m_iInitRet(-1), m_poThread(nullptr)
 {
     m_oConfig.SetMasterSM(poMasterSM);
 }
@@ -43,19 +44,38 @@ Group :: ~Group()
 {
 }
 
-int Group :: Init()
+void Group :: StartInit()
 {
-    int ret = m_oConfig.Init();
-    if (ret != 0)
+    m_poThread = new std::thread(&Group::Init, this);
+    assert(m_poThread != nullptr);
+}
+
+void Group :: Init()
+{
+    m_iInitRet = m_oConfig.Init();
+    if (m_iInitRet != 0)
     {
-        return ret;
+        return;
     }
 
     //inside sm
     AddStateMachine(m_oConfig.GetSystemVSM());
     AddStateMachine(m_oConfig.GetMasterSM());
     
-    return m_oInstance.Init();
+    m_iInitRet = m_oInstance.Init();
+}
+
+int Group :: GetInitRet()
+{
+    m_poThread->join();
+    delete m_poThread;
+
+    return m_iInitRet;
+}
+
+void Group :: Start()
+{
+    m_oInstance.Start();
 }
 
 Config * Group :: GetConfig()

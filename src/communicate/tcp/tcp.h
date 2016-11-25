@@ -47,6 +47,8 @@ private:
     TcpAcceptor m_oTcpAcceptor;
     TcpClient m_oTcpClient;
     EventLoop m_oEventLoop;
+
+    bool m_bIsStarted;
 };
     
 }

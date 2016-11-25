@@ -50,6 +50,8 @@ public:
 
     int Init();
 
+    void Start();
+
     int InitLastCheckSum();
 
     const uint64_t GetNowInstanceID();
@@ -105,6 +107,8 @@ private:
     int PlayLog(const uint64_t llBeginInstanceID, const uint64_t llEndInstanceID);
 
     bool ReceiveMsgHeaderCheck(const Header & oHeader, const nodeid_t iFromNodeID);
+
+    int ProtectionLogic_IsCheckpointInstanceIDCorrect(const uint64_t llCPInstanceID, const uint64_t llLogMaxInstanceID);
 
 private:
     void NewInstance();

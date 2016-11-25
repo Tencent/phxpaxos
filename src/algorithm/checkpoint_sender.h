@@ -84,6 +84,7 @@ private:
 
     bool m_bIsEnd;
     bool m_bIsEnded;
+    bool m_bIsStarted;
 
 private:
     uint64_t m_llUUID;

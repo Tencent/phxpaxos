@@ -36,7 +36,7 @@ namespace phxpaxos
 {
 
 UDPRecv :: UDPRecv(DFNetWork * poDFNetWork) 
-    : m_poDFNetWork(poDFNetWork), m_iSockFD(-1), m_bIsEnd(false)
+    : m_poDFNetWork(poDFNetWork), m_iSockFD(-1), m_bIsEnd(false), m_bIsStarted(false)
 {
 }
 
@@ -51,8 +51,11 @@ UDPRecv :: ~UDPRecv()
 
 void UDPRecv :: Stop()
 {
-    m_bIsEnd = true;
-    join();
+    if (m_bIsStarted)
+    {
+        m_bIsEnd = true;
+        join();
+    }
 }
 
 int UDPRecv :: Init(const int iPort)
@@ -82,6 +85,8 @@ int UDPRecv :: Init(const int iPort)
 
 void UDPRecv :: run()
 {
+    m_bIsStarted = true;
+
     char sBuffer[65536] = {0};
 
     struct sockaddr_in addr;
@@ -125,7 +130,7 @@ void UDPRecv :: run()
 
 //////////////////////////////////////////////
 
-UDPSend :: UDPSend() : m_iSockFD(-1), m_bIsEnd(false)
+UDPSend :: UDPSend() : m_iSockFD(-1), m_bIsEnd(false), m_bIsStarted(false)
 {
 }
 
@@ -151,8 +156,11 @@ int UDPSend :: Init()
 
 void UDPSend :: Stop()
 {
-    m_bIsEnd = true;
-    join();
+    if (m_bIsStarted)
+    {
+        m_bIsEnd = true;
+        join();
+    }
 }
 
 void UDPSend :: SendMessage(const std::string & sIP, const int iPort, const std::string & sMessage)
@@ -174,6 +182,8 @@ void UDPSend :: SendMessage(const std::string & sIP, const int iPort, const std:
 
 void UDPSend :: run()
 {
+    m_bIsStarted = true;
+
     while(true)
     {
         QueueData * poData = nullptr;

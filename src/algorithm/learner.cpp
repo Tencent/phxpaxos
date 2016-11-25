@@ -148,7 +148,7 @@ Learner :: ~Learner()
     delete m_poCheckpointSender;
 }
 
-void Learner :: Init()
+void Learner :: StartLearnerSender()
 {
     m_oLearnerSender.start();
 }

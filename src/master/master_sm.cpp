@@ -91,7 +91,7 @@ int MasterStateMachine :: UpdateMasterToStore(const nodeid_t llMasterNodeID, con
     oVariables.set_leasetime(iLeaseTime);
 
     WriteOptions oWriteOptions;
-    oWriteOptions.bSync = false;
+    oWriteOptions.bSync = true;
     
     return m_oMVStore.Write(oWriteOptions, m_iMyGroupIdx, oVariables);
 }
@@ -105,7 +105,7 @@ int MasterStateMachine :: LearnMaster(
 
     if (oMasterOper.version() != m_llMasterVersion)
     {
-        PLG1Err("version conflit, op version %lu now master version %lu",
+        PLG1Debug("version conflit, op version %lu now master version %lu",
                 oMasterOper.version(), m_llMasterVersion);
         return 0;
     }
@@ -248,6 +248,8 @@ bool MasterStateMachine :: MakeOpValue(
 
 int MasterStateMachine :: GetCheckpointBuffer(std::string & sCPBuffer)
 {
+    std::lock_guard<std::mutex> oLockGuard(m_oMutex);
+
     if (m_llMasterVersion == (uint64_t)-1)
     {
         return 0;
@@ -282,6 +284,8 @@ int MasterStateMachine :: UpdateByCheckpoint(const std::string & sCPBuffer, bool
         PLG1Err("Variables.ParseFromArray fail, bufferlen %zu", sCPBuffer.size());
         return -1;
     }
+
+    std::lock_guard<std::mutex> oLockGuard(m_oMutex);
 
     if (oVariables.version() <= m_llMasterVersion
             && m_llMasterVersion != (uint64_t)-1)

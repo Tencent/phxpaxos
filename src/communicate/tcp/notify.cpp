@@ -59,7 +59,7 @@ int Notify :: Init()
 
     fcntl(m_iPipeFD[0], F_SETFL, O_NONBLOCK);
     fcntl(m_iPipeFD[1], F_SETFL, O_NONBLOCK);
-    
+
     AddEvent(EPOLLIN);
     return 0;
 }

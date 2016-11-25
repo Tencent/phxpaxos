@@ -37,6 +37,7 @@ TcpAcceptor :: TcpAcceptor(
     m_poNetWork(poNetWork)
 {
     m_bIsEnd = false;
+    m_bIsStarted = false;
 }
 
 TcpAcceptor :: ~TcpAcceptor()
@@ -59,12 +60,17 @@ void TcpAcceptor :: Listen(const std::string & sListenIP, const int iListenPort)
 
 void TcpAcceptor :: Stop()
 {
-    m_bIsEnd = true;
-    join();
+    if (m_bIsStarted)
+    {
+        m_bIsEnd = true;
+        join();
+    }
 }
 
 void TcpAcceptor :: run()
 {
+    m_bIsStarted = true;
+
     PLHead("start accept...");
 
     m_oSocket.setAcceptTimeout(500);

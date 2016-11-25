@@ -27,7 +27,7 @@ See the AUTHORS file for names of contributors.
 #include "db.h"
 #include "dfnetwork.h"
 #include "group.h"
-#include "master_damon.h"
+#include "master_mgr.h"
 #include "propose_batch.h"
 #include "utils_include.h"
 
@@ -108,9 +108,12 @@ private:
             const NodeInfoList & vecNodeInfoList, 
             const uint64_t llVersion);
 
+    void RunMaster(const Options & oOptions);
+    void RunProposeBatch();
+
 private:
     std::vector<Group *> m_vecGroupList;
-    std::vector<MasterDamon *> m_vecMasterList;
+    std::vector<MasterMgr *> m_vecMasterList;
     std::vector<ProposeBatch *> m_vecProposeBatch;
 
 private:

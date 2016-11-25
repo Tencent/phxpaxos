@@ -39,9 +39,9 @@ LearnerSender :: ~LearnerSender()
 
 void LearnerSender :: Stop()
 {
-    m_bIsEnd = true;
     if (m_bIsStart)
     {
+        m_bIsEnd = true;
         join();
     }
 }

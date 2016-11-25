@@ -44,6 +44,7 @@ private:
     DFNetWork * m_poDFNetWork;
     int m_iSockFD;
     bool m_bIsEnd;
+    bool m_bIsStarted;
 };
 
 class UDPSend : public Thread
@@ -74,6 +75,7 @@ private:
     Queue<QueueData *> m_oSendQueue;
     int m_iSockFD;
     bool m_bIsEnd;
+    bool m_bIsStarted;
 };
     
 }

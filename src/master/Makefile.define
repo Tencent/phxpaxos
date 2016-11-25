@@ -19,7 +19,7 @@
 
 allobject=libmaster.a 
 
-MASTER_OBJ=master_sm.pb.o master_sm.o master_damon.o master_variables_store.o
+MASTER_OBJ=master_sm.pb.o master_sm.o master_mgr.o master_variables_store.o
 
 MASTER_LIB=master src/utils:utils src/comm:comm src/config:config src/logstorage:logstorage
 
