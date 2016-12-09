@@ -284,7 +284,7 @@ def CreateMakeFile(path):
 							binary_list.append(target)
 
 		except:
-			print "file %s not found:" % makefile_define_path
+			print("file %s not found:" % makefile_define_path)
 		finally:
 			define_makefile_file.close()
 
@@ -328,6 +328,6 @@ if(__name__ == '__main__'):
 	base_path = sys.argv[1]
 	current_path = sys.argv[2]
 	if(current_path[0:len(base_path)] != base_path):
-		print "path error, base %s, current %s" % (base_path, current_path[0:len(base_path)])
+		print("path error, base %s, current %s" % (base_path, current_path[0:len(base_path)]))
 		exit(0)
 	CreateMakeFile(current_path)

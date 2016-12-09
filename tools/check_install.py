@@ -39,28 +39,28 @@ def GetPathPrefix(key):
 
 def CheckBasePath():
 	global lib_dir, sbin_dir
-	lib_dir=GetPath("PHX_LIB_PATH")	
+	lib_dir=GetPath("PHX_LIB_PATH")
 
 	if( not os.path.exists( lib_dir ) ):
 		os.mkdir( lib_dir )
 
-	sbin_dir=GetPath("PHX_SBIN_PATH")	
+	sbin_dir=GetPath("PHX_SBIN_PATH")
 
 	if( not os.path.exists( sbin_dir ) ):
 		os.mkdir( sbin_dir )
 
-	extlib_dir=GetPath("PHX_EXTLIB_PATH")	
+	extlib_dir=GetPath("PHX_EXTLIB_PATH")
 	if( not os.path.exists( extlib_dir ) ):
 		os.mkdir( extlib_dir )
 
 def Check3rdPath():
 
 	for lib in third_party_list:
-		path_list=GetPathPrefix(lib)	
+		path_list=GetPathPrefix(lib)
 		for path in path_list:
 			if( not os.path.exists( path[1] ) ):
-				print "%s not found" % path[1]
-				print "please make sure %s has been placed on third party directory" % lib
+				print("%s not found" % path[1])
+				print("please make sure %s has been placed on third party directory" % lib)
 				exit(1)
 
 if(__name__ == '__main__'):
