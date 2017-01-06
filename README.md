@@ -1,8 +1,8 @@
 [简体中文README](https://github.com/Tencent/phxpaxos/blob/master/README.zh_CN.md)
 
-**PhxPaxos is a state-synchronization lib based on Paxos protocol, it is totally designed by Wechat independently. It can help your services in synchronizating the state from a single node to another nodes to make services into a multi-copy cluster and fail-over handing automatically by calling functions in our lib.**
+**PhxPaxos is a state-synchronization lib based on Paxos protocol, it is totally designed by Wechat independently. It can help your services in synchronizing the state from a single node to the other nodes to form a multi-copy cluster and handling fail-over automatically by calling functions in our lib.**
 
-**This lib has been used in Wechat production environment, we also test it in a large number of harsh environments to guarantee a stable consistency.**
+**This lib has been used in Wechat production environment, we have also tested it in a large number of harsh environments to guarantee a stable consistency.**
 
 Authors: Haochuan Cui, Ming Chen, Junchao Chen and Duokai Huang 
 
