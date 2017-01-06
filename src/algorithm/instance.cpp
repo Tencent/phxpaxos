@@ -31,7 +31,7 @@ Instance :: Instance(
         const Config * poConfig, 
         const LogStorage * poLogStorage,
         const MsgTransport * poMsgTransport,
-        const bool bUseCheckpointReplayer)
+        const Options & oOptions)
     : m_oSMFac(poConfig->GetMyGroupIdx()),
     m_oIOLoop((Config *)poConfig, this),
     m_oAcceptor(poConfig, poMsgTransport, this, poLogStorage), 
@@ -40,7 +40,8 @@ Instance :: Instance(
     m_oPaxosLog(poLogStorage),
     m_oCommitCtx((Config *)poConfig),
     m_oCommitter((Config *)poConfig, &m_oCommitCtx, &m_oIOLoop, &m_oSMFac),
-    m_oCheckpointMgr((Config *)poConfig, &m_oSMFac, (LogStorage *)poLogStorage, bUseCheckpointReplayer)
+    m_oCheckpointMgr((Config *)poConfig, &m_oSMFac, (LogStorage *)poLogStorage, oOptions.bUseCheckpointReplayer),
+    m_oOptions(oOptions)
 {
     m_poConfig = (Config *)poConfig;
     m_poMsgTransport = (MsgTransport *)poMsgTransport;
@@ -338,6 +339,9 @@ void Instance :: CheckNewValue()
     }
     else
     {
+        if (m_oOptions.bOpenChangeValueBeforePropose) {
+            m_oSMFac.BeforePropose(m_poConfig->GetMyGroupIdx(), m_oCommitCtx.GetCommitValue());
+        }
         m_oProposer.NewValue(m_oCommitCtx.GetCommitValue());
     }
 }

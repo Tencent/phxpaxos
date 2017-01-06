@@ -69,7 +69,7 @@ void DFNetWork :: RunNetWork()
 {
     m_oUDPSend.start();
     m_oUDPRecv.start();
-    m_oTcpIOThread.start();
+    m_oTcpIOThread.Start();
 }
 
 int DFNetWork :: SendMessageTCP(const std::string & sIp, const int iPort, const std::string & sMessage)

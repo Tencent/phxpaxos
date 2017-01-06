@@ -43,8 +43,22 @@ public:
 
     bool CheckExecuteValueCorrect(const std::vector<std::pair<uint64_t, std::string> > & vecOtherExecuted);
 
+    void BeforePropose(const int iGroupIdx, std::string & sValue);
+
+    const bool NeedCallBeforePropose();
+
+public:
+    static std::string PackTestValue(const std::string & sValue);
+
+    static void PackTestValueWithChecksum(std::string & sValue, const uint32_t iLastChecksum);
+
+    static void UnPackTestValue(const std::string & sValue, std::string & sBodyValue, uint32_t & iLastChecksum);
+
 public:
     std::vector<std::pair<uint64_t, std::string> > m_vecExecuted;
+
+private:
+    uint32_t m_iLastValueChecksum;
 };
     
 }

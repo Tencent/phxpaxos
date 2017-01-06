@@ -60,6 +60,10 @@ public:
         return m_llMasterVersion;
     }
 
+    void BeforePropose(const int iGroupIdx, std::string & sValue);
+
+    const bool NeedCallBeforePropose();
+
 public:
     int GetCheckpointState(const int iGroupIdx, std::string & sDirPath, 
             std::vector<std::string> & vecFileList)

@@ -34,10 +34,10 @@ namespace phxpaxos
 #define MAX_ACCEPT_TIMEOUTMS (InsideOptions::Instance()->GetMaxAcceptTimeoutMs())
 #define QUEUE_MAXLENGTH (InsideOptions::Instance()->GetMaxIOLoopQueueLen())
 #define ASKFORLEARN_NOOP_INTERVAL (InsideOptions::Instance()->GetAskforLearnInterval())
-#define SENDLEARNVALUE_ACK_LEAD (InsideOptions::Instance()->GetLeanerReceiver_Ack_Lead())
-#define LearnerSender_PREPARE_TIMEOUT (InsideOptions::Instance()->GetLeanerSenderPrepareTimeoutMs())
-#define LearnerSender_ACK_TIMEOUT (InsideOptions::Instance()->GetLeanerSender_Ack_TimeoutMs())
-#define LearnerSender_ACK_LEAD (InsideOptions::Instance()->GetLeanerSender_Ack_Lead())
+#define LearnerSender_PREPARE_TIMEOUT (InsideOptions::Instance()->GetLearnerSenderPrepareTimeoutMs())
+#define LearnerSender_ACK_TIMEOUT (InsideOptions::Instance()->GetLearnerSender_Ack_TimeoutMs())
+#define LearnerSender_ACK_LEAD (InsideOptions::Instance()->GetLearnerSender_Ack_Lead())
+#define LearnerReceiver_ACK_LEAD (InsideOptions::Instance()->GetLearnerReceiver_Ack_Lead())
 #define TCP_QUEUE_MAXLEN (InsideOptions::Instance()->GetMaxQueueLen())
 #define UDP_QUEUE_MAXLEN (InsideOptions::Instance()->GetMaxQueueLen())
 #define TCP_OUTQUEUE_DROP_TIMEMS (InsideOptions::Instance()->GetTcpOutQueueDropTimeMs())
@@ -77,13 +77,13 @@ public:
 
     const int GetAskforLearnInterval();
 
-    const int GetLeanerReceiver_Ack_Lead();
+    const int GetLearnerReceiver_Ack_Lead();
 
-    const int GetLeanerSenderPrepareTimeoutMs();
+    const int GetLearnerSenderPrepareTimeoutMs();
 
-    const int GetLeanerSender_Ack_TimeoutMs();
+    const int GetLearnerSender_Ack_TimeoutMs();
 
-    const int GetLeanerSender_Ack_Lead();
+    const int GetLearnerSender_Ack_Lead();
 
     const int GetTcpOutQueueDropTimeMs();
 

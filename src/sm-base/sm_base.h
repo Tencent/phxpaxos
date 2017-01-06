@@ -50,6 +50,13 @@ public:
     void AddSM(StateMachine * poSM);
 
 public:
+    void BeforePropose(const int iGroupIdx, std::string & sValue);
+
+    void BeforeBatchPropose(const int iGroupIdx, std::string & sValue);
+
+    void BeforeProposeCall(const int iGroupIdx, const int iSMID, std::string & sValue, bool & change);
+
+public:
     const uint64_t GetCheckpointInstanceID(const int iGroupIdx) const;
 
     std::vector<StateMachine *> GetSMList();

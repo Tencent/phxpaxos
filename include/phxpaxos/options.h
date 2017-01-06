@@ -223,6 +223,11 @@ public:
     //Only bUseBatchPropose is true can use API BatchPropose in node.h
     //Default is false;
     bool bUseBatchPropose;
+
+    //optional
+    //Only bOpenChangeValueBeforePropose is true, that will callback sm's function(BeforePropose).
+    //Default is false;
+    bool bOpenChangeValueBeforePropose;
 };
     
 }

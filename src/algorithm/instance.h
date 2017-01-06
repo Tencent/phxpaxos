@@ -45,7 +45,7 @@ public:
             const Config * poConfig, 
             const LogStorage * poLogStorage,
             const MsgTransport * poMsgTransport,
-            const bool bUseCheckpointReplayer);
+            const Options & oOptions);
     ~Instance();
 
     int Init();
@@ -140,6 +140,7 @@ private:
 
 private:
     TimeStat m_oTimeStat;
+    Options m_oOptions;
 };
     
 }

@@ -63,6 +63,8 @@ private:
 
     const bool CheckAck(const uint64_t llSendInstanceID);
 
+    void CutAckLead();
+
 private:
     Config * m_poConfig;
     Learner * m_poLearner;
@@ -79,6 +81,7 @@ private:
 
     uint64_t m_llAckInstanceID;
     uint64_t m_llAbsLastAckTime;
+    int m_iAckLead;
 
     bool m_bIsEnd;
     bool m_bIsStart;

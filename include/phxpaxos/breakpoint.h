@@ -203,6 +203,18 @@ public:
     virtual void ReceiveCheckpointAndLoadSucc() { }
 };
 
+class MasterBP
+{
+public:
+    virtual ~MasterBP() { }
+    virtual void TryBeMaster() { }
+    virtual void TryBeMasterProposeFail() { }
+    virtual void SuccessBeMaster() { }
+    virtual void OtherBeMaster() { }
+    virtual void DropMaster() { }
+    virtual void MasterSMInconsistent() { }
+};
+
 #define BP (Breakpoint::Instance())
 
 class Breakpoint 
@@ -236,6 +248,8 @@ public:
 
     virtual CheckpointBP * GetCheckpointBP();
 
+    virtual MasterBP * GetMasterBP();
+
 public:
     ProposerBP m_oProposerBP;
     AcceptorBP m_oAcceptorBP;
@@ -247,6 +261,7 @@ public:
     LogStorageBP m_oLogStorageBP;
     AlgorithmBaseBP m_oAlgorithmBaseBP;
     CheckpointBP m_oCheckpointBP;
+    MasterBP m_oMasterBP;
 
     static Breakpoint * m_poBreakpoint;
 };

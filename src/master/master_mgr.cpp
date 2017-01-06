@@ -95,11 +95,12 @@ void MasterMgr :: run()
         
         TryBeMaster(iLeaseTime);
 
-        int iContinueLeaseTimeout = (iLeaseTime - 100) / 3;
+        int iContinueLeaseTimeout = (iLeaseTime - 100) / 4;
         iContinueLeaseTimeout = iContinueLeaseTimeout / 2 + OtherUtils::FastRand() % iContinueLeaseTimeout;
 
         if (m_bNeedDropMaster)
         {
+            BP->GetMasterBP()->DropMaster();
             m_bNeedDropMaster = false;
             iContinueLeaseTimeout = iLeaseTime * 2;
             PLG1Imp("Need drop master, this round wait time %dms", iContinueLeaseTimeout);
@@ -129,6 +130,8 @@ void MasterMgr :: TryBeMaster(const int iLeaseTime)
         return;
     }
 
+    BP->GetMasterBP()->TryBeMaster();
+
     //step 2 try be master
     std::string sPaxosValue;
     if (!MasterStateMachine::MakeOpValue(
@@ -151,7 +154,11 @@ void MasterMgr :: TryBeMaster(const int iLeaseTime)
     oCtx.m_iSMID = MASTER_V_SMID;
     oCtx.m_pCtx = (void *)&llAbsMasterTimeout;
 
-    m_poPaxosNode->Propose(m_iMyGroupIdx, sPaxosValue, llCommitInstanceID, &oCtx);
+    int ret = m_poPaxosNode->Propose(m_iMyGroupIdx, sPaxosValue, llCommitInstanceID, &oCtx);
+    if (ret != 0)
+    {
+        BP->GetMasterBP()->TryBeMasterProposeFail();
+    }
 }
 
 MasterStateMachine * MasterMgr :: GetMasterSM()

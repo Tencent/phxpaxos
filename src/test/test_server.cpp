@@ -95,6 +95,7 @@ int TestServer :: RunPaxos()
     oOptions.vecGroupSMInfoList.push_back(oSMInfo);
 
     oOptions.bUseBatchPropose = true;
+    oOptions.bOpenChangeValueBeforePropose = true;
 
     ret = Node::RunNode(oOptions, m_poPaxosNode);
     if (ret != 0)
@@ -116,7 +117,9 @@ int TestServer :: Write(const std::string & sTestValue, uint64_t & llInstanceID)
     oCtx.m_iSMID = 1;
     oCtx.m_pCtx = nullptr;
 
-    int ret = m_poPaxosNode->Propose(0, sTestValue, llInstanceID, &oCtx);
+    string sPackValue = TestSM::PackTestValue(sTestValue);
+
+    int ret = m_poPaxosNode->Propose(0, sPackValue, llInstanceID, &oCtx);
     if (ret != 0)
     {
         return ret;
@@ -131,7 +134,9 @@ int TestServer :: BatchWrite(const std::string & sTestValue, uint64_t & llInstan
     oCtx.m_iSMID = 1;
     oCtx.m_pCtx = nullptr;
 
-    int ret = m_poPaxosNode->BatchPropose(0, sTestValue, llInstanceID, iBatchIndex, &oCtx);
+    string sPackValue = TestSM::PackTestValue(sTestValue);
+
+    int ret = m_poPaxosNode->BatchPropose(0, sPackValue, llInstanceID, iBatchIndex, &oCtx);
     if (ret != 0)
     {
         return ret;

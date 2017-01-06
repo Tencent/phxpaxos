@@ -40,7 +40,7 @@ public:
     
     const bool IsNewCommit() const;
 
-    const std::string & GetCommitValue();
+    std::string & GetCommitValue();
 
     void StartCommit(const uint64_t llInstanceID);
 

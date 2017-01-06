@@ -261,8 +261,28 @@ private:
     IDKeyOssFunc m_pIDKeyOssFunc;
 };
 
+
 ///////////////////////////////////////////////////////////////
 
+class MonMasterBP : public MasterBP
+{
+public:
+    MonMasterBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc) 
+        : m_oMonitorConfig(oMonitorConfig), m_pIDKeyOssFunc(pIDKeyOssFunc) { }
+
+    virtual void TryBeMaster();
+    virtual void TryBeMasterProposeFail();
+    virtual void SuccessBeMaster();
+    virtual void OtherBeMaster();
+    virtual void DropMaster();
+    virtual void MasterSMInconsistent();
+
+private:
+    MonitorConfig m_oMonitorConfig;
+    IDKeyOssFunc m_pIDKeyOssFunc;
+};
+
+///////////////////////////////////////////////////////////////
 
 class MonitorBP : public Breakpoint
 {
@@ -289,6 +309,8 @@ public:
 
     CheckpointBP * GetCheckpointBP();
 
+    MasterBP * GetMasterBP();
+
 public:
     MonProposerBP m_oProposerBP;
     MonAcceptorBP m_oAcceptorBP;
@@ -300,6 +322,7 @@ public:
     MonLogStorageBP m_oLogStorageBP;
     MonAlgorithmBaseBP m_oAlgorithmBaseBP;
     MonCheckpointBP m_oCheckpointBP;
+    MonMasterBP m_oMasterBP;
 };
     
 }

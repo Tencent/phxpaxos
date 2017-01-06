@@ -296,6 +296,92 @@ std::vector<StateMachine *> SMFac :: GetSMList()
     return m_vecSMList;
 }
 
+//////////////////////////////////////////////////////////////////////
+
+void SMFac :: BeforePropose(const int iGroupIdx, std::string & sValue)
+{
+    int iSMID = 0;
+    memcpy(&iSMID, sValue.data(), sizeof(int));
+
+    if (iSMID == 0)
+    {
+        return;
+    }
+
+    if (iSMID == BATCH_PROPOSE_SMID)
+    {
+        BeforeBatchPropose(iGroupIdx, sValue);
+    }
+    else
+    {
+        bool change = false;
+        string sBodyValue = string(sValue.data() + sizeof(int), sValue.size() - sizeof(int));
+        BeforeProposeCall(iGroupIdx, iSMID, sBodyValue, change);
+        if (change)
+        {
+            sValue.erase(sizeof(int));
+            sValue.append(sBodyValue);
+        }
+    }
+}
+
+void SMFac :: BeforeBatchPropose(const int iGroupIdx, std::string & sValue)
+{
+    BatchPaxosValues oBatchValues;
+    bool bSucc = oBatchValues.ParseFromArray(sValue.data() + sizeof(int), sValue.size() - sizeof(int));
+    if (!bSucc)
+    {
+        return;
+    }
+
+    bool change = false;
+    std::set<int> mapSMAlreadyCall;
+    for (int i = 0; i < oBatchValues.values_size(); i++)
+    {
+        PaxosValue * poValue = oBatchValues.mutable_values(i);
+
+        if (mapSMAlreadyCall.find(poValue->smid()) != end(mapSMAlreadyCall))
+        {
+            continue;
+        }
+        mapSMAlreadyCall.insert(poValue->smid());
+
+        BeforeProposeCall(iGroupIdx, poValue->smid(), *poValue->mutable_value(), change);
+    }
+
+    if (change) {
+        string sBodyValue;
+        bSucc = oBatchValues.SerializeToString(&sBodyValue);
+        assert(bSucc == true);
+        sValue.erase(sizeof(int));
+        sValue.append(sBodyValue);
+    }
+}
+
+void SMFac :: BeforeProposeCall(const int iGroupIdx, const int iSMID, std::string & sBodyValue, bool & change)
+{
+    if (iSMID == 0)
+    {
+        return;
+    }
+
+    if (m_vecSMList.size() == 0)
+    {
+        return;
+    }
+
+    for (auto & poSM : m_vecSMList)
+    {
+        if (poSM->SMID() == iSMID)
+        {
+            if (poSM->NeedCallBeforePropose()) {
+                change  = true;
+                return poSM->BeforePropose(iGroupIdx, sBodyValue);
+            }
+        }
+    }
+}
+
 }
 
 

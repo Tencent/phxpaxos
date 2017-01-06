@@ -773,12 +773,45 @@ void MonCheckpointBP :: ReceiveCheckpointAndLoadSucc()
 
 /////////////////////////////////////////////////////////////////
 
+void MonMasterBP :: TryBeMaster()
+{
+    m_pIDKeyOssFunc(m_oMonitorConfig.iUseTimeOssAttrID, 86, 1);
+}
+
+void MonMasterBP :: TryBeMasterProposeFail()
+{
+    m_pIDKeyOssFunc(m_oMonitorConfig.iUseTimeOssAttrID, 87, 1);
+}
+
+void MonMasterBP :: SuccessBeMaster()
+{
+    m_pIDKeyOssFunc(m_oMonitorConfig.iUseTimeOssAttrID, 88, 1);
+}
+
+void MonMasterBP :: OtherBeMaster()
+{
+    m_pIDKeyOssFunc(m_oMonitorConfig.iUseTimeOssAttrID, 89, 1);
+}
+
+void MonMasterBP :: DropMaster()
+{
+    m_pIDKeyOssFunc(m_oMonitorConfig.iUseTimeOssAttrID, 90, 1);
+}
+
+void MonMasterBP :: MasterSMInconsistent()
+{
+    m_pIDKeyOssFunc(m_oMonitorConfig.iUseTimeOssAttrID, 91, 1);
+}
+
+/////////////////////////////////////////////////////////////////
+
 MonitorBP :: MonitorBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc) : 
     m_oProposerBP(oMonitorConfig, pIDKeyOssFunc), m_oAcceptorBP(oMonitorConfig, pIDKeyOssFunc),
     m_oLearnerBP(oMonitorConfig, pIDKeyOssFunc), m_oInstanceBP(oMonitorConfig, pIDKeyOssFunc),
     m_oCommiterBP(oMonitorConfig, pIDKeyOssFunc), m_oIOLoopBP(oMonitorConfig, pIDKeyOssFunc),
     m_oNetworkBP(oMonitorConfig, pIDKeyOssFunc), m_oLogStorageBP(oMonitorConfig, pIDKeyOssFunc),
-    m_oAlgorithmBaseBP(oMonitorConfig, pIDKeyOssFunc), m_oCheckpointBP(oMonitorConfig, pIDKeyOssFunc)
+    m_oAlgorithmBaseBP(oMonitorConfig, pIDKeyOssFunc), m_oCheckpointBP(oMonitorConfig, pIDKeyOssFunc),
+    m_oMasterBP(oMonitorConfig, pIDKeyOssFunc)
 {
 }
 
@@ -830,6 +863,11 @@ AlgorithmBaseBP * MonitorBP :: GetAlgorithmBaseBP()
 CheckpointBP *  MonitorBP :: GetCheckpointBP()
 {
     return &m_oCheckpointBP;
+}
+
+MasterBP * MonitorBP :: GetMasterBP()
+{
+    return &m_oMasterBP;
 }
     
 }

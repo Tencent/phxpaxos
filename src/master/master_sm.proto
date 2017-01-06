@@ -8,4 +8,5 @@ message MasterOperator
 	required int32 timeout = 3;
 	required uint32 operator = 4;
 	required uint32 sid = 5;
+    optional uint64 lastversion = 6;
 };

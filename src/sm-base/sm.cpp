@@ -32,7 +32,7 @@ SMCtx :: SMCtx(const int iSMID, void * pCtx) : m_iSMID(iSMID), m_pCtx(pCtx)
 SMCtx :: SMCtx() : m_iSMID(0), m_pCtx(nullptr)
 {
 }
-    
+
 bool StateMachine :: ExecuteForCheckpoint(const int iGroupIdx, const uint64_t llInstanceID, 
         const std::string & sPaxosValue) 
 { 
@@ -67,6 +67,15 @@ int StateMachine :: LockCheckpointState()
 
 void StateMachine :: UnLockCheckpointState() 
 { 
+}
+
+void StateMachine :: BeforePropose(const int iGroupIdx, std::string & sValue)
+{
+}
+
+const bool StateMachine :: NeedCallBeforePropose()
+{
+    return false;
 }
 
 }

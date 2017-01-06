@@ -60,6 +60,9 @@ class StateMachine
 public:
     virtual ~StateMachine() {}
 
+    //Different state machine return different SMID().
+    virtual const int SMID() const = 0;
+
     //Return true means execute success. 
     //This 'success' means this execute don't need to retry.
     //Sometimes you will have some logical failure in your execute logic, 
@@ -69,9 +72,6 @@ public:
     //for this case, you must return false to retry this execute to avoid this system failure. 
     virtual bool Execute(const int iGroupIdx, const uint64_t llInstanceID, 
             const std::string & sPaxosValue, SMCtx * poSMCtx) = 0;
-
-    //Different state machine return different SMID().
-    virtual const int SMID() const = 0;
 
     virtual bool ExecuteForCheckpoint(const int iGroupIdx, const uint64_t llInstanceID, 
             const std::string & sPaxosValue);
@@ -98,6 +98,19 @@ public:
     //State machine need to understand this when restart.
     virtual int LoadCheckpointState(const int iGroupIdx, const std::string & sCheckpointTmpFileDirPath,
             const std::vector<std::string> & vecFileList, const uint64_t llCheckpointInstanceID);
+
+    //You can modify your request at this moment.
+    //At this moment, the state machine data will be up to date.
+    //If request is batch, propose requests for multiple identical state machines will only call this function once.
+    //Ensure that the execute function correctly recognizes the modified request.
+    //Since this function is not always called, the execute function must handle the unmodified request correctly.
+    virtual void BeforePropose(const int iGroupIdx, std::string & sValue);
+
+    //Because function BeforePropose much waste cpu,
+    //Only NeedCallBeforePropose return true then weill call function BeforePropose.
+    //You can use this function to control call frequency.
+    //Default is false.
+    virtual const bool NeedCallBeforePropose();
 };
     
 }

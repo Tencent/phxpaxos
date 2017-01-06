@@ -21,7 +21,7 @@ allobject=phx_paxos_test
 
 PHX_PAXOS_TEST_OBJ=test_sm.o test_server.o test_main.o
 
-PHX_PAXOS_TEST_LIB=src/utils:utils
+PHX_PAXOS_TEST_LIB=src/utils:utils src/comm:comm
 
 PHX_PAXOS_TEST_SYS_LIB=$(PHXPAXOS_LIB_PATH)/libphxpaxos.a $(LEVELDB_LIB_PATH)/libleveldb.a $(PROTOBUF_LIB_PATH)/libprotobuf.a -lpthread
 

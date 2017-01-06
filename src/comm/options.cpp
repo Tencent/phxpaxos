@@ -123,6 +123,7 @@ Options :: Options()
     eLogLevel = LogLevel::LogLevel_None;
     bUseCheckpointReplayer = false;
     bUseBatchPropose = false;
+    bOpenChangeValueBeforePropose = false;
 }
     
 }

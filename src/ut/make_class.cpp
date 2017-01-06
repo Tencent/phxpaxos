@@ -76,7 +76,8 @@ void MakeCommunicate(MockNetWork * poMockNetWork, Config * poConfig, Communicate
 void MakeInstance(MockLogStorage * poMockLogStorage, Config * poConfig, Communicate * poCommunicate, Instance *& poInstance)
 {
     poInstance = nullptr;
-    poInstance = new Instance(poConfig, poMockLogStorage, poCommunicate, false);
+    Options oOptions;
+    poInstance = new Instance(poConfig, poMockLogStorage, poCommunicate, oOptions);
     assert(poInstance != nullptr);
 }
 

@@ -168,19 +168,19 @@ const int InsideOptions :: GetAskforLearnInterval()
     }
 }
 
-const int InsideOptions :: GetLeanerReceiver_Ack_Lead()
+const int InsideOptions :: GetLearnerReceiver_Ack_Lead()
 {
     if (m_bIsLargeBufferMode)
     {
-        return 5;
+        return 2;
     }
     else
     {
-        return 25;
+        return 4;
     }
 }
 
-const int InsideOptions :: GetLeanerSenderPrepareTimeoutMs()
+const int InsideOptions :: GetLearnerSenderPrepareTimeoutMs()
 {
     if (m_bIsLargeBufferMode)
     {
@@ -192,7 +192,7 @@ const int InsideOptions :: GetLeanerSenderPrepareTimeoutMs()
     }
 }
 
-const int InsideOptions :: GetLeanerSender_Ack_TimeoutMs()
+const int InsideOptions :: GetLearnerSender_Ack_TimeoutMs()
 {
     if (m_bIsLargeBufferMode)
     {
@@ -204,15 +204,15 @@ const int InsideOptions :: GetLeanerSender_Ack_TimeoutMs()
     }
 }
 
-const int InsideOptions :: GetLeanerSender_Ack_Lead()
+const int InsideOptions :: GetLearnerSender_Ack_Lead()
 {
     if (m_bIsLargeBufferMode)
     {
-        return 11;
+        return 5;
     }
     else
     {
-        return 51;
+        return 21;
     }
 }
 

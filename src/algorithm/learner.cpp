@@ -510,7 +510,7 @@ void Learner :: SendLearnValue_Ack(const nodeid_t iSendNodeID)
 {
     PLGHead("START LastAck.Instanceid %lu Now.Instanceid %lu", m_llLastAckInstanceID, GetInstanceID());
 
-    if (GetInstanceID() < m_llLastAckInstanceID + SENDLEARNVALUE_ACK_LEAD)
+    if (GetInstanceID() < m_llLastAckInstanceID + LearnerReceiver_ACK_LEAD)
     {
         PLGImp("No need to ack");
         return;

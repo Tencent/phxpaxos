@@ -61,7 +61,7 @@ const bool CommitCtx :: IsNewCommit() const
     return m_llInstanceID == (uint64_t)-1 && m_psValue != nullptr;
 }
 
-const std::string & CommitCtx :: GetCommitValue()
+std::string & CommitCtx :: GetCommitValue()
 {
     return *m_psValue;
 }
@@ -132,6 +132,8 @@ void CommitCtx :: SetResult(
 
 int CommitCtx :: GetResult(uint64_t & llSuccInstanceID)
 {
+    m_oSerialLock.Lock();
+
     while (!m_bIsCommitEnd)
     {
         m_oSerialLock.WaitTime(1000);

@@ -20,6 +20,8 @@ See the AUTHORS file for names of contributors.
 */
 
 #include "test_sm.h"
+#include "commdef.h"
+#include "utils_include.h"
 
 using namespace phxpaxos;
 using namespace std;
@@ -29,12 +31,27 @@ namespace phxpaxos_test
 
 TestSM :: TestSM()
 {
+    m_iLastValueChecksum = 0;
 }
 
 bool TestSM :: Execute(const int iGroupIdx, const uint64_t llInstanceID, 
         const std::string & sPaxosValue, SMCtx * poSMCtx)
 {
-    m_vecExecuted.push_back(make_pair(llInstanceID, sPaxosValue));
+    uint32_t iOtherLastChecksum = 0;
+    string sBodyValue;
+    UnPackTestValue(sPaxosValue, sBodyValue, iOtherLastChecksum);
+    NLDebug("instanceid %lu other %u my %u", llInstanceID, iOtherLastChecksum, m_iLastValueChecksum);
+
+    if (iOtherLastChecksum != 0 && iOtherLastChecksum != m_iLastValueChecksum)
+    {
+        printf("instanceid %lu other last check sum %u my last check sum %u\n",
+                llInstanceID, iOtherLastChecksum, m_iLastValueChecksum);
+        assert(iOtherLastChecksum == m_iLastValueChecksum);
+    }
+
+    m_vecExecuted.push_back(make_pair(llInstanceID, sBodyValue));
+
+    m_iLastValueChecksum = crc32(m_iLastValueChecksum, (const uint8_t*)sBodyValue.data(), sBodyValue.size(), CRC32SKIP);
     return true;
 }
 
@@ -78,6 +95,45 @@ bool TestSM :: CheckExecuteValueCorrect(const std::vector<pair<uint64_t, std::st
     }
 
     return true;
+}
+
+////////////////////////////
+
+void TestSM :: BeforePropose(const int iGroupIdx, std::string & sValue)
+{
+    PackTestValueWithChecksum(sValue, m_iLastValueChecksum);
+    NLDebug("after value size %zu", sValue.size());
+}
+
+const bool TestSM :: NeedCallBeforePropose()
+{
+    return rand() % 3 == 0 ? true : false;
+}
+
+std::string TestSM :: PackTestValue(const std::string & sValue)
+{
+    return "0" + sValue;
+}
+
+void TestSM :: PackTestValueWithChecksum(std::string & sValue, const uint32_t iLastChecksum)
+{
+    char sChecksum[sizeof(uint32_t)];
+    memcpy(sChecksum, &iLastChecksum, sizeof(uint32_t));
+    sValue = "1" + string(sChecksum, sizeof(uint32_t)) + sValue.substr(1, sValue.size());
+}
+
+void TestSM :: UnPackTestValue(const std::string & sValue, std::string & sBodyValue, uint32_t & iLastChecksum)
+{
+    if (sValue[0] == '0')
+    {
+        iLastChecksum = 0;
+        sBodyValue = sValue.substr(1, sValue.size());
+    }
+    else
+    {
+        memcpy(&iLastChecksum, sValue.data() + 1, sizeof(uint32_t));
+        sBodyValue = sValue.substr(1 + sizeof(uint32_t), sValue.size());
+    }
 }
 
 }
