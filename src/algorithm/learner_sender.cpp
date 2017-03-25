@@ -232,7 +232,7 @@ void LearnerSender :: SendLearnedValue(const uint64_t llBeginInstanceID, const n
 
     //control send speed to avoid affecting the network too much.
     int iSendQps = LearnerSender_SEND_QPS;
-    int iSleepMs = iSendQps > 1000 ? 1 : 1000 / iSendQps;
+    int iSleepMs = iSendQps > 1000 ? 1 : iSendQps / 1000;
     int iSendInterval = iSendQps > 1000 ? iSendQps / 1000 + 1 : 1; 
 
     PLGDebug("SendQps %d SleepMs %d SendInterval %d AckLead %d",
