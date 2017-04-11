@@ -49,16 +49,16 @@
 > 请求延时小于10ms.
 ###### 写入小数据(100B)
     1个Group： 1171
-    20个Groups： 11931
-    50个Groups： 13424
-    100个Groups： 13962
+    20个Group： 11931
+    50个Group： 13424
+    100个Group： 13962
 ###### 写入大数据(100KB)
     1个Group： 280
-    20个Groups： 984
-    50个Groups： 1054
-    100个Groups： 1067
+    20个Group： 984
+    50个Group： 1054
+    100个Group： 1067
 ###### BatchPropose(2KB)
-    100个Groups: 150000
+    100个Group: 150000
 
 # 代码目录介绍
 **include**目录包含了使用PhxPaxos所需要用到的所有头文件，您需要理解这些头文件的所有类函数的含义，才能正确的使用PhxPaxos。
