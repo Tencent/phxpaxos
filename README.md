@@ -46,16 +46,19 @@ PhxPaxos [![Build Status](https://travis-ci.org/tencent-wechat/phxpaxos.png)](ht
     Parallel client: 100 Threads
     
 ### Performance Test Result(QPS)
+> Request latency small than 10ms.
 ###### Data set with small size(100B)
-    1 instance: 1171
-    20 instances: 11931
-    50 instances: 13424
-    100 instances: 13962
+    1 Group: 1171
+    20 Groups: 11931
+    50 Groups: 13424
+    100 Groups: 13962
 ###### Data set with larse size(100KB)
-    1 instance: 280
-    20 instances: 984
-    50 instances: 1054
-    100 instances: 1067
+    1 Group: 280
+    20 Groups: 984
+    50 Groups: 1054
+    100 Groups: 1067
+###### BatchPropose(2KB)
+    100 Groups: 150000
 
 # Code Directory Introduction
 **include:** This directory includes all head files while using PhxPaxos. You may make some mistakes if you don't understand all the functions in this directory completely.
