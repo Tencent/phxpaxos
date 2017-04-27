@@ -138,13 +138,13 @@ int BenchServer :: ReadyBench()
     return 0;
 }
 
-int BenchServer :: Write(const std::string & sBenceValue)
+int BenchServer :: Write(const std::string & sBenchValue)
 {
     int iGroupIdx = rand() % m_iGroupCount;
-    return Write(iGroupIdx, sBenceValue);
+    return Write(iGroupIdx, sBenchValue);
 }
 
-int BenchServer :: Write(const int iGroupIdx, const std::string & sBenceValue)
+int BenchServer :: Write(const int iGroupIdx, const std::string & sBenchValue)
 {
     
     SMCtx oCtx;
@@ -153,7 +153,7 @@ int BenchServer :: Write(const int iGroupIdx, const std::string & sBenceValue)
     oCtx.m_pCtx = nullptr;
 
     uint64_t llInstanceID = 0;
-    int ret = m_poPaxosNode->Propose(iGroupIdx, sBenceValue, llInstanceID, &oCtx);
+    int ret = m_poPaxosNode->Propose(iGroupIdx, sBenchValue, llInstanceID, &oCtx);
     if (ret != 0)
     {
         return ret;
