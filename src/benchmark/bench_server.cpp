@@ -128,7 +128,7 @@ int BenchServer :: ReadyBench()
     int ret = 0;
     for (int i = 0; i < m_iGroupCount; i++)
     {
-        ret = Write(i, "start bence");
+        ret = Write(i, "start bench");
         if (ret != 0)
         {
             return ret;
