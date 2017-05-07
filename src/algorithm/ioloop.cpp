@@ -263,9 +263,15 @@ void IOLoop :: DealwithTimeout(int & iNextTimeout)
         {
             DealwithTimeoutOne(iTimerID, iType);
 
-            iNextTimeout = m_oTimer.GetNextTimeout();
-            if (iNextTimeout != 0)
+        } else {
+            int tmp = 0;
+            tmp = m_oTimer.GetNextTimeout();
+                
+            if (tmp != 0)
             {
+                if (tmp != -1) {
+                    iNextTimeout = tmp;
+                }
                 break;
             }
         }
