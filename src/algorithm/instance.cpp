@@ -41,7 +41,7 @@ Instance :: Instance(
     m_oCommitCtx((Config *)poConfig),
     m_oCommitter((Config *)poConfig, &m_oCommitCtx, &m_oIOLoop, &m_oSMFac),
     m_oCheckpointMgr((Config *)poConfig, &m_oSMFac, (LogStorage *)poLogStorage, oOptions.bUseCheckpointReplayer),
-    m_oOptions(oOptions)
+    m_oOptions(oOptions), m_bStarted(false)
 {
     m_poConfig = (Config *)poConfig;
     m_poMsgTransport = (MsgTransport *)poMsgTransport;
@@ -51,10 +51,6 @@ Instance :: Instance(
 
 Instance :: ~Instance()
 {
-    m_oIOLoop.Stop();
-    m_oCheckpointMgr.Stop();
-    m_oLearner.Stop();
-
     PLGHead("Instance Deleted, GroupIdx %d.", m_poConfig->GetMyGroupIdx());
 }
 
@@ -137,6 +133,18 @@ void Instance :: Start()
     m_oIOLoop.start();
     //start checkpoint replayer and cleaner
     m_oCheckpointMgr.Start();
+
+    m_bStarted = true;
+}
+
+void Instance :: Stop()
+{
+    if (m_bStarted)
+    {
+        m_oIOLoop.Stop();
+        m_oCheckpointMgr.Stop();
+        m_oLearner.Stop();
+    }
 }
 
 int Instance :: ProtectionLogic_IsCheckpointInstanceIDCorrect(const uint64_t llCPInstanceID, const uint64_t llLogMaxInstanceID) 
@@ -759,6 +767,11 @@ void Instance :: NewInstance()
 const uint64_t Instance :: GetNowInstanceID()
 {
     return m_oAcceptor.GetInstanceID();
+}
+
+const uint64_t Instance :: GetMinChosenInstanceID()
+{
+    return m_oCheckpointMgr.GetMinChosenInstanceID();
 }
 
 ///////////////////////////////

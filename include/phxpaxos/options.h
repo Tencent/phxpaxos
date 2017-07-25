@@ -26,6 +26,7 @@ See the AUTHORS file for names of contributors.
 #include "phxpaxos/network.h"
 #include "phxpaxos/storage.h"
 #include "phxpaxos/log.h"
+#include <functional>
 #include <vector>
 #include <typeinfo>
 #include <inttypes.h>
@@ -104,7 +105,8 @@ typedef std::vector<GroupSMInfo> GroupSMInfoList;
 
 /////////////////////////////////////////////////
 
-typedef void (*MembershipChangeCallback)(const int iGroupIdx, NodeInfoList & vecNodeInfoList);
+typedef std::function< void(const int, NodeInfoList &) > MembershipChangeCallback;
+typedef std::function< void(const int, const NodeInfo &, const uint64_t) > MasterChangeCallback;
 
 /////////////////////////////////////////////////
 
@@ -182,6 +184,10 @@ public:
     //While membership change, phxpaxos will call this function.
     //Default is nullptr.
     MembershipChangeCallback pMembershipChangeCallback;
+
+    //While master change, phxpaxos will call this function.
+    //Default is nullptr.
+    MasterChangeCallback pMasterChangeCallback;
 
     //optional
     //One phxpaxos can mounting multi state machines.

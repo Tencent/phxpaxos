@@ -28,8 +28,12 @@ See the AUTHORS file for names of contributors.
 namespace phxpaxos 
 {
 
-MasterStateMachine :: MasterStateMachine(const LogStorage * poLogStorage, const nodeid_t iMyNodeID, const int iGroupIdx)
-    : m_oMVStore(poLogStorage)
+MasterStateMachine :: MasterStateMachine(
+    const LogStorage * poLogStorage, 
+    const nodeid_t iMyNodeID, 
+    const int iGroupIdx,
+    MasterChangeCallback pMasterChangeCallback)
+    : m_oMVStore(poLogStorage), m_pMasterChangeCallback(pMasterChangeCallback)
 {
     m_iMyGroupIdx = iGroupIdx;
     m_iMyNodeID = iMyNodeID;
@@ -113,12 +117,10 @@ int MasterStateMachine :: LearnMaster(
         BP->GetMasterBP()->MasterSMInconsistent();
         PLG1Err("other last version %lu not same to my last version %lu, instanceid %lu",
                 oMasterOper.lastversion(), m_llMasterVersion, llInstanceID);
-        if (OtherUtils::FastRand() % 100 < 50) {
-            //try to fix online
-            PLG1Err("try to fix, set my master version %lu as other last version %lu, instanceid %lu",
-                    m_llMasterVersion, oMasterOper.lastversion(), llInstanceID);
-            m_llMasterVersion = oMasterOper.lastversion();
-        }
+
+        PLG1Err("try to fix, set my master version %lu as other last version %lu, instanceid %lu",
+                m_llMasterVersion, oMasterOper.lastversion(), llInstanceID);
+        m_llMasterVersion = oMasterOper.lastversion();
     }
 
     if (oMasterOper.version() != m_llMasterVersion)
@@ -133,6 +135,12 @@ int MasterStateMachine :: LearnMaster(
     {
         PLG1Err("UpdateMasterToStore fail, ret %d", ret);
         return -1;
+    }
+
+    bool bMasterChange = false;
+    if (m_iMasterNodeID != oMasterOper.nodeid())
+    {
+        bMasterChange = true;
     }
 
     m_iMasterNodeID = oMasterOper.nodeid();
@@ -157,6 +165,14 @@ int MasterStateMachine :: LearnMaster(
 
     m_iLeaseTime = oMasterOper.timeout();
     m_llMasterVersion = llInstanceID;
+
+    if (bMasterChange)
+    {
+        if (m_pMasterChangeCallback != nullptr)
+        {
+            m_pMasterChangeCallback(m_iMyGroupIdx, NodeInfo(m_iMasterNodeID), m_llMasterVersion);
+        }
+    }
 
     PLG1Imp("OK, masternodeid %lu version %lu abstimeout %lu",
             m_iMasterNodeID, m_llMasterVersion, m_llAbsExpireTime);
@@ -325,6 +341,7 @@ int MasterStateMachine :: UpdateByCheckpoint(const std::string & sCPBuffer, bool
             oVariables.version(), oVariables.masternodeid(),
             m_llMasterVersion, m_iMasterNodeID);
 
+    bool bMasterChange = false;
     m_llMasterVersion = oVariables.version();
 
     if (oVariables.masternodeid() == m_iMyNodeID)
@@ -334,8 +351,20 @@ int MasterStateMachine :: UpdateByCheckpoint(const std::string & sCPBuffer, bool
     }
     else
     {
+        if (m_iMasterNodeID != oVariables.masternodeid())
+        {
+            bMasterChange = true;
+        }
         m_iMasterNodeID = oVariables.masternodeid();
         m_llAbsExpireTime = Time::GetSteadyClockMS() + oVariables.leasetime();
+    }
+
+    if (bMasterChange)
+    {
+        if (m_pMasterChangeCallback != nullptr)
+        {
+            m_pMasterChangeCallback(m_iMyGroupIdx, NodeInfo(m_iMasterNodeID), m_llMasterVersion);
+        }
     }
 
     return 0;

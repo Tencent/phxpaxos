@@ -22,6 +22,7 @@ See the AUTHORS file for names of contributors.
 #pragma once
 
 #include <stdarg.h>
+#include <functional>
 
 namespace phxpaxos
 {
@@ -35,6 +36,6 @@ enum class LogLevel
     LogLevel_Verbose = 4,
 };
 
-typedef void (*LogFunc)(const int iLogLevel, const char * pcFormat, va_list args);
+typedef std::function< void(const int, const char *, va_list) > LogFunc;
     
 }

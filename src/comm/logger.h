@@ -40,6 +40,8 @@ namespace phxpaxos
        LOGGER->LogInfo(format, ## args);
 #define LOG_VERBOSE(format, args...)\
        LOGGER->LogVerbose(format, ## args);
+#define LOG_SHOWY(format, args...)\
+       LOGGER->LogShowy(format, ## args);
 
 class Logger
 {
@@ -62,6 +64,8 @@ public:
     void LogInfo(const char * pcFormat, ...);
     
     void LogVerbose(const char * pcFormat, ...);
+
+    void LogShowy(const char * pcFormat, ...);
 
 private:
     LogFunc m_pLogFunc;

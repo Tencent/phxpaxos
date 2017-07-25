@@ -26,8 +26,12 @@ See the AUTHORS file for names of contributors.
 namespace phxpaxos 
 {
 
-MasterMgr :: MasterMgr(const Node * poPaxosNode, const int iGroupIdx, const LogStorage * poLogStorage) 
-    : m_oDefaultMasterSM(poLogStorage, poPaxosNode->GetMyNodeID(), iGroupIdx) 
+MasterMgr :: MasterMgr(
+    const Node * poPaxosNode, 
+    const int iGroupIdx, 
+    const LogStorage * poLogStorage,
+    MasterChangeCallback pMasterChangeCallback) 
+    : m_oDefaultMasterSM(poLogStorage, poPaxosNode->GetMyNodeID(), iGroupIdx, pMasterChangeCallback) 
 {
     m_iLeaseTime = 10000;
 

@@ -52,6 +52,8 @@ public:
 
     void Start();
 
+    void Stop();
+
     Config * GetConfig();
 
     Instance * GetInstance();

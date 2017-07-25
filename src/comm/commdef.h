@@ -38,18 +38,18 @@ namespace phxpaxos
 #define NLErr(format, args...) LOG_ERROR("ERR: %s " format, __func__, ## args);
 
 #define PLErr(format, args...) LOG_ERROR("ERR: %s::%s " format, typeid(this).name(), __func__, ## args);
-#define PLImp(format, args...) LOG_INFO("Showy: %s::%s " format, typeid(this).name(), __func__, ## args);
+#define PLImp(format, args...) LOG_SHOWY("Showy: %s::%s " format, typeid(this).name(), __func__, ## args);
 #define PLHead(format, args...) LOG_WARNING("Imp: %s::%s " format, typeid(this).name(), __func__, ## args);
 #define PLDebug(format, args...) LOG_VERBOSE("DEBUG: %s::%s " format, typeid(this).name(), __func__, ## args);
 
 #define PLGErr(format, args...) LOG_ERROR("ERR(%d): %s::%s " format, m_poConfig->GetMyGroupIdx(), typeid(this).name(), __func__, ## args);
 #define PLGStatus(format, args...) LOG_STATUS("STATUS(%d): %s::%s " format, m_poConfig->GetMyGroupIdx(), typeid(this).name(), __func__, ## args);
-#define PLGImp(format, args...) LOG_INFO("Showy(%d): %s::%s " format, m_poConfig->GetMyGroupIdx(), typeid(this).name(), __func__, ## args);
+#define PLGImp(format, args...) LOG_SHOWY("Showy(%d): %s::%s " format, m_poConfig->GetMyGroupIdx(), typeid(this).name(), __func__, ## args);
 #define PLGHead(format, args...) LOG_WARNING("Imp(%d): %s::%s " format, m_poConfig->GetMyGroupIdx(), typeid(this).name(), __func__, ## args);
 #define PLGDebug(format, args...) LOG_VERBOSE("DEBUG(%d): %s::%s " format, m_poConfig->GetMyGroupIdx(), typeid(this).name(), __func__, ## args);
     
 #define PLG1Err(format, args...) LOG_ERROR("ERR(%d): %s::%s " format, m_iMyGroupIdx, typeid(this).name(), __func__, ## args);
-#define PLG1Imp(format, args...) LOG_INFO("Showy(%d): %s::%s " format, m_iMyGroupIdx, typeid(this).name(), __func__, ## args);
+#define PLG1Imp(format, args...) LOG_SHOWY("Showy(%d): %s::%s " format, m_iMyGroupIdx, typeid(this).name(), __func__, ## args);
 #define PLG1Head(format, args...) LOG_WARNING("Imp(%d): %s::%s " format, m_iMyGroupIdx, typeid(this).name(), __func__, ## args);
 #define PLG1Debug(format, args...) LOG_VERBOSE("DEBUG(%d): %s::%s " format, m_iMyGroupIdx, typeid(this).name(), __func__, ## args);
 

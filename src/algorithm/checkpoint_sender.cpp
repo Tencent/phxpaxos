@@ -157,22 +157,17 @@ void CheckpointSender :: UnLockCheckpoint()
 
 void CheckpointSender :: SendCheckpoint()
 {
-    int ret = m_poLearner->SendCheckpointBegin(
-            m_iSendNodeID, m_llUUID, m_llSequence, 
-            m_poSMFac->GetCheckpointInstanceID(m_poConfig->GetMyGroupIdx()));
-    if (ret != 0)
+    int ret = -1;
+    for (int i = 0; i < 2; i++)
     {
-        PLGErr("SendCheckpointBegin fail, ret %d", ret);
-        return;
-    }
-
-    ret = m_poLearner->SendCheckpointBegin(
-            m_iSendNodeID, m_llUUID, m_llSequence, 
-            m_poSMFac->GetCheckpointInstanceID(m_poConfig->GetMyGroupIdx()));
-    if (ret != 0)
-    {
-        PLGErr("SendCheckpointBegin fail, ret %d", ret);
-        return;
+        ret = m_poLearner->SendCheckpointBegin(
+                m_iSendNodeID, m_llUUID, m_llSequence, 
+                m_poSMFac->GetCheckpointInstanceID(m_poConfig->GetMyGroupIdx()));
+        if (ret != 0)
+        {
+            PLGErr("SendCheckpointBegin fail, ret %d", ret);
+            return;
+        }
     }
 
     BP->GetCheckpointBP()->SendCheckpointBegin();

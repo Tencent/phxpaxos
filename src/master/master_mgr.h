@@ -32,7 +32,10 @@ namespace phxpaxos
 class MasterMgr : public Thread
 {
 public:
-    MasterMgr(const Node * poPaxosNode, const int iGroupIdx, const LogStorage * poLogStorage);
+    MasterMgr(const Node * poPaxosNode, 
+        const int iGroupIdx, 
+        const LogStorage * poLogStorage,
+        MasterChangeCallback pMasterChangeCallback);
     ~MasterMgr();
 
     void RunMaster();

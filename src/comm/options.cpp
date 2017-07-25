@@ -117,6 +117,7 @@ Options :: Options()
     iGroupCount = 1;
     bUseMembership = false;
     pMembershipChangeCallback = nullptr;
+    pMasterChangeCallback = nullptr;
     poBreakpoint = nullptr;
     bIsLargeValueMode = false;
     pLogFunc = nullptr;

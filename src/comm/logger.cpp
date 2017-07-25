@@ -197,6 +197,35 @@ void Logger :: LogVerbose(const char * pcFormat, ...)
     m_oMutex.unlock();
 }
 
+void Logger :: LogShowy(const char * pcFormat, ...)
+{
+    string newFormat = "\033[45;37m " + string(pcFormat) + " \033[0m";
+
+    if (m_pLogFunc != nullptr)
+    {
+        va_list args;
+        va_start(args, pcFormat);
+        m_pLogFunc(static_cast<int>(LogLevel::LogLevel_Verbose), newFormat.c_str(), args);
+        va_end(args);
+        return;
+    }
+
+    if (m_eLogLevel < LogLevel::LogLevel_Verbose)
+    {
+        return;
+    }
+    
+    char sBuf[1024] = {0};
+    va_list args;
+    va_start(args, pcFormat);
+    vsnprintf(sBuf, sizeof(sBuf), newFormat.c_str(), args);
+    va_end(args);
+
+    m_oMutex.lock();
+    printf("%s\n", sBuf);
+    m_oMutex.unlock();
+}
+
 }
 
 

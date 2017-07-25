@@ -42,7 +42,11 @@ enum MasterOperatorType
 class MasterStateMachine : public InsideSM 
 {
 public:
-    MasterStateMachine(const LogStorage * poLogStorage, const nodeid_t iMyNodeID, const int iGroupIdx);
+    MasterStateMachine(
+        const LogStorage * poLogStorage, 
+        const nodeid_t iMyNodeID, 
+        const int iGroupIdx,
+        MasterChangeCallback pMasterChangeCallback);
     ~MasterStateMachine();
 
     bool Execute(const int iGroupIdx, const uint64_t llInstanceID, const std::string & sValue, SMCtx * poSMCtx);
@@ -131,6 +135,8 @@ private:
     uint64_t m_llAbsExpireTime;
 
     std::mutex m_oMutex;
+
+    MasterChangeCallback m_pMasterChangeCallback;
 };
     
 }

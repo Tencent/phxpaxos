@@ -52,6 +52,8 @@ public:
 
     virtual const uint64_t GetNowInstanceID(const int iGroupIdx) = 0;
 
+    virtual const uint64_t GetMinChosenInstanceID(const int iGroupIdx) = 0;
+
     virtual const nodeid_t GetMyNodeID() const = 0;
 
     //Batch propose.

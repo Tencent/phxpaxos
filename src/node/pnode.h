@@ -47,6 +47,7 @@ public:
     int Propose(const int iGroupIdx, const std::string & sValue, uint64_t & llInstanceID);
     int Propose(const int iGroupIdx, const std::string & sValue, uint64_t & llInstanceID, SMCtx * poSMCtx);
     const uint64_t GetNowInstanceID(const int iGroupIdx);
+    const uint64_t GetMinChosenInstanceID(const int iGroupIdx);
 
 public:
     //batch

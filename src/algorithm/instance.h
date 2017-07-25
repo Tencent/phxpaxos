@@ -52,9 +52,13 @@ public:
 
     void Start();
 
+    void Stop();
+
     int InitLastCheckSum();
 
     const uint64_t GetNowInstanceID();
+
+    const uint64_t GetMinChosenInstanceID();
 
     const uint32_t GetLastChecksum();
 
@@ -141,6 +145,8 @@ private:
 private:
     TimeStat m_oTimeStat;
     Options m_oOptions;
+
+    bool m_bStarted;
 };
     
 }

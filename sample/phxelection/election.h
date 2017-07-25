@@ -25,6 +25,7 @@ See the AUTHORS file for names of contributors.
 #include <string>
 #include <vector>
 #include "phxpaxos_plugin/logger_google.h"
+#include "phxpaxos/options.h"
 
 namespace phxelection
 {
@@ -42,6 +43,8 @@ public:
     const phxpaxos::NodeInfo GetMasterWithVersion(uint64_t & llVersion);
     
     const bool IsIMMaster();
+
+    static void OnMasterChange(const int iGroupIdx, const phxpaxos::NodeInfo & oNewMaster, const uint64_t llVersion);
 
 private:
     int MakeLogStoragePath(std::string & sLogStoragePath);

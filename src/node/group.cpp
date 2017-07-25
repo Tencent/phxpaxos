@@ -78,6 +78,11 @@ void Group :: Start()
     m_oInstance.Start();
 }
 
+void Group :: Stop()
+{
+    m_oInstance.Stop();
+}
+
 Config * Group :: GetConfig()
 {
     return &m_oConfig;

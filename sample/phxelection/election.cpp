@@ -62,6 +62,12 @@ int PhxElection :: MakeLogStoragePath(std::string & sLogStoragePath)
     return 0;
 }
 
+void PhxElection :: OnMasterChange(const int iGroupIdx, const NodeInfo & oNewMaster, const uint64_t llVersion)
+{
+    printf("master change!!! groupidx %d newmaster ip %s port %d version %lu\n",
+        iGroupIdx, oNewMaster.GetIP().c_str(), oNewMaster.GetPort(), llVersion);
+}
+
 int PhxElection :: RunPaxos()
 {
     Options oOptions;
@@ -83,6 +89,8 @@ int PhxElection :: RunPaxos()
     oSMInfo.bIsUseMaster = true;
 
     oOptions.vecGroupSMInfoList.push_back(oSMInfo);
+    oOptions.bOpenChangeValueBeforePropose = true;
+    oOptions.pMasterChangeCallback = PhxElection::OnMasterChange;
 
     ret = Node::RunNode(oOptions, m_poPaxosNode);
     if (ret != 0)

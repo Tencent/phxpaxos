@@ -19,6 +19,7 @@ permissions and limitations under the License.
 See the AUTHORS file for names of contributors. 
 */
 
+#include <set>
 #include "commdef.h"
 #include "sm_base.h"
 #include <string.h>

@@ -43,22 +43,28 @@ PNode :: ~PNode()
         poProposeBatch->Stop();
     }
 
-    //3.step: stop network.
+    //3.step: stop group
+    for (auto & poGroup : m_vecGroupList)
+    {
+        poGroup->Stop();
+    }
+
+    //4. step: stop network.
     m_oDefaultNetWork.StopNetWork();
 
-    //4.step: delete paxos instance.
+    //5 .step: delete paxos instance.
     for (auto & poGroup : m_vecGroupList)
     {
         delete poGroup;
     }
 
-    //5. step: delete master state machine.
+    //6. step: delete master state machine.
     for (auto & poMaster : m_vecMasterList)
     {
         delete poMaster;
     }
 
-    //6. step: delete proposebatch;
+    //7. step: delete proposebatch;
     for (auto & poProposeBatch : m_vecProposeBatch)
     {
         delete poProposeBatch;
@@ -245,7 +251,7 @@ int PNode :: Init(const Options & oOptions, NetWork *& poNetWork)
     //step3 build masterlist
     for (int iGroupIdx = 0; iGroupIdx < oOptions.iGroupCount; iGroupIdx++)
     {
-        MasterMgr * poMaster = new MasterMgr(this, iGroupIdx, poLogStorage);
+        MasterMgr * poMaster = new MasterMgr(this, iGroupIdx, poLogStorage, oOptions.pMasterChangeCallback);
         assert(poMaster != nullptr);
         m_vecMasterList.push_back(poMaster);
 
@@ -352,6 +358,16 @@ const uint64_t PNode :: GetNowInstanceID(const int iGroupIdx)
     }
 
     return m_vecGroupList[iGroupIdx]->GetInstance()->GetNowInstanceID();
+}
+
+const uint64_t PNode :: GetMinChosenInstanceID(const int iGroupIdx)
+{
+    if (!CheckGroupID(iGroupIdx))
+    {
+        return (uint64_t)-1;
+    }
+
+    return m_vecGroupList[iGroupIdx]->GetInstance()->GetMinChosenInstanceID();
 }
 
 int PNode :: OnReceiveMessage(const char * pcMessage, const int iMessageLen)
