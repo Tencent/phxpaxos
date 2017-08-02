@@ -8,7 +8,7 @@
 
 联系我们：phxteam@tencent.com
 
-想了解更多, 以及更详细的编译手册，请进入[中文WIKI](https://github.com/tencent-wechat/phxpaxos/wiki)，和扫描右侧二维码关注我们的公众号
+想了解更多, 以及更详细的编译手册，请进入[中文WIKI](https://github.com/Tencent/phxpaxos/wiki)，和扫描右侧二维码关注我们的公众号
 
 [关于实现的一些原理细节](http://mp.weixin.qq.com/s?__biz=MzI4NDMyNTU2Mw==&mid=2247483695&idx=1&sn=91ea422913fc62579e020e941d1d059e#rd)
 
