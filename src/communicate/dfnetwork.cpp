@@ -21,6 +21,7 @@ See the AUTHORS file for names of contributors.
 
 #include "dfnetwork.h"
 #include "udp.h"
+#include "port.h"
 
 namespace phxpaxos
 {
@@ -39,10 +40,16 @@ void DFNetWork :: StopNetWork()
     m_oUDPRecv.Stop();
     m_oUDPSend.Stop();
     m_oTcpIOThread.Stop();
+#if defined(_WIN32) && !defined(PHXPAXOS_NO_START_WINSOCK)
+    WinsockShutdown();
+#endif
 }
 
 int DFNetWork :: Init(const std::string & sListenIp, const int iListenPort)
 {
+#if defined(_WIN32) && !defined(PHXPAXOS_NO_START_WINSOCK)
+    WinsockInit();
+#endif
     int ret = m_oUDPSend.Init();
     if (ret != 0)
     {
