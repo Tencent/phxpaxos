@@ -26,6 +26,7 @@ See the AUTHORS file for names of contributors.
 #include <iostream>
 #include <sys/socket.h>
 #include <netinet/tcp.h>
+#include "../port/port.h"
 
 namespace phxpaxos {
 
@@ -209,7 +210,11 @@ SocketBase::SocketBase(int family, int handle) : _family(family), _handle(handle
 
 SocketBase::~SocketBase() {
     if (_handle != -1) {
+#ifdef _WIN32
+        ::closesocket(_handle);
+#else
         ::close(_handle);
+#endif // _WIN32
         _handle = -1;
     }
 }
@@ -254,11 +259,19 @@ void SocketBase::setNonBlocking(bool on) {
 }
 
 bool SocketBase::getNonBlocking(int fd) {
+#ifdef _WIN32
+    return true;
+#else
     int flags = fcntl(fd, F_GETFL, 0);
     return flags & O_NONBLOCK;
+#endif // _WIN32
 }
 
 void SocketBase::setNonBlocking(int fd, bool on) {
+#ifdef _WIN32
+    u_long v = on;
+    ::ioctlsocket(fd, FIONBIO, &v);
+#else
     int flags = ::fcntl(fd, F_GETFL, 0);
 
     if (on) {
@@ -276,6 +289,7 @@ void SocketBase::setNonBlocking(int fd, bool on) {
     if (0 != ::fcntl(fd, F_SETFL, flags)) {
         ;
     }
+#endif // _WIN32
 }
 
 socklen_t SocketBase::getOption(int level, int option, void* value, socklen_t optLen) const {
@@ -287,13 +301,19 @@ socklen_t SocketBase::getOption(int level, int option, void* value, socklen_t op
 
 void SocketBase::setOption(int level, int option, void* value, socklen_t optLen) const {
     if (::setsockopt(_handle, level, option, static_cast<char*>(value), optLen) == -1) {
+#ifndef _WIN32
         throw SocketException("setsockopt error");
+#endif // _WIN32
     }
 }
 
 void SocketBase::close() {
     if (_handle != -1) {
+#ifdef _WIN32
+        if (::closesocket(_handle) == -1) {
+#else
         if (::close(_handle) == -1) {
+#endif
             _handle = -1;
             throw SocketException("close error");
         } else {
@@ -306,7 +326,6 @@ void SocketBase::reset() {
     close();
     initHandle(_family);
 }
-
 ///////////////////////////////////////////////////////////Socket
 
 const static int SOCKET_BUF_SIZE = 512;
@@ -331,9 +350,14 @@ int Socket::getSendTimeout() const {
 
 void Socket::setSendTimeout(int timeout) {
     if (timeout >= 0) {
+#ifdef _WIN32
+        DWORD tv;
+        tv = timeout;
+#else
         timeval tv;
         tv.tv_sec = timeout / 1000;
         tv.tv_usec = (timeout % 1000) * 1000;
+#endif // _WIN32
         setOption(SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
     } else {
         setOption(SOL_SOCKET, SO_SNDTIMEO, 0, sizeof(int));
@@ -341,16 +365,28 @@ void Socket::setSendTimeout(int timeout) {
 }
 
 int Socket::getReceiveTimeout() const {
+#ifdef _WIN32
+    DWORD tv;
+#else
     timeval tv;
+#endif // _WIN32
     getOption(SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(timeval));
+#ifdef _WIN32
+    return tv;
+#else
     return tv.tv_sec * 1000 + tv.tv_usec / 1000;
+#endif // _WIN32
 }
 
 void Socket::setReceiveTimeout(int timeout) {
     if (timeout >= 0) {
+#ifdef _WIN32
+        DWORD tv = timeout;
+#else
         timeval tv;
         tv.tv_sec = timeout / 1000;
         tv.tv_usec = (timeout % 1000) * 1000;
+#endif // _WIN32
         setOption(SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
     } else {
         setOption(SOL_SOCKET, SO_RCVTIMEO, 0, sizeof(int));
@@ -366,12 +402,18 @@ void Socket::setReceiveBufferSize(int size) {
 }
 
 void Socket::setQuickAck(bool on) {
+#ifndef _WIN32
     int v = on ? 1 : 0;
     setOption(IPPROTO_TCP, TCP_QUICKACK, &v, sizeof(v));
+#endif // _WIN32
 }
 
 void Socket::setNoDelay(bool on) {
+#ifdef _WIN32
+    BOOL v = on ? 1 : 0;
+#else
     int v = on ? 1 : 0;
+#endif // _WIN32
     setOption(IPPROTO_TCP, TCP_NODELAY, &v, sizeof(v));
 }
 
@@ -421,7 +463,12 @@ void Socket::connect(const SocketAddress& addr) {
     }
 
     if (::connect(_handle, &sockAddr.addr, SocketAddress::getAddressLength(sockAddr)) == -1) {
+#ifdef _WIN32
+        DWORD err = WSAGetLastError();
+        if (err != WSAEWOULDBLOCK) {
+#else
         if (errno != EINPROGRESS) {
+#endif
             string msg = "connect " + addr.toString() + " error";
             throw SocketException(msg);
         } else if (!getNonBlocking()) {
@@ -441,10 +488,17 @@ int Socket::send(const char* data, int dataSize, bool* again) {
 
     while (dataSize > 0) {
         n = ::send(_handle, p, dataSize, 0);
+#ifdef _WIN32
+        DWORD err = WSAGetLastError();
+#endif
         if (n > 0) {
             p += n;
             dataSize -= n;
+#ifdef _WIN32
+        } else if (err == WSAEWOULDBLOCK) {
+#else
         } else if (errno == EAGAIN) {
+#endif // _WIN32
             if (again) {
                 *again = true;
             }
@@ -454,8 +508,10 @@ int Socket::send(const char* data, int dataSize, bool* again) {
             }
 
             break;
+#ifndef _WIN32
         } else if (errno == EINTR) {
             continue;
+#endif // _WIN32
         } else {
             throw SocketException("send error");
         }
@@ -474,6 +530,9 @@ int Socket::receive(char* buffer, int bufferSize, bool* again) {
 
     while (bufferSize > 0) {
         n = ::recv(_handle, p, bufferSize, 0);
+#ifdef _WIN32
+        DWORD err = WSAGetLastError();
+#endif
         if (n > 0) {
             p += n;
 
@@ -484,7 +543,11 @@ int Socket::receive(char* buffer, int bufferSize, bool* again) {
             bufferSize -= n;
         } else if (n == 0) {
             break;
+#ifdef _WIN32
+        } else if (err == WSAEWOULDBLOCK) {
+#else
         } else if (errno == EAGAIN) {
+#endif // _WIN32
             if (again) {
                 *again = true;
             }
@@ -494,8 +557,10 @@ int Socket::receive(char* buffer, int bufferSize, bool* again) {
             }
 
             break;
+#ifndef _WIN32
         } else if (errno == EINTR) {
             continue;
+#endif // _WIN32
         } else {
             throw SocketException("recv error");
         }
