@@ -59,9 +59,11 @@ SocketAddress::SocketAddress(const sockaddr_in& addr) {
     setAddress(addr);
 }
 
+#ifndef _WIN32
 SocketAddress::SocketAddress(const sockaddr_un& addr) {
     setAddress(addr);
 }
+#endif
 
 void SocketAddress::setAddress(unsigned short port) {
     _addr.addr.sa_family = AF_INET;
@@ -90,6 +92,7 @@ void SocketAddress::setAddress(const string& addr, unsigned short port) {
     _addr.in.sin_addr.s_addr = ip;
 }
 
+#ifndef _WIN32
 void SocketAddress::setUnixDomain(const string& path) {
     if (path.size() + 1 > sizeof(_addr.un.sun_path)) {
         throw SocketException("unix domain path \"" + path + "\" too long");
@@ -98,6 +101,7 @@ void SocketAddress::setUnixDomain(const string& path) {
     _addr.addr.sa_family = AF_UNIX;
     strcpy(_addr.un.sun_path, path.c_str());
 }
+#endif
 
 unsigned long SocketAddress::getIp() const {
     return _addr.in.sin_addr.s_addr;
@@ -115,9 +119,11 @@ void SocketAddress::getAddress(sockaddr_in& addr) const {
     memcpy(&addr, &_addr.in, sizeof(addr));
 }
 
+#ifndef _WIN32
 void SocketAddress::getAddress(sockaddr_un& addr) const {
     memcpy(&addr, &_addr.un, sizeof(addr));
 }
+#endif
 
 void SocketAddress::setAddress(const Addr& addr) {
     memcpy(&_addr, &addr, sizeof(addr));
@@ -128,9 +134,11 @@ void SocketAddress::setAddress(const sockaddr_in& addr) {
     _addr.addr.sa_family = AF_INET;
 }
 
+#ifndef _WIN32
 void SocketAddress::setAddress(const sockaddr_un& addr) {
     memcpy(&_addr.un, &addr, sizeof(addr));
 }
+#endif
 
 int SocketAddress::getFamily() const {
     return _addr.addr.sa_family;
@@ -139,16 +147,22 @@ int SocketAddress::getFamily() const {
 socklen_t SocketAddress::getAddressLength(const Addr& addr) {
     if (addr.addr.sa_family == AF_INET) {
         return sizeof(addr.in);
-    } else if (addr.addr.sa_family == AF_UNIX || addr.addr.sa_family == AF_LOCAL) {
+    }
+#ifndef _WIN32
+     else if (addr.addr.sa_family == AF_UNIX || addr.addr.sa_family == AF_LOCAL) {
         return sizeof(addr.un);
     }
+#endif
     return sizeof(addr);
 }
 
 string SocketAddress::getHost() const {
+#ifndef _WIN32
     if (_addr.addr.sa_family == AF_UNIX || _addr.addr.sa_family == AF_LOCAL) {
         return _addr.un.sun_path;
-    } else {
+    } else
+#endif
+    {
         char buff[16];
 
         if (inet_ntop(AF_INET, &_addr.in.sin_addr, buff, sizeof(buff)) == 0) {
@@ -160,18 +174,24 @@ string SocketAddress::getHost() const {
 }
 
 string SocketAddress::toString() const {
+#ifndef _WIN32
     if (_addr.addr.sa_family == AF_UNIX || _addr.addr.sa_family == AF_LOCAL) {
         return _addr.un.sun_path;
     }
+#endif
     return getHost() + ":" + str(ntohs(_addr.in.sin_port));
 }
 
 bool SocketAddress::operator ==(const SocketAddress& addr) const {
     if (_addr.addr.sa_family != addr._addr.addr.sa_family) {
         return false;
-    } else if (_addr.addr.sa_family == AF_UNIX || _addr.addr.sa_family == AF_LOCAL) {
+    }
+#ifndef _WIN32
+     else if (_addr.addr.sa_family == AF_UNIX || _addr.addr.sa_family == AF_LOCAL) {
         return strcmp(_addr.un.sun_path, addr._addr.un.sun_path) == 0;
-    } else {
+    }
+#endif
+    else {
         return _addr.in.sin_addr.s_addr == addr._addr.in.sin_addr.s_addr
                 && _addr.in.sin_port == addr._addr.in.sin_port;
     }
@@ -524,10 +544,12 @@ void ServerSocket::listen(const SocketAddress& addr, int backlog) {
     if (_handle < 0) {
         throw SocketException("bad handle");
     }
-
+#ifndef _WIN32
     if (addr.getFamily() == AF_UNIX) {
         ::unlink(localAddr.un.sun_path);
-    } else {
+    } else
+#endif
+    {
         int reuse = 1;
         setOption(SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
     }
