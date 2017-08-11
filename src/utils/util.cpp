@@ -236,6 +236,7 @@ struct FastRandomSeed {
     unsigned int seed;
 };
 
+#ifndef _WIN32
 static __thread FastRandomSeed seed_thread_safe = { false, 0 };
 
 static void ResetFastRandomSeed()
@@ -256,15 +257,24 @@ static void InitFastRandomSeed()
 
     ResetFastRandomSeed();
 }
+#else
+extern "C" errno_t __cdecl rand_s (unsigned int *_RandomValue);
+#endif
 
 const uint32_t OtherUtils :: FastRand()
 {
+#ifndef _WIN32
     if (!seed_thread_safe.init)
     {
         InitFastRandomSeed();
     }
 
     return rand_r(&seed_thread_safe.seed);
+#else
+    unsigned int v;
+    rand_s(&v);
+    return v;
+#endif // _WIN32
 }
 
 }
