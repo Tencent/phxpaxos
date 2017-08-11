@@ -48,7 +48,11 @@ public:
     void OnError(bool & bNeedDelete);
 
 private:
+#ifdef _WIN32
+    SOCKET m_iPipeFD[2];
+#else
     int m_iPipeFD[2];
+#endif // _WIN32
     std::string m_sHost;
 };
 
