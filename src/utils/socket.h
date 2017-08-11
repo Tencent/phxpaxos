@@ -46,7 +46,9 @@ public:
     union Addr {
         sockaddr addr;
         sockaddr_in in;
+#ifndef _WIN32
         sockaddr_un un;
+#endif
     };
 
     SocketAddress();
@@ -61,15 +63,18 @@ public:
 
     SocketAddress(const sockaddr_in& addr);
 
+#ifndef _WIN32
     SocketAddress(const sockaddr_un& addr);
-
+#endif
     void setAddress(unsigned short port);
 
     void setAddress(const string& addr);
 
     void setAddress(const string& addr, unsigned short port);
 
+#ifndef _WIN32
     void setUnixDomain(const string& path);
+#endif
 
     unsigned long getIp() const;
 
@@ -79,13 +84,17 @@ public:
 
     void getAddress(sockaddr_in& addr) const;
 
+#ifndef _WIN32
     void getAddress(sockaddr_un& addr) const;
+#endif
 
     void setAddress(const Addr& addr);
 
     void setAddress(const sockaddr_in& addr);
 
+#ifndef _WIN32
     void setAddress(const sockaddr_un& addr);
+#endif
 
     string getHost() const;
 
