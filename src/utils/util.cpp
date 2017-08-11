@@ -124,7 +124,7 @@ int FileUtils :: DeleteDir(const std::string & sDirPath)
 
     if (ret == 0)
     {
-        ret = remove(sDirPath.c_str());
+        ret = rmdir(sDirPath.c_str());
     }
 
     return ret;
