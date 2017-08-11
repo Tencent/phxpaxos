@@ -224,9 +224,12 @@ int LogStore :: IncreaseFileID()
 
 int LogStore :: OpenFile(const int iFileID, int & iFd)
 {
+#ifndef _WIN32
+#define _O_BINARY 0
+#endif
     char sFilePath[512] = {0};
     snprintf(sFilePath, sizeof(sFilePath), "%s/%d.f", m_sPath.c_str(), iFileID);
-    iFd = open(sFilePath, O_CREAT | O_RDWR, S_IWRITE | S_IREAD);
+    iFd = open(sFilePath, O_CREAT | O_RDWR | _O_BINARY, S_IWRITE | S_IREAD);
     if (iFd == -1)
     {
         PLG1Err("open fail fail, filepath %s", sFilePath);
