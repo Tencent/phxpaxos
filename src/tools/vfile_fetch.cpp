@@ -45,7 +45,7 @@ int VFileFetch(const std::string & sFilePath, const int iOffset, const int iFetc
         close(iFd);
         return -1;
     }
-    
+
     off_t iSeekPos = lseek(iFd, iOffset, SEEK_SET);
     if (iSeekPos == -1)
     {
@@ -64,7 +64,7 @@ int VFileFetch(const std::string & sFilePath, const int iOffset, const int iFetc
             printf("File End, offset %d\n", iNowOffset);
             break;
         }
-        
+
         if (iReadLen != (ssize_t)sizeof(int))
         {
             printf("readlen %zd not qual to %zu\n", iReadLen, sizeof(int));
@@ -108,14 +108,14 @@ int VFileFetch(const std::string & sFilePath, const int iOffset, const int iFetc
 
         PrintState(oState);
 
-        iNowOffset += sizeof(int) + iLen; 
+        iNowOffset += sizeof(int) + iLen;
         iNowFetchCount++;
         if (iNowFetchCount >= iFetchCount)
         {
             break;
         }
     }
-    
+
     close(iFd);
 
     return ret;

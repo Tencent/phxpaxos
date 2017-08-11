@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #pragma once
@@ -32,11 +32,11 @@ namespace phxpaxos
 
 class MsgTransport;
 
-class SystemVSM : public InsideSM 
+class SystemVSM : public InsideSM
 {
 public:
     SystemVSM(
-            const int iGroupIdx, 
+            const int iGroupIdx,
             const nodeid_t iMyNodeID,
             const LogStorage * poLogStorage,
             MembershipChangeCallback pMembershipChangeCallback);
@@ -51,15 +51,15 @@ public:
 public:
     const uint64_t GetGid() const;
 
-    void GetMembership(NodeInfoList & vecNodeInfoList, uint64_t & llVersion); 
+    void GetMembership(NodeInfoList & vecNodeInfoList, uint64_t & llVersion);
 
     int CreateGid_OPValue(const uint64_t llGid, std::string & sOpValue);
-    
+
     int Membership_OPValue(const NodeInfoList & vecNodeInfoList, const uint64_t llVersion, std::string & sOpValue);
 
 public:
     //membership
-    
+
     void AddNodeIDList(const NodeInfoList & vecNodeInfoList);
 
     void RefleshNodeID();
@@ -75,12 +75,12 @@ public:
 public:
     const uint64_t GetCheckpointInstanceID(const int iGroupIdx) const { return m_oSystemVariables.version(); }
 
-    bool ExecuteForCheckpoint(const int iGroupIdx, const uint64_t llInstanceID, 
+    bool ExecuteForCheckpoint(const int iGroupIdx, const uint64_t llInstanceID,
             const std::string & sPaxosValue) { return true; }
 
-    int GetCheckpointState(const int iGroupIdx, std::string & sDirPath, 
-            std::vector<std::string> & vecFileList) { return 0; }    
-    
+    int GetCheckpointState(const int iGroupIdx, std::string & sDirPath,
+            std::vector<std::string> & vecFileList) { return 0; }
+
     int LoadCheckpointState(const int iGroupIdx, const std::string & sCheckpointTmpFileDirPath,
             const std::vector<std::string> & vecFileList, const uint64_t llCheckpointInstanceID) { return 0; }
 
@@ -96,7 +96,7 @@ public:
 public:
     //for tools
     void GetSystemVariables(SystemVariables & oVariables);
-    
+
     int UpdateSystemVariables(const SystemVariables & oVariables);
 
 public:
@@ -114,5 +114,5 @@ private:
 
     MembershipChangeCallback m_pMembershipChangeCallback;
 };
-    
+
 }

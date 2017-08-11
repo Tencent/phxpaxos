@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "socket.h"
@@ -325,7 +325,7 @@ int Socket::getReceiveTimeout() const {
     getOption(SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(timeval));
     return tv.tv_sec * 1000 + tv.tv_usec / 1000;
 }
-    
+
 void Socket::setReceiveTimeout(int timeout) {
     if (timeout >= 0) {
         timeval tv;
@@ -358,7 +358,7 @@ void Socket::setNoDelay(bool on) {
 SocketAddress Socket::getRemoteAddress() const {
     return getRemoteAddress(_handle);
 }
-    
+
 SocketAddress Socket::getRemoteAddress(int fd) {
     SocketAddress::Addr addr;
     socklen_t len = sizeof(addr);
@@ -424,7 +424,7 @@ int Socket::send(const char* data, int dataSize, bool* again) {
         if (n > 0) {
             p += n;
             dataSize -= n;
-        } else if (errno == EAGAIN) { 
+        } else if (errno == EAGAIN) {
             if (again) {
                 *again = true;
             }
@@ -434,7 +434,7 @@ int Socket::send(const char* data, int dataSize, bool* again) {
             }
 
             break;
-        } else if (errno == EINTR) { 
+        } else if (errno == EINTR) {
             continue;
         } else {
             throw SocketException("send error");
@@ -462,9 +462,9 @@ int Socket::receive(char* buffer, int bufferSize, bool* again) {
             }
 
             bufferSize -= n;
-        } else if (n == 0) { 
+        } else if (n == 0) {
             break;
-        } else if (errno == EAGAIN) { 
+        } else if (errno == EAGAIN) {
             if (again) {
                 *again = true;
             }

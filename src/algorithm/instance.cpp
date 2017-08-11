@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "instance.h"
@@ -28,13 +28,13 @@ namespace phxpaxos
 {
 
 Instance :: Instance(
-        const Config * poConfig, 
+        const Config * poConfig,
         const LogStorage * poLogStorage,
         const MsgTransport * poMsgTransport,
         const Options & oOptions)
     : m_oSMFac(poConfig->GetMyGroupIdx()),
     m_oIOLoop((Config *)poConfig, this),
-    m_oAcceptor(poConfig, poMsgTransport, this, poLogStorage), 
+    m_oAcceptor(poConfig, poMsgTransport, this, poLogStorage),
     m_oLearner(poConfig, poMsgTransport, this, &m_oAcceptor, poLogStorage, &m_oIOLoop, &m_oCheckpointMgr, &m_oSMFac),
     m_oProposer(poConfig, poMsgTransport, this, &m_oLearner, &m_oIOLoop),
     m_oPaxosLog(poLogStorage),
@@ -73,7 +73,7 @@ int Instance :: Init()
 
     uint64_t llCPInstanceID = m_oCheckpointMgr.GetCheckpointInstanceID() + 1;
 
-    PLGImp("Acceptor.OK, Log.InstanceID %lu Checkpoint.InstanceID %lu", 
+    PLGImp("Acceptor.OK, Log.InstanceID %lu Checkpoint.InstanceID %lu",
             m_oAcceptor.GetInstanceID(), llCPInstanceID);
 
     uint64_t llNowInstanceID = llCPInstanceID;
@@ -100,7 +100,7 @@ int Instance :: Init()
             }
             m_oAcceptor.InitForNewPaxosInstance();
         }
-        
+
         m_oAcceptor.SetInstanceID(llNowInstanceID);
     }
 
@@ -147,14 +147,14 @@ void Instance :: Stop()
     }
 }
 
-int Instance :: ProtectionLogic_IsCheckpointInstanceIDCorrect(const uint64_t llCPInstanceID, const uint64_t llLogMaxInstanceID) 
+int Instance :: ProtectionLogic_IsCheckpointInstanceIDCorrect(const uint64_t llCPInstanceID, const uint64_t llLogMaxInstanceID)
 {
     if (llCPInstanceID <= llLogMaxInstanceID + 1)
     {
         return 0;
     }
 
-    //checkpoint_instanceid larger than log_maxinstanceid+1 will appear in the following situations 
+    //checkpoint_instanceid larger than log_maxinstanceid+1 will appear in the following situations
     //1. Pull checkpoint from other node automatically and restart. (normal case)
     //2. Paxos log was manually all deleted. (may be normal case)
     //3. Paxos log is lost because Options::bSync set as false. (bad case)
@@ -166,7 +166,7 @@ int Instance :: ProtectionLogic_IsCheckpointInstanceIDCorrect(const uint64_t llC
     if (llLogMaxInstanceID == 0)
     {
         //case 1. Automatically pull checkpoint will delete all paxos log first.
-        //case 2. No paxos log. 
+        //case 2. No paxos log.
         //If minchosen instanceid < checkpoint instanceid.
         //Then Fix minchosen instanceid to avoid that paxos log between [log_maxinstanceid, checkpoint_instanceid) not exist.
         //if minchosen isntanceid > checkpoint.instanceid.
@@ -239,14 +239,14 @@ int Instance :: PlayLog(const uint64_t llBeginInstanceID, const uint64_t llEndIn
 {
     if (llBeginInstanceID < m_oCheckpointMgr.GetMinChosenInstanceID())
     {
-        PLGErr("now instanceid %lu small than min chosen instanceid %lu", 
+        PLGErr("now instanceid %lu small than min chosen instanceid %lu",
                 llBeginInstanceID, m_oCheckpointMgr.GetMinChosenInstanceID());
         return -2;
     }
 
     for (uint64_t llInstanceID = llBeginInstanceID; llInstanceID < llEndInstanceID; llInstanceID++)
     {
-        AcceptorStateData oState; 
+        AcceptorStateData oState;
         int ret = m_oPaxosLog.ReadState(m_poConfig->GetMyGroupIdx(), llInstanceID, oState);
         if (ret != 0)
         {
@@ -327,14 +327,14 @@ void Instance :: CheckNewValue()
     {
         m_oIOLoop.AddTimer(m_oCommitCtx.GetTimeoutMs(), Timer_Instance_Commit_Timeout, m_iCommitTimerID);
     }
-    
+
     m_oTimeStat.Point();
 
     if (m_poConfig->GetIsUseMembership()
             && (m_oProposer.GetInstanceID() == 0 || m_poConfig->GetGid() == 0))
     {
         //Init system variables.
-        PLGHead("Need to init system variables, Now.InstanceID %lu Now.Gid %lu", 
+        PLGHead("Need to init system variables, Now.InstanceID %lu Now.Gid %lu",
                 m_oProposer.GetInstanceID(), m_poConfig->GetGid());
 
         uint64_t llGid = OtherUtils::GenGid(m_poConfig->GetMyNodeID());
@@ -419,7 +419,7 @@ void Instance :: OnReceive(const std::string & sBuffer)
             PLGImp("in ask for checkpoint mode, ignord paxosmsg");
             return;
         }
-        
+
         PaxosMsg oPaxosMsg;
         bool bSucc = oPaxosMsg.ParseFromArray(sBuffer.data() + iBodyStartPos, iBodyLen);
         if (!bSucc)
@@ -433,7 +433,7 @@ void Instance :: OnReceive(const std::string & sBuffer)
         {
             return;
         }
-        
+
         OnReceivePaxosMsg(oPaxosMsg);
     }
     else if (iCmd == MsgCmd_CheckpointMsg)
@@ -451,7 +451,7 @@ void Instance :: OnReceive(const std::string & sBuffer)
         {
             return;
         }
-        
+
         OnReceiveCheckpointMsg(oCheckpointMsg);
     }
 }
@@ -498,7 +498,7 @@ int Instance :: OnReceivePaxosMsg(const PaxosMsg & oPaxosMsg, const bool bIsRetr
             PLGErr("acceptor reply type msg, from nodeid not in my membership, skip this message");
             return 0;
         }
-        
+
         return ReceiveMsgForProposer(oPaxosMsg);
     }
     else if (oPaxosMsg.msgtype() == MsgType_PaxosPrepare
@@ -509,7 +509,7 @@ int Instance :: OnReceivePaxosMsg(const PaxosMsg & oPaxosMsg, const bool bIsRetr
         {
             m_poConfig->AddTmpNodeOnlyForLearn(oPaxosMsg.nodeid());
         }
-        
+
         if ((!m_poConfig->IsValidNodeID(oPaxosMsg.nodeid())))
         {
             PLGErr("prepare/accept type msg, from nodeid not in my membership(or i'm null membership), "
@@ -553,16 +553,16 @@ int Instance :: ReceiveMsgForProposer(const PaxosMsg & oPaxosMsg)
     }
 
     ///////////////////////////////////////////////////////////////
-    
+
     if (oPaxosMsg.instanceid() != m_oProposer.GetInstanceID())
     {
         if (oPaxosMsg.instanceid() + 1 == m_oProposer.GetInstanceID())
         {
             //Exipred reply msg on last instance.
-            //If the response of a node is always slower than the majority node, 
+            //If the response of a node is always slower than the majority node,
             //then the message of the node is always ignored even if it is a reject reply.
-            //In this case, if we do not deal with these reject reply, the node that 
-            //gave reject reply will always give reject reply. 
+            //In this case, if we do not deal with these reject reply, the node that
+            //gave reject reply will always give reject reply.
             //This causes the node to remain in catch-up state.
             //
             //To avoid this problem, we need to deal with the expired reply.
@@ -600,14 +600,14 @@ int Instance :: ReceiveMsgForAcceptor(const PaxosMsg & oPaxosMsg, const bool bIs
         PLGErr("I'm follower, skip this message");
         return 0;
     }
-    
+
     //////////////////////////////////////////////////////////////
-    
+
     if (oPaxosMsg.instanceid() != m_oAcceptor.GetInstanceID())
     {
         BP->GetInstanceBP()->OnReceivePaxosAcceptorMsgInotsame();
     }
-    
+
     if (oPaxosMsg.instanceid() == m_oAcceptor.GetInstanceID() + 1)
     {
         //skip success message
@@ -617,7 +617,7 @@ int Instance :: ReceiveMsgForAcceptor(const PaxosMsg & oPaxosMsg, const bool bIs
 
         ReceiveMsgForLearner(oNewPaxosMsg);
     }
-            
+
     if (oPaxosMsg.instanceid() == m_oAcceptor.GetInstanceID())
     {
         if (oPaxosMsg.msgtype() == MsgType_PaxosPrepare)
@@ -638,13 +638,13 @@ int Instance :: ReceiveMsgForAcceptor(const PaxosMsg & oPaxosMsg, const bool bIs
             {
                 //need retry msg precondition
                 //1. prepare or accept msg
-                //2. msg.instanceid > nowinstanceid. 
+                //2. msg.instanceid > nowinstanceid.
                 //    (if < nowinstanceid, this msg is expire)
-                //3. msg.instanceid >= seen latestinstanceid. 
+                //3. msg.instanceid >= seen latestinstanceid.
                 //    (if < seen latestinstanceid, proposer don't need reply with this instanceid anymore.)
                 //4. msg.instanceid close to nowinstanceid.
                 m_oIOLoop.AddRetryPaxosMsg(oPaxosMsg);
-                
+
                 BP->GetInstanceBP()->OnReceivePaxosAcceptorMsgAddRetry();
 
                 //PLGErr("InstanceID not same, get in to retry logic");
@@ -715,14 +715,14 @@ int Instance :: ReceiveMsgForLearner(const PaxosMsg & oPaxosMsg)
             BP->GetInstanceBP()->OnInstanceLearnedSMExecuteFail();
 
             PLGErr("SMExecute fail, instanceid %lu, not increase instanceid", m_oLearner.GetInstanceID());
-            m_oCommitCtx.SetResult(PaxosTryCommitRet_ExecuteFail, 
+            m_oCommitCtx.SetResult(PaxosTryCommitRet_ExecuteFail,
                     m_oLearner.GetInstanceID(), m_oLearner.GetLearnValue());
 
             m_oProposer.CancelSkipPrepare();
 
             return -1;
         }
-        
+
         {
             //this paxos instance end, tell proposal done
             m_oCommitCtx.SetResult(PaxosTryCommitRet_OK
@@ -733,11 +733,11 @@ int Instance :: ReceiveMsgForLearner(const PaxosMsg & oPaxosMsg)
                 m_oIOLoop.RemoveTimer(m_iCommitTimerID);
             }
         }
-        
+
         PLGHead("[Learned] New paxos starting, Now.Proposer.InstanceID %lu "
                 "Now.Acceptor.InstanceID %lu Now.Learner.InstanceID %lu",
                 m_oProposer.GetInstanceID(), m_oAcceptor.GetInstanceID(), m_oLearner.GetInstanceID());
-        
+
         PLGHead("[Learned] Checksum change, last checksum %u new checksum %u",
                 m_iLastChecksum, m_oLearner.GetNewChecksum());
 
@@ -808,8 +808,8 @@ void Instance :: AddStateMachine(StateMachine * poSM)
 }
 
 bool Instance :: SMExecute(
-        const uint64_t llInstanceID, 
-        const std::string & sValue, 
+        const uint64_t llInstanceID,
+        const std::string & sValue,
         const bool bIsMyCommit,
         SMCtx * poSMCtx)
 {
@@ -836,12 +836,12 @@ void Instance :: ChecksumLogic(const PaxosMsg & oPaxosMsg)
         m_iLastChecksum = oPaxosMsg.lastchecksum();
         return;
     }
-    
+
     PLGHead("my last checksum %u other last checksum %u", GetLastChecksum(), oPaxosMsg.lastchecksum());
 
     if (oPaxosMsg.lastchecksum() != GetLastChecksum())
     {
-        PLGErr("checksum fail, my last checksum %u other last checksum %u", 
+        PLGErr("checksum fail, my last checksum %u other last checksum %u",
                  GetLastChecksum(), oPaxosMsg.lastchecksum());
         BP->GetInstanceBP()->ChecksumLogicFail();
     }
@@ -860,7 +860,7 @@ int Instance :: GetInstanceValue(const uint64_t llInstanceID, std::string & sVal
         return Paxos_GetInstanceValue_Value_Not_Chosen_Yet;
     }
 
-    AcceptorStateData oState; 
+    AcceptorStateData oState;
     int ret = m_oPaxosLog.ReadState(m_poConfig->GetMyGroupIdx(), llInstanceID, oState);
     if (ret != 0 && ret != 1)
     {

@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "ioloop.h"
@@ -50,7 +50,7 @@ void IOLoop :: run()
         BP->GetIOLoopBP()->OneLoop();
 
         int iNextTimeout = 1000;
-        
+
         DealwithTimeout(iNextTimeout);
 
         //PLGHead("nexttimeout %d", iNextTimeout);
@@ -93,7 +93,7 @@ int IOLoop :: AddMessage(const char * pcMessage, const int iMessageLen)
         m_oMessageQueue.unlock();
         return -2;
     }
-    
+
     m_oMessageQueue.add(new string(pcMessage, iMessageLen));
 
     m_iQueueMemSize += iMessageLen;
@@ -112,7 +112,7 @@ int IOLoop :: AddRetryPaxosMsg(const PaxosMsg & oPaxosMsg)
         BP->GetIOLoopBP()->EnqueueRetryMsgRejectByFullQueue();
         m_oRetryQueue.pop();
     }
-    
+
     m_oRetryQueue.push(oPaxosMsg);
     return 0;
 }
@@ -140,7 +140,7 @@ void IOLoop :: DealWithRetry()
     {
         return;
     }
-    
+
     bool bHaveRetryOne = false;
     while (!m_oRetryQueue.empty())
     {
@@ -181,7 +181,7 @@ void IOLoop :: OneLoop(const int iTimeoutMs)
 
     m_oMessageQueue.lock();
     bool bSucc = m_oMessageQueue.peek(psMessage, iTimeoutMs);
-    
+
     if (!bSucc)
     {
         m_oMessageQueue.unlock();
@@ -215,7 +215,7 @@ bool IOLoop :: AddTimer(const int iTimeout, const int iType, uint32_t & iTimerID
     {
         return true;
     }
-    
+
     uint64_t llAbsTime = Time::GetSteadyClockMS() + iTimeout;
     m_oTimer.AddTimerWithType(llAbsTime, iType, iTimerID);
 

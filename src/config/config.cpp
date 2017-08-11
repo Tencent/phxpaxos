@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "config.h"
@@ -32,17 +32,17 @@ Config :: Config(
         const bool bLogSync,
         const int iSyncInterval,
         const bool bUseMembership,
-        const NodeInfo & oMyNode, 
+        const NodeInfo & oMyNode,
         const NodeInfoList & vecNodeInfoList,
         const FollowerNodeInfoList & vecFollowerNodeInfoList,
         const int iMyGroupIdx,
         const int iGroupCount,
         MembershipChangeCallback pMembershipChangeCallback)
-    : m_bLogSync(bLogSync), 
+    : m_bLogSync(bLogSync),
     m_iSyncInterval(iSyncInterval),
     m_bUseMembership(bUseMembership),
-    m_iMyNodeID(oMyNode.GetNodeID()), 
-    m_iNodeCount(vecNodeInfoList.size()), 
+    m_iMyNodeID(oMyNode.GetNodeID()),
+    m_iNodeCount(vecNodeInfoList.size()),
     m_iMyGroupIdx(iMyGroupIdx),
     m_iGroupCount(iGroupCount),
     m_oSystemVSM(iMyGroupIdx, oMyNode.GetNodeID(), poLogStorage, pMembershipChangeCallback),
@@ -258,12 +258,12 @@ const bool Config :: LogSync() const
     return m_bLogSync;
 }
 
-void Config :: SetLogSync(const bool LogSync) 
+void Config :: SetLogSync(const bool LogSync)
 {
     m_bLogSync = LogSync;
 }
 
-const int Config :: SyncInterval() const 
+const int Config :: SyncInterval() const
 {
     return m_iSyncInterval;
 }

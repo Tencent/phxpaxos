@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "checkpoint_sender.h"
@@ -35,9 +35,9 @@ namespace phxpaxos
 
 CheckpointSender :: CheckpointSender(
     const nodeid_t iSendNodeID,
-    Config * poConfig, 
+    Config * poConfig,
     Learner * poLearner,
-    SMFac * poSMFac, 
+    SMFac * poSMFac,
     CheckpointMgr * poCheckpointMgr) :
     m_iSendNodeID(iSendNodeID),
     m_poConfig(poConfig),
@@ -94,7 +94,7 @@ void CheckpointSender :: run()
         }
 
         bNeedContinue = true;
-        
+
         m_poCheckpointMgr->GetReplayer()->Pause();
         PLGDebug("wait replayer paused.");
         Time::MsSleep(100);
@@ -161,7 +161,7 @@ void CheckpointSender :: SendCheckpoint()
     for (int i = 0; i < 2; i++)
     {
         ret = m_poLearner->SendCheckpointBegin(
-                m_iSendNodeID, m_llUUID, m_llSequence, 
+                m_iSendNodeID, m_llUUID, m_llSequence,
                 m_poSMFac->GetCheckpointInstanceID(m_poConfig->GetMyGroupIdx()));
         if (ret != 0)
         {
@@ -185,13 +185,13 @@ void CheckpointSender :: SendCheckpoint()
     }
 
     ret = m_poLearner->SendCheckpointEnd(
-            m_iSendNodeID, m_llUUID, m_llSequence, 
+            m_iSendNodeID, m_llUUID, m_llSequence,
             m_poSMFac->GetCheckpointInstanceID(m_poConfig->GetMyGroupIdx()));
     if (ret != 0)
     {
         PLGErr("SendCheckpointEnd fail, sequence %lu ret %d", m_llSequence, ret);
     }
-    
+
     BP->GetCheckpointBP()->SendCheckpointEnd();
 }
 
@@ -268,7 +268,7 @@ int CheckpointSender :: SendFile(const StateMachine * poSM, const std::string & 
             return -1;
         }
 
-        int ret = SendBuffer(poSM->SMID(), poSM->GetCheckpointInstanceID(m_poConfig->GetMyGroupIdx()), 
+        int ret = SendBuffer(poSM->SMID(), poSM->GetCheckpointInstanceID(m_poConfig->GetMyGroupIdx()),
                 sFilePath, llOffset, string(m_sTmpBuffer, iReadLen));
         if (ret != 0)
         {
@@ -294,7 +294,7 @@ int CheckpointSender :: SendFile(const StateMachine * poSM, const std::string & 
     return 0;
 }
 
-int CheckpointSender :: SendBuffer(const int iSMID, const uint64_t llCheckpointInstanceID, 
+int CheckpointSender :: SendBuffer(const int iSMID, const uint64_t llCheckpointInstanceID,
         const std::string & sFilePath, const uint64_t llOffset, const std::string & sBuffer)
 {
     uint32_t iChecksum = crc32(0, (const uint8_t *)sBuffer.data(), sBuffer.size(), CRC32SKIP);
@@ -306,12 +306,12 @@ int CheckpointSender :: SendBuffer(const int iSMID, const uint64_t llCheckpointI
         {
             return -1;
         }
-        
+
         if (!CheckAck(m_llSequence))
         {
             return -1;
         }
-        
+
         ret = m_poLearner->SendCheckpoint(
                 m_iSendNodeID, m_llUUID, m_llSequence, llCheckpointInstanceID,
                 iChecksum, sFilePath, iSMID, llOffset, sBuffer);
@@ -370,10 +370,10 @@ const bool CheckpointSender :: CheckAck(const uint64_t llSendSequence)
         }
 
         if (llPassTime >= Checkpoint_ACK_TIMEOUT)
-        {       
+        {
             PLGErr("Ack timeout, last acktime %lu", m_llAbsLastAckTime);
             return false;
-        }       
+        }
 
         //PLGErr("Need sleep to slow down send speed, sendsequence %lu acksequence %lu",
                 //llSendSequence, m_llAckSequence);
@@ -382,7 +382,7 @@ const bool CheckpointSender :: CheckAck(const uint64_t llSendSequence)
 
     return true;
 }
-    
+
 }
 
 

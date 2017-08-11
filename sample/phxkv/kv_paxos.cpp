@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "kv_paxos.h"
@@ -35,8 +35,8 @@ namespace phxkv
 
 PhxKV :: PhxKV(const phxpaxos::NodeInfo & oMyNode, const phxpaxos::NodeInfoList & vecNodeList,
         const std::string & sKVDBPath, const std::string & sPaxosLogPath)
-    : m_oMyNode(oMyNode), m_vecNodeList(vecNodeList), 
-    m_sKVDBPath(sKVDBPath), m_sPaxosLogPath(sPaxosLogPath), 
+    : m_oMyNode(oMyNode), m_vecNodeList(vecNodeList),
+    m_sKVDBPath(sKVDBPath), m_sPaxosLogPath(sPaxosLogPath),
     m_poPaxosNode(nullptr), m_oPhxKVSM(sKVDBPath)
 {
     //only show you how to use multi paxos group, you can set as 1, 2, or any other number.
@@ -68,7 +68,7 @@ int PhxKV :: RunPaxos()
     {
         return -1;
     }
-    
+
     Options oOptions;
 
     oOptions.sLogStoragePath = m_sPaxosLogPath;
@@ -138,8 +138,8 @@ int PhxKV :: KVPropose(const std::string & sKey, const std::string & sPaxosValue
 }
 
 PhxKVStatus PhxKV :: Put(
-        const std::string & sKey, 
-        const std::string & sValue, 
+        const std::string & sKey,
+        const std::string & sValue,
         const uint64_t llVersion)
 {
     string sPaxosValue;
@@ -162,7 +162,7 @@ PhxKVStatus PhxKV :: Put(
     }
     else if (oPhxKVSMCtx.iExecuteRet == KVCLIENT_KEY_VERSION_CONFLICT)
     {
-        return PhxKVStatus::VERSION_CONFLICT; 
+        return PhxKVStatus::VERSION_CONFLICT;
     }
     else
     {
@@ -171,8 +171,8 @@ PhxKVStatus PhxKV :: Put(
 }
 
 PhxKVStatus PhxKV :: GetLocal(
-        const std::string & sKey, 
-        std::string & sValue, 
+        const std::string & sKey,
+        std::string & sValue,
         uint64_t & llVersion)
 {
     int ret = m_oPhxKVSM.GetKVClient()->Get(sKey, sValue, llVersion);
@@ -182,7 +182,7 @@ PhxKVStatus PhxKV :: GetLocal(
     }
     else if (ret == KVCLIENT_KEY_NOTEXIST)
     {
-        return PhxKVStatus::KEY_NOTEXIST; 
+        return PhxKVStatus::KEY_NOTEXIST;
     }
     else
     {
@@ -190,8 +190,8 @@ PhxKVStatus PhxKV :: GetLocal(
     }
 }
 
-PhxKVStatus PhxKV :: Delete( 
-        const std::string & sKey, 
+PhxKVStatus PhxKV :: Delete(
+        const std::string & sKey,
         const uint64_t llVersion)
 {
     string sPaxosValue;
@@ -214,7 +214,7 @@ PhxKVStatus PhxKV :: Delete(
     }
     else if (oPhxKVSMCtx.iExecuteRet == KVCLIENT_KEY_VERSION_CONFLICT)
     {
-        return PhxKVStatus::VERSION_CONFLICT; 
+        return PhxKVStatus::VERSION_CONFLICT;
     }
     else
     {

@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "base.h"
@@ -24,7 +24,7 @@ See the AUTHORS file for names of contributors.
 #include "instance.h"
 #include "crc32.h"
 
-namespace phxpaxos 
+namespace phxpaxos
 {
 
 Base :: Base(const Config * poConfig, const MsgTransport * poMsgTransport, const Instance * poInstance)
@@ -151,7 +151,7 @@ int Base :: UnPackBaseMsg(const std::string & sBuffer, Header & oHeader, size_t 
         return -1;
     }
 
-    NLDebug("buffer_size %zu header len %d cmdid %d gid %lu rid %lu version %d body_startpos %zu", 
+    NLDebug("buffer_size %zu header len %d cmdid %d gid %lu rid %lu version %d body_startpos %zu",
             sBuffer.size(), iHeaderLen, oHeader.cmdid(), oHeader.gid(), oHeader.rid(), oHeader.version(), iBodyStartPos);
 
     if (oHeader.version() >= 1)
@@ -166,7 +166,7 @@ int Base :: UnPackBaseMsg(const std::string & sBuffer, Header & oHeader, size_t 
 
         uint32_t iBufferChecksum = 0;
         memcpy(&iBufferChecksum, sBuffer.data() + sBuffer.size() - CHECKSUM_LEN, CHECKSUM_LEN);
-        
+
         uint32_t iNewCalBufferChecksum = crc32(0, (const uint8_t *)sBuffer.data(), sBuffer.size() - CHECKSUM_LEN, NET_CRC32SKIP);
         if (iNewCalBufferChecksum != iBufferChecksum)
         {
@@ -178,7 +178,7 @@ int Base :: UnPackBaseMsg(const std::string & sBuffer, Header & oHeader, size_t 
 
         /*
         NLDebug("Checksum compare ok, Data.bring.checksum %u, Data.cal.checksum %u",
-                iBufferChecksum, iNewCalBufferChecksum) 
+                iBufferChecksum, iNewCalBufferChecksum)
         */
     }
     else
@@ -193,9 +193,9 @@ int Base :: SendMessage(const nodeid_t iSendtoNodeID, const CheckpointMsg & oChe
 {
     if (iSendtoNodeID == m_poConfig->GetMyNodeID())
     {
-        return 0; 
+        return 0;
     }
-    
+
     string sBuffer;
     int ret = PackCheckpointMsg(oCheckpointMsg, sBuffer);
     if (ret != 0)
@@ -218,9 +218,9 @@ int Base :: SendMessage(const nodeid_t iSendtoNodeID, const PaxosMsg & oPaxosMsg
     if (iSendtoNodeID == m_poConfig->GetMyNodeID())
     {
         m_poInstance->OnReceivePaxosMsg(oPaxosMsg);
-        return 0; 
+        return 0;
     }
-    
+
     string sBuffer;
     int ret = PackMsg(oPaxosMsg, sBuffer);
     if (ret != 0)
@@ -247,7 +247,7 @@ int Base :: BroadcastMessage(const PaxosMsg & oPaxosMsg, const int iRunType, con
             return -1;
         }
     }
-    
+
     string sBuffer;
     int ret = PackMsg(oPaxosMsg, sBuffer);
     if (ret != 0)
@@ -295,7 +295,7 @@ void Base :: SetAsTestMode()
 {
     m_bIsTestMode = true;
 }
-    
+
 }
 
 

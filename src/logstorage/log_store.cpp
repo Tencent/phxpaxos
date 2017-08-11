@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "log_store.h"
@@ -73,7 +73,7 @@ int LogStore :: Init(const std::string & sPath, const int iMyGroupIdx, Database 
     m_oFileLogger.Init(m_sPath);
 
     string sMetaFilePath = m_sPath + "/meta";
-    
+
     m_iMetaFd = open(sMetaFilePath.c_str(), O_CREAT | O_RDWR, S_IREAD | S_IWRITE);
     if (m_iMetaFd == -1)
     {
@@ -140,10 +140,10 @@ int LogStore :: Init(const std::string & sPath, const int iMyGroupIdx, Database 
         return -1;
     }
 
-    m_oFileLogger.Log("init write fileid %d now_w_offset %d filesize %d", 
+    m_oFileLogger.Log("init write fileid %d now_w_offset %d filesize %d",
             m_iFileID, m_iNowFileOffset, m_iNowFileSize);
 
-    PLG1Head("ok, path %s fileid %d meta checksum %u nowfilesize %d nowfilewriteoffset %d", 
+    PLG1Head("ok, path %s fileid %d meta checksum %u nowfilesize %d nowfilewriteoffset %d",
             m_sPath.c_str(), m_iFileID, iMetaChecksum, m_iNowFileSize, m_iNowFileOffset);
 
     return 0;
@@ -252,7 +252,7 @@ int LogStore :: DeleteFile(const int iFileID)
         PLG1Debug("file already deleted, fileid %d deletedmaxfileid %d", iFileID, m_iDeletedMaxFileID);
         return 0;
     }
-    
+
     int ret = 0;
     for (int iDeleteFileID = m_iDeletedMaxFileID + 1; iDeleteFileID <= iFileID; iDeleteFileID++)
     {
@@ -274,7 +274,7 @@ int LogStore :: DeleteFile(const int iFileID)
             PLG1Err("remove fail, filepath %s ret %d", sFilePath, ret);
             break;
         }
-        
+
         m_iDeletedMaxFileID = iDeleteFileID;
         m_oFileLogger.Log("delete fileid %d", iDeleteFileID);
     }
@@ -317,7 +317,7 @@ int LogStore :: GetFileFD(const int iNeedWriteSize, int & iFd, int & iFileID, in
         {
             assert(iOffset != -1);
 
-            m_oFileLogger.Log("new file but file aready exist, now fileid %d exist filesize %d", 
+            m_oFileLogger.Log("new file but file aready exist, now fileid %d exist filesize %d",
                     m_iFileID, iOffset);
 
             PLG1Err("IncreaseFileID success, but file exist, data wrong, file size %d", iOffset);
@@ -375,7 +375,7 @@ int LogStore :: Append(const WriteOptions & oWriteOptions, const uint64_t llInst
     if (iWriteLen != (size_t)iTmpBufferLen)
     {
         BP->GetLogStorageBP()->AppendDataFail();
-        PLG1Err("writelen %d not equal to %d, buffersize %zu errno %d", 
+        PLG1Err("writelen %d not equal to %d, buffersize %zu errno %d",
                 iWriteLen, iTmpBufferLen, sBuffer.size(), errno);
         return -1;
     }
@@ -394,7 +394,7 @@ int LogStore :: Append(const WriteOptions & oWriteOptions, const uint64_t llInst
 
     int iUseTimeMs = m_oTimeStat.Point();
     BP->GetLogStorageBP()->AppendDataOK(iWriteLen, iUseTimeMs);
-    
+
     uint32_t iCheckSum = crc32(0, (const uint8_t*)(m_oTmpAppendBuffer.GetPtr() + sizeof(int)), iTmpBufferLen - sizeof(int), CRC32SKIP);
 
     GenFileID(iFileID, iOffset, iCheckSum, sFileID);
@@ -411,20 +411,20 @@ int LogStore :: Read(const std::string & sFileID, uint64_t & llInstanceID, std::
     int iOffset = -1;
     uint32_t iCheckSum = 0;
     ParseFileID(sFileID, iFileID, iOffset, iCheckSum);
-    
+
     int iFd = -1;
     int ret = OpenFile(iFileID, iFd);
     if (ret != 0)
     {
         return ret;
     }
-    
+
     off_t iSeekPos = lseek(iFd, iOffset, SEEK_SET);
     if (iSeekPos == -1)
     {
         return -1;
     }
-    
+
     int iLen = 0;
     ssize_t iReadLen = read(iFd, (char *)&iLen, sizeof(int));
     if (iReadLen != (ssize_t)sizeof(int))
@@ -433,7 +433,7 @@ int LogStore :: Read(const std::string & sFileID, uint64_t & llInstanceID, std::
         PLG1Err("readlen %zd not qual to %zu", iReadLen, sizeof(int));
         return -1;
     }
-    
+
     std::lock_guard<std::mutex> oLock(m_oReadMutex);
 
     m_oTmpBuffer.Ready(iLen);
@@ -459,7 +459,7 @@ int LogStore :: Read(const std::string & sFileID, uint64_t & llInstanceID, std::
     memcpy(&llInstanceID, m_oTmpBuffer.GetPtr(), sizeof(uint64_t));
     sBuffer = string(m_oTmpBuffer.GetPtr() + sizeof(uint64_t), iLen - sizeof(uint64_t));
 
-    PLG1Imp("ok, fileid %d offset %d instanceid %lu buffer size %zu", 
+    PLG1Imp("ok, fileid %d offset %d instanceid %lu buffer size %zu",
             iFileID, iOffset, llInstanceID, sBuffer.size());
 
     return 0;
@@ -595,11 +595,11 @@ int LogStore :: RebuildIndex(Database * poDatabase, int & iNowFileWriteOffset)
 
         iOffset = 0;
     }
-    
+
     return ret;
 }
 
-int LogStore :: RebuildIndexForOneFile(const int iFileID, const int iOffset, 
+int LogStore :: RebuildIndexForOneFile(const int iFileID, const int iOffset,
         Database * poDatabase, int & iNowFileWriteOffset, uint64_t & llNowInstanceID)
 {
     char sFilePath[512] = {0};
@@ -625,7 +625,7 @@ int LogStore :: RebuildIndexForOneFile(const int iFileID, const int iOffset,
         close(iFd);
         return -1;
     }
-    
+
     off_t iSeekPos = lseek(iFd, iOffset, SEEK_SET);
     if (iSeekPos == -1)
     {
@@ -646,7 +646,7 @@ int LogStore :: RebuildIndexForOneFile(const int iFileID, const int iOffset,
             iNowFileWriteOffset = iNowOffset;
             break;
         }
-        
+
         if (iReadLen != (ssize_t)sizeof(int))
         {
             bNeedTruncate = true;
@@ -714,21 +714,21 @@ int LogStore :: RebuildIndexForOneFile(const int iFileID, const int iOffset,
             break;
         }
 
-        PLG1Imp("rebuild one index ok, fileid %d offset %d instanceid %lu checksum %u buffer size %zu", 
+        PLG1Imp("rebuild one index ok, fileid %d offset %d instanceid %lu checksum %u buffer size %zu",
                 iFileID, iNowOffset, llInstanceID, iFileCheckSum, iLen - sizeof(uint64_t));
 
-        iNowOffset += sizeof(int) + iLen; 
+        iNowOffset += sizeof(int) + iLen;
     }
-    
+
     close(iFd);
 
     if (bNeedTruncate)
     {
-        m_oFileLogger.Log("truncate fileid %d offset %d filesize %d", 
+        m_oFileLogger.Log("truncate fileid %d offset %d filesize %d",
                 iFileID, iNowOffset, iFileLen);
         if (truncate(sFilePath, iNowOffset) != 0)
         {
-            PLG1Err("truncate fail, file path %s truncate to length %d errno %d", 
+            PLG1Err("truncate fail, file path %s truncate to length %d errno %d",
                     sFilePath, iNowOffset, errno);
             return -1;
         }
@@ -789,7 +789,7 @@ void LogStoreLogger :: Log(const char * pcFormat, ...)
         PLErr("fail, len %d writelen %d", iLen, iWriteLen);
     }
 }
-    
+
 }
 
 

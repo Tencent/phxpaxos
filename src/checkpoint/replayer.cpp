@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "replayer.h"
@@ -30,13 +30,13 @@ namespace phxpaxos
 {
 
 Replayer :: Replayer(
-    Config * poConfig, 
-    SMFac * poSMFac, 
-    LogStorage * poLogStorage, 
+    Config * poConfig,
+    SMFac * poSMFac,
+    LogStorage * poLogStorage,
     CheckpointMgr * poCheckpointMgr)
-    : m_poConfig(poConfig), 
-    m_poSMFac(poSMFac), 
-    m_oPaxosLog(poLogStorage), 
+    : m_poConfig(poConfig),
+    m_poSMFac(poSMFac),
+    m_oPaxosLog(poLogStorage),
     m_poCheckpointMgr(poCheckpointMgr),
     m_bCanrun(false),
     m_bIsPaused(true),
@@ -82,7 +82,7 @@ void Replayer :: run()
             PLGHead("Checkpoint.Replayer [END]");
             return;
         }
-        
+
         if (!m_bCanrun)
         {
             //PLGImp("Pausing, sleep");
@@ -90,15 +90,15 @@ void Replayer :: run()
             Time::MsSleep(1000);
             continue;
         }
-        
+
         if (llInstanceID >= m_poCheckpointMgr->GetMaxChosenInstanceID())
         {
-            //PLGImp("now maxchosen instanceid %lu small than excute instanceid %lu, wait", 
+            //PLGImp("now maxchosen instanceid %lu small than excute instanceid %lu, wait",
                     //m_poCheckpointMgr->GetMaxChosenInstanceID(), llInstanceID);
             Time::MsSleep(1000);
             continue;
         }
-        
+
         bool bPlayRet = PlayOne(llInstanceID);
         if (bPlayRet)
         {
@@ -115,7 +115,7 @@ void Replayer :: run()
 
 bool Replayer :: PlayOne(const uint64_t llInstanceID)
 {
-    AcceptorStateData oState; 
+    AcceptorStateData oState;
     int ret = m_oPaxosLog.ReadState(m_poConfig->GetMyGroupIdx(), llInstanceID, oState);
     if (ret != 0)
     {

@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "kv.h"
@@ -45,7 +45,7 @@ bool KVClient :: Init(const std::string & sDBPath)
     {
         return true;
     }
-    
+
     leveldb::Options oOptions;
     oOptions.create_if_missing = true;
     leveldb::Status oStatus = leveldb::DB::Open(oOptions, sDBPath, &m_poLevelDB);
@@ -87,7 +87,7 @@ KVClientRet KVClient :: Get(const std::string & sKey, std::string & sValue, uint
             llVersion = 0;
             return KVCLIENT_KEY_NOTEXIST;
         }
-        
+
         PLErr("LevelDB.Get fail, key %s", sKey.c_str());
         return KVCLIENT_SYS_FAIL;
     }
@@ -124,7 +124,7 @@ KVClientRet KVClient :: Set(const std::string & sKey, const std::string & sValue
     }
 
     std::lock_guard<std::mutex> oLockGuard(m_oMutex);
-    
+
     uint64_t llServerVersion = 0;
     std::string sServerValue;
     KVClientRet ret = Get(sKey, sServerValue, llServerVersion);
@@ -151,7 +151,7 @@ KVClientRet KVClient :: Set(const std::string & sKey, const std::string & sValue
         PLErr("Data.SerializeToString fail");
         return KVCLIENT_SYS_FAIL;
     }
-    
+
     leveldb::Status oStatus = m_poLevelDB->Put(leveldb::WriteOptions(), sKey, sBuffer);
     if (!oStatus.ok())
     {
@@ -173,7 +173,7 @@ KVClientRet KVClient :: Del(const std::string & sKey, const uint64_t llVersion)
     }
 
     std::lock_guard<std::mutex> oLockGuard(m_oMutex);
-    
+
     uint64_t llServerVersion = 0;
     std::string sServerValue;
     KVClientRet ret = Get(sKey, sServerValue, llServerVersion);
@@ -186,7 +186,7 @@ KVClientRet KVClient :: Del(const std::string & sKey, const uint64_t llVersion)
     {
         return KVCLIENT_KEY_VERSION_CONFLICT;
     }
-    
+
     llServerVersion++;
     KVData oData;
     oData.set_value(sServerValue);
@@ -200,7 +200,7 @@ KVClientRet KVClient :: Del(const std::string & sKey, const uint64_t llVersion)
         PLErr("Data.SerializeToString fail");
         return KVCLIENT_SYS_FAIL;
     }
-    
+
     leveldb::Status oStatus = m_poLevelDB->Put(leveldb::WriteOptions(), sKey, sBuffer);
     if (!oStatus.ok())
     {
@@ -233,7 +233,7 @@ KVClientRet KVClient :: GetCheckpointInstanceID(uint64_t & llCheckpointInstanceI
         {
             return KVCLIENT_KEY_NOTEXIST;
         }
-        
+
         return KVCLIENT_SYS_FAIL;
     }
 
@@ -274,6 +274,6 @@ KVClientRet KVClient :: SetCheckpointInstanceID(const uint64_t llCheckpointInsta
 
     return KVCLIENT_OK;
 }
-    
+
 }
 

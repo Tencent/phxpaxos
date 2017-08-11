@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include <set>
@@ -82,7 +82,7 @@ bool SMFac :: BatchExecute(const int iGroupIdx, const uint64_t llInstanceID, con
         return false;
     }
 
-    if (poBatchSMCtx != nullptr) 
+    if (poBatchSMCtx != nullptr)
     {
         if ((int)poBatchSMCtx->m_vecSMCtxList.size() != oBatchValues.values_size())
         {
@@ -106,7 +106,7 @@ bool SMFac :: BatchExecute(const int iGroupIdx, const uint64_t llInstanceID, con
     return true;
 }
 
-bool SMFac :: DoExecute(const int iGroupIdx, const uint64_t llInstanceID, 
+bool SMFac :: DoExecute(const int iGroupIdx, const uint64_t llInstanceID,
         const std::string & sBodyValue, const int iSMID, SMCtx * poSMCtx)
 {
     if (iSMID == 0)
@@ -165,7 +165,7 @@ bool SMFac :: ExecuteForCheckpoint(const int iGroupIdx, const uint64_t llInstanc
     }
 }
 
-bool SMFac :: BatchExecuteForCheckpoint(const int iGroupIdx, const uint64_t llInstanceID, 
+bool SMFac :: BatchExecuteForCheckpoint(const int iGroupIdx, const uint64_t llInstanceID,
         const std::string & sBodyValue)
 {
     BatchPaxosValues oBatchValues;
@@ -189,7 +189,7 @@ bool SMFac :: BatchExecuteForCheckpoint(const int iGroupIdx, const uint64_t llIn
     return true;
 }
 
-bool SMFac :: DoExecuteForCheckpoint(const int iGroupIdx, const uint64_t llInstanceID, 
+bool SMFac :: DoExecuteForCheckpoint(const int iGroupIdx, const uint64_t llInstanceID,
         const std::string & sBodyValue, const int iSMID)
 {
     if (iSMID == 0)
@@ -257,7 +257,7 @@ const uint64_t SMFac :: GetCheckpointInstanceID(const int iGroupIdx) const
         if (poSM->SMID() == SYSTEM_V_SMID
                 || poSM->SMID() == MASTER_V_SMID)
         {
-            //system variables 
+            //system variables
             //master variables
             //if no user state machine, system and master's can use.
             //if have user state machine, use user'state machine's checkpointinstanceid.
@@ -265,7 +265,7 @@ const uint64_t SMFac :: GetCheckpointInstanceID(const int iGroupIdx) const
             {
                 continue;
             }
-            
+
             if (llCheckpointInstanceID > llCPInstanceID_Insize
                     || llCPInstanceID_Insize == (uint64_t)-1)
             {
@@ -281,14 +281,14 @@ const uint64_t SMFac :: GetCheckpointInstanceID(const int iGroupIdx) const
         {
             continue;
         }
-        
+
         if (llCheckpointInstanceID > llCPInstanceID
                 || llCPInstanceID == (uint64_t)-1)
         {
             llCPInstanceID = llCheckpointInstanceID;
         }
     }
-    
+
     return bHaveUseSM ? llCPInstanceID : llCPInstanceID_Insize;
 }
 
