@@ -30,18 +30,18 @@ namespace phxpaxos
 {
 
 #define LOGGER (Logger::Instance())
-#define LOG_ERROR(format, args...)\
-       LOGGER->LogError(format, ## args);
-#define LOG_STATUS(format, args...)\
-       LOGGER->LogStatus(format, ## args);
-#define LOG_WARNING(format, args...)\
-       LOGGER->LogWarning(format, ## args);
-#define LOG_INFO(format, args...)\
-       LOGGER->LogInfo(format, ## args);
-#define LOG_VERBOSE(format, args...)\
-       LOGGER->LogVerbose(format, ## args);
-#define LOG_SHOWY(format, args...)\
-       LOGGER->LogShowy(format, ## args);
+#define LOG_ERROR(format, ...)\
+       LOGGER->LogError(format, __VA_ARGS__);
+#define LOG_STATUS(format, ...)\
+       LOGGER->LogStatus(format, __VA_ARGS__);
+#define LOG_WARNING(format, ...)\
+       LOGGER->LogWarning(format, __VA_ARGS__);
+#define LOG_INFO(format, ...)\
+       LOGGER->LogInfo(format, __VA_ARGS__);
+#define LOG_VERBOSE(format, ...)\
+       LOGGER->LogVerbose(format, __VA_ARGS__);
+#define LOG_SHOWY(format, ...)\
+       LOGGER->LogShowy(format, __VA_ARGS__);
 
 class Logger
 {
