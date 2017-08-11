@@ -97,9 +97,11 @@ TcpIOThread :: TcpIOThread(NetWork * poNetWork)
     : m_oTcpRead(poNetWork), m_oTcpWrite(poNetWork)
 {
     m_bIsStarted = false;
+#ifndef _WIN32
     assert(signal(SIGPIPE, SIG_IGN) != SIG_ERR);
     assert(signal(SIGALRM, SIG_IGN) != SIG_ERR);
     assert(signal(SIGCHLD, SIG_IGN) != SIG_ERR);
+#endif // _WIN32
 }
 
 TcpIOThread :: ~TcpIOThread()
