@@ -111,7 +111,11 @@ void Logger :: LogStatus(const char * pcFormat, ...)
 
 void Logger :: LogWarning(const char * pcFormat, ...)
 {
+#ifdef _WIN32
+    string newFormat = pcFormat;
+#else
     string newFormat = "\033[44;37m " + string(pcFormat) + " \033[0m";
+#endif // _WIN32
 
     if (m_pLogFunc != nullptr)
     {
@@ -141,7 +145,11 @@ void Logger :: LogWarning(const char * pcFormat, ...)
 
 void Logger :: LogInfo(const char * pcFormat, ...)
 {
+#ifdef _WIN32
+    string newFormat = pcFormat;
+#else
     string newFormat = "\033[45;37m " + string(pcFormat) + " \033[0m";
+#endif // _WIN32
 
     if (m_pLogFunc != nullptr)
     {
@@ -170,7 +178,11 @@ void Logger :: LogInfo(const char * pcFormat, ...)
 
 void Logger :: LogVerbose(const char * pcFormat, ...)
 {
+#ifdef _WIN32
+    string newFormat = pcFormat;
+#else
     string newFormat = "\033[45;37m " + string(pcFormat) + " \033[0m";
+#endif // _WIN32
 
     if (m_pLogFunc != nullptr)
     {
@@ -199,7 +211,11 @@ void Logger :: LogVerbose(const char * pcFormat, ...)
 
 void Logger :: LogShowy(const char * pcFormat, ...)
 {
+#ifdef _WIN32
+    string newFormat = pcFormat;
+#else
     string newFormat = "\033[45;37m " + string(pcFormat) + " \033[0m";
+#endif // _WIN32
 
     if (m_pLogFunc != nullptr)
     {
