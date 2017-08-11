@@ -174,6 +174,11 @@ void EventLoop :: StartLoop()
             break;
         }
     }
+#ifdef _WIN32
+    epoll_close(m_iEpollFd);
+#else
+    close(m_iEpollFd);
+#endif
 }
 
 void EventLoop :: Stop()
