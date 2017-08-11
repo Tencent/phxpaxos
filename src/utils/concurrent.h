@@ -92,7 +92,7 @@ protected:
 template <class T>
 class Queue {
 public:
-    Queue() : _lock(_mutex), _size(0) { _lock.unlock(); }
+    Queue() : _size(0) {}
 
     virtual ~Queue() {}
 
@@ -177,11 +177,11 @@ public:
     }
 
     virtual void lock() {
-        _mutex.lock();
+        _lock.lock();
     }
 
     virtual void unlock() {
-        _mutex.unlock();
+        _lock.unlock();
     }
 
     void swap(Queue& q) {
@@ -192,9 +192,8 @@ public:
     }
 
 protected:
-    std::mutex _mutex;
-    std::unique_lock<std::mutex> _lock;
-    std::condition_variable _cond;
+    std::mutex _lock;
+    std::condition_variable_any _cond;
     deque<T> _storage;
     size_t _size;
 };

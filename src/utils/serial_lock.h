@@ -43,8 +43,7 @@ public:
 
 private:
     std::mutex m_oMutex;
-    std::unique_lock<std::mutex> m_oLock;
-    std::condition_variable m_oCond;
+    std::condition_variable_any m_oCond;
 };
 
 }
