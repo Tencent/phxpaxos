@@ -129,7 +129,7 @@ void MasterMgr :: TryBeMaster(const int iLeaseTime)
 
     if (iMasterNodeID != nullnode && (iMasterNodeID != m_poPaxosNode->GetMyNodeID()))
     {
-        PLG1Imp("Ohter as master, can't try be master, masterid %lu myid %lu",
+        PLG1Imp("Other as master, can't try be master, masterid %" PRIu64 " myid %" PRIu64,
                 iMasterNodeID, m_poPaxosNode->GetMyNodeID());
         return;
     }
