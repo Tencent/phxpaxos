@@ -30,6 +30,7 @@ namespace phxpaxos
 {
 
 #define LOGGER (Logger::Instance())
+#ifdef _WIN32
 #define LOG_ERROR(format, ...)\
        LOGGER->LogError(format, __VA_ARGS__);
 #define LOG_STATUS(format, ...)\
@@ -42,6 +43,20 @@ namespace phxpaxos
        LOGGER->LogVerbose(format, __VA_ARGS__);
 #define LOG_SHOWY(format, ...)\
        LOGGER->LogShowy(format, __VA_ARGS__);
+#else
+#define LOG_ERROR(format, args...)\
+       LOGGER->LogError(format, ## args);
+#define LOG_STATUS(format, args...)\
+       LOGGER->LogStatus(format, ## args);
+#define LOG_WARNING(format, args...)\
+       LOGGER->LogWarning(format, ## args);
+#define LOG_INFO(format, args...)\
+       LOGGER->LogInfo(format, ## args);
+#define LOG_VERBOSE(format, args...)\
+       LOGGER->LogVerbose(format, ## args);
+#define LOG_SHOWY(format, args...)\
+       LOGGER->LogShowy(format, ## args);
+#endif
 
 class Logger
 {

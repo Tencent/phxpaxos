@@ -34,6 +34,7 @@ using std::string;
 namespace phxpaxos
 {
 
+#ifdef _WIN32
 #define NLDebug(format, ...) LOG_VERBOSE("DEBUG: %s " format, __func__, __VA_ARGS__);
 #define NLErr(format, ...) LOG_ERROR("ERR: %s " format, __func__, __VA_ARGS__);
 
@@ -53,6 +54,26 @@ namespace phxpaxos
 #define PLG1Head(format, ...) LOG_WARNING("Imp(%d): %s::%s " format, m_iMyGroupIdx, typeid(this).name(), __func__, __VA_ARGS__);
 #define PLG1Debug(format, ...) LOG_VERBOSE("DEBUG(%d): %s::%s " format, m_iMyGroupIdx, typeid(this).name(), __func__, __VA_ARGS__);
 
+#else
+#define NLDebug(format, args...) LOG_VERBOSE("DEBUG: %s " format, __func__, ## args);
+#define NLErr(format, args...) LOG_ERROR("ERR: %s " format, __func__, ## args);
+
+#define PLErr(format, args...) LOG_ERROR("ERR: %s::%s " format, typeid(this).name(), __func__, ## args);
+#define PLImp(format, args...) LOG_SHOWY("Showy: %s::%s " format, typeid(this).name(), __func__, ## args);
+#define PLHead(format, args...) LOG_WARNING("Imp: %s::%s " format, typeid(this).name(), __func__, ## args);
+#define PLDebug(format, args...) LOG_VERBOSE("DEBUG: %s::%s " format, typeid(this).name(), __func__, ## args);
+
+#define PLGErr(format, args...) LOG_ERROR("ERR(%d): %s::%s " format, m_poConfig->GetMyGroupIdx(), typeid(this).name(), __func__, ## args);
+#define PLGStatus(format, args...) LOG_STATUS("STATUS(%d): %s::%s " format, m_poConfig->GetMyGroupIdx(), typeid(this).name(), __func__, ## args);
+#define PLGImp(format, args...) LOG_SHOWY("Showy(%d): %s::%s " format, m_poConfig->GetMyGroupIdx(), typeid(this).name(), __func__, ## args);
+#define PLGHead(format, args...) LOG_WARNING("Imp(%d): %s::%s " format, m_poConfig->GetMyGroupIdx(), typeid(this).name(), __func__, ## args);
+#define PLGDebug(format, args...) LOG_VERBOSE("DEBUG(%d): %s::%s " format, m_poConfig->GetMyGroupIdx(), typeid(this).name(), __func__, ## args);
+
+#define PLG1Err(format, args...) LOG_ERROR("ERR(%d): %s::%s " format, m_iMyGroupIdx, typeid(this).name(), __func__, ## args);
+#define PLG1Imp(format, args...) LOG_SHOWY("Showy(%d): %s::%s " format, m_iMyGroupIdx, typeid(this).name(), __func__, ## args);
+#define PLG1Head(format, args...) LOG_WARNING("Imp(%d): %s::%s " format, m_iMyGroupIdx, typeid(this).name(), __func__, ## args);
+#define PLG1Debug(format, args...) LOG_VERBOSE("DEBUG(%d): %s::%s " format, m_iMyGroupIdx, typeid(this).name(), __func__, ## args);
+#endif
 
 #define nullvalue "nullvalue"
 
