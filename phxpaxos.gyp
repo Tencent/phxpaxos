@@ -2,16 +2,45 @@
   'variables': {
     'protobuf_source_dir': 'third_party/protobuf',
     'leveldb_source_dir': 'third_party/leveldb',
+    'leveldb_win_dir': '<(DEPTH)/third_party/leveldb_win',
     'glog_source_dir': 'third_party/glog',
     'gtest_source_dir': 'third_party/gtest',
   },
   'targets': [
     {
       'target_name': 'phxpaxos_port',
+      'direct_dependent_settings': {
+        'include_dirs': ['port'],
+      },
       'conditions': [
         ['OS=="win"', {
           'type': 'static_library',
-          'source': [
+          'direct_dependent_settings': {
+            'include_dirs': ['port/win'],
+          },
+          'sources': [
+            'port/win/dirent.h',
+            'port/win/dirent.c',
+            'port/win/poll.h',
+            'port/win/poll.cpp',
+            'port/win/pthread.h',
+            'port/win/sched.h',
+            'port/win/unistd.h',
+            'port/win/unistd.c',
+            'port/win/arpa/inet.h',
+            'port/win/netinet/in.h',
+            'port/win/netinet/tcp.h',
+            'port/win/sys/epoll.h',
+            'port/win/sys/epoll.cpp',
+            'port/win/sys/socket.h',
+            'port/win/sys/socket.cpp',
+            'port/win/sys/time.h',
+            'port/win/sys/time.cpp',
+            'port/win/sys/un.h',
+
+            'port/port.h',
+            'port/port_win.h',
+            'port/port_win.cpp',
           ],
         }, {
           'type': 'none',
@@ -89,6 +118,9 @@
           'defines': ['HAVE_PTHREAD'],
         }],
       ],
+      'direct_dependent_settings': {
+        'include_dirs': ['<(protobuf_source_dir)/src'],
+      },
       'sources': [
         '<(protobuf_source_dir)/src/google/protobuf/arena.cc',
         '<(protobuf_source_dir)/src/google/protobuf/arenastring.cc',
@@ -118,7 +150,7 @@
     {
       'target_name': 'libprotoc',
       'type': 'static_library',
-      'include_dirs': ['<(protobuf_source_dir)/src'],
+      'dependencies': ['libprotobuf'],
       'sources': [
         '<(protobuf_source_dir)/src/google/protobuf/compiler/code_generator.cc',
         '<(protobuf_source_dir)/src/google/protobuf/compiler/command_line_interface.cc',
@@ -228,12 +260,27 @@
       'target_name': 'leveldb',
       'type': 'static_library',
       'conditions': [
-        ['OS=="win"', {}, {
+        ['OS=="win"', {
+          'defines': ['LEVELDB_PLATFORM_WIN'],
+          'include_dirs': ['<(leveldb_win_dir)'],
+          'sources': [
+            '<(leveldb_win_dir)/port/port_win.cc',
+            '<(leveldb_win_dir)/port/port_win.h',
+            '<(leveldb_win_dir)/util/env_win.cc',
+            '<(leveldb_win_dir)/util/win_logger.h',
+            '<(leveldb_win_dir)/util/win_logger.cc',
+          ],
+        }, {
           'defines': [
             'OS_LINUX',
             'LEVELDB_PLATFORM_POSIX'
           ],
-          'sources': ['<(leveldb_source_dir)/port/port_posix.cc'],
+          'sources': [
+            '<(leveldb_source_dir)/util/env_posix.cc',
+            '<(leveldb_source_dir)/port/port_posix.h',
+            '<(leveldb_source_dir)/port/port_posix.cc',
+            '<(leveldb_source_dir)/util/posix_logger.h',
+          ],
         }],
       ],
       'direct_dependent_settings': {
@@ -248,7 +295,6 @@
       ],
       'sources': [
         '<(leveldb_source_dir)/db/filename.cc',
-        '<(leveldb_source_dir)/db/c.cc',
         '<(leveldb_source_dir)/db/version_edit.cc',
         '<(leveldb_source_dir)/db/repair.cc',
         '<(leveldb_source_dir)/db/log_writer.cc',
@@ -269,7 +315,6 @@
         '<(leveldb_source_dir)/util/comparator.cc',
         '<(leveldb_source_dir)/util/arena.cc',
         '<(leveldb_source_dir)/util/env.cc',
-        '<(leveldb_source_dir)/util/env_posix.cc',
         '<(leveldb_source_dir)/util/logging.cc',
         '<(leveldb_source_dir)/util/crc32c.cc',
         '<(leveldb_source_dir)/util/status.cc',
@@ -294,17 +339,43 @@
       'include_dirs': [
         '<(glog_source_dir)/src'
       ],
-      'direct_dependent_settings': {
-        'include_dirs': [
-          '<(glog_source_dir)/src'
-        ],
-      },
+      'conditions': [
+        ['OS=="win"', {
+          'sources': [
+            '<(glog_source_dir)/src/windows/glog/log_severity.h',
+            '<(glog_source_dir)/src/windows/glog/logging.h',
+            '<(glog_source_dir)/src/windows/glog/raw_logging.h',
+            '<(glog_source_dir)/src/windows/glog/vlog_is_on.h',
+            '<(glog_source_dir)/src/windows/glog/stl_logging.h',
+          ],
+          'include_dirs': ['<(glog_source_dir)/src/windows'],
+          'msvs_settings': {
+            'VCCLCompilerTool': {
+              'ForcedIncludeFiles': ['algorithm'],
+            },
+          },
+          'direct_dependent_settings': {
+            'include_dirs': [
+              '<(glog_source_dir)/src/windows'
+            ],
+          },
+        }, {
+          'sources': [
+            '<(glog_source_dir)/src/glog/log_severity.h',
+            '<(glog_source_dir)/src/glog/logging.h',
+            '<(glog_source_dir)/src/glog/raw_logging.h',
+            '<(glog_source_dir)/src/glog/vlog_is_on.h',
+            '<(glog_source_dir)/src/glog/stl_logging.h',
+            '<(glog_source_dir)/src/signalhandler.cc',
+          ],
+          'direct_dependent_settings': {
+            'include_dirs': [
+              '<(glog_source_dir)/src'
+            ],
+          },
+        }],
+      ],
       'sources': [
-        '<(glog_source_dir)/src/glog/log_severity.h',
-        '<(glog_source_dir)/src/glog/logging.h',
-        '<(glog_source_dir)/src/glog/raw_logging.h',
-        '<(glog_source_dir)/src/glog/vlog_is_on.h',
-        '<(glog_source_dir)/src/glog/stl_logging.h',
         '<(glog_source_dir)/src/logging.cc',
         '<(glog_source_dir)/src/raw_logging.cc',
         '<(glog_source_dir)/src/vlog_is_on.cc',
@@ -320,7 +391,6 @@
         '<(glog_source_dir)/src/stacktrace_x86_64-inl.h',
         '<(glog_source_dir)/src/symbolize.cc',
         '<(glog_source_dir)/src/symbolize.h',
-        '<(glog_source_dir)/src/signalhandler.cc',
         '<(glog_source_dir)/src/base/mutex.h',
         '<(glog_source_dir)/src/base/googleinit.h',
         '<(glog_source_dir)/src/base/commandlineflags.h',
@@ -353,10 +423,22 @@
       'dependencies': [
         'leveldb',
         'libprotobuf',
+        'phxpaxos_port',
+      ],
+      'conditions': [
+        ['OS=="win"', {
+          'sources': ['src/communicate/tcp/notify_win.cpp'],
+          'direct_dependent_settings': {
+            'libraries': ['-lws2_32.lib'],
+          }
+        }, {
+          'sources': ['src/communicate/tcp/notify.cpp'],
+        }]
       ],
       'export_dependent_settings': [
         'leveldb',
         'libprotobuf',
+        'phxpaxos_port',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
@@ -504,17 +586,16 @@
         'src/utils/wait_lock.cpp',
         'src/utils/wait_lock.h',
       ],
-      'conditions': [
-        ['OS=="win"', {}, {
-          'sources': ['src/communicate/tcp/notify.cpp'],
-        }]
-      ],
       'includes': ['protoc.gypi'],
     },
     {
       'target_name': 'phxpaxos_plugin',
       'type': 'static_library',
       'dependencies': [
+        'glog',
+        'phxpaxos',
+      ],
+      'export_dependent_settings': [
         'glog',
         'phxpaxos',
       ],
