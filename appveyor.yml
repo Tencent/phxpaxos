@@ -9,9 +9,12 @@ clone_depth: 1                      # clone entire repository history if not def
 matrix:
   fast_finish: true     # set this flag to immediately finish build once one of the jobs fails.
 
+clone_script:
+  - cmd: git clone -q --recursive --branch=%APPVEYOR_REPO_BRANCH% https://github.com/%APPVEYOR_REPO_NAME%.git %APPVEYOR_BUILD_FOLDER%
+  - cmd: git checkout -qf %APPVEYOR_REPO_COMMIT%
+
 before_build:
-  - cmd: git submodule update --init --quiet --force
-  - cmd: gyp_build.bat
+  - cmd: cd %APPVEYOR_BUILD_FOLDER%; gyp_build.bat
 
 platform: x86
 configuration: Release
