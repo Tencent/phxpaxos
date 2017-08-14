@@ -32,11 +32,11 @@ void DelInstance(const int iGroupIdx, MultiDatabase & oLogStorage, uint64_t llIn
     int ret = oLogStorage.Get(iGroupIdx, llInstanceID, sValue);
     if (ret != 0)
     {
-        printf("get this instance %lu fail, do you want to delete it? (y/n)\n", llInstanceID);
+        printf("get this instance %" PRIu64 " fail, do you want to delete it? (y/n)\n", llInstanceID);
     }
     else
     {
-        printf("this instance %lu value size is %zu, do you want to delete it? (y/n)\n",
+        printf("this instance %" PRIu64 " value size is %zu, do you want to delete it? (y/n)\n",
                 llInstanceID, sValue.size());
     }
 
@@ -50,11 +50,11 @@ void DelInstance(const int iGroupIdx, MultiDatabase & oLogStorage, uint64_t llIn
         ret = oLogStorage.ForceDel(oWriteOptions, iGroupIdx, llInstanceID);
         if (ret != 0)
         {
-            printf("delete instance %lu fail\n", llInstanceID);
+            printf("delete instance %" PRIu64 " fail\n", llInstanceID);
         }
         else
         {
-            printf("delete instance %lu ok\n", llInstanceID);
+            printf("delete instance %" PRIu64 " ok\n", llInstanceID);
         }
     }
 }
@@ -65,7 +65,7 @@ void GetInstance(const int iGroupIdx, MultiDatabase & oLogStorage, uint64_t llIn
     int ret = oLogStorage.Get(iGroupIdx, llInstanceID, sValue);
     if (ret != 0)
     {
-        printf("get this instance %lu fail\n", llInstanceID);
+        printf("get this instance %" PRIu64 " fail\n", llInstanceID);
         return;
     }
 
@@ -78,11 +78,11 @@ void GetInstance(const int iGroupIdx, MultiDatabase & oLogStorage, uint64_t llIn
     }
 
     printf("------------------------------------------------------\n");
-    printf("instanceid %llu\n", oState.instanceid());
-    printf("promiseid %llu\n", oState.promiseid());
-    printf("promisenodid %llu\n", oState.promisenodeid());
-    printf("acceptedid %llu\n", oState.acceptedid());
-    printf("acceptednodeid %llu\n", oState.acceptednodeid());
+    printf("instanceid %" PRIu64 "\n", oState.instanceid());
+    printf("promiseid %" PRIu64 "\n", oState.promiseid());
+    printf("promisenodid %" PRIu64 "\n", oState.promisenodeid());
+    printf("acceptedid %" PRIu64 "\n", oState.acceptedid());
+    printf("acceptednodeid %" PRIu64 "\n", oState.acceptednodeid());
     printf("acceptedvaluesize %zu\n", oState.acceptedvalue().size());
     printf("checksum %u\n", oState.checksum());
 }
@@ -97,7 +97,7 @@ void GetMaxInstanceID(const int iGroupIdx, MultiDatabase & oLogStorage)
         return;
     }
 
-    printf("max instanceid %lu\n", llInstanceID);
+    printf("max instanceid %" PRIu64 "\n", llInstanceID);
 }
 
 int main(int argc, char ** argv)

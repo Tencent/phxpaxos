@@ -155,7 +155,7 @@ void IOLoop :: DealWithRetry()
             if (bHaveRetryOne)
             {
                 BP->GetIOLoopBP()->DealWithRetryMsg();
-                PLGDebug("retry msg (i+1). instanceid %lu", oPaxosMsg.instanceid());
+                PLGDebug("retry msg (i+1). instanceid %" PRIu64, oPaxosMsg.instanceid());
                 m_poInstance->OnReceivePaxosMsg(oPaxosMsg, true);
             }
             else
@@ -166,7 +166,7 @@ void IOLoop :: DealWithRetry()
         else if (oPaxosMsg.instanceid() == m_poInstance->GetNowInstanceID())
         {
             BP->GetIOLoopBP()->DealWithRetryMsg();
-            PLGDebug("retry msg. instanceid %lu", oPaxosMsg.instanceid());
+            PLGDebug("retry msg. instanceid %" PRIu64, oPaxosMsg.instanceid());
             m_poInstance->OnReceivePaxosMsg(oPaxosMsg);
             bHaveRetryOne = true;
         }

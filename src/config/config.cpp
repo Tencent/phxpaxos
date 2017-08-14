@@ -57,7 +57,7 @@ Config :: Config(
     {
         if (oFollowerNodeInfo.oMyNode.GetNodeID() == oMyNode.GetNodeID())
         {
-            PLG1Head("I'm follower, ip %s port %d nodeid %lu",
+            PLG1Head("I'm follower, ip %s port %d nodeid %" PRIu64,
                     oMyNode.GetIP().c_str(), oMyNode.GetPort(), oMyNode.GetNodeID());
             m_bIsIMFollower = true;
             m_iFollowToNodeID = oFollowerNodeInfo.oFollowNode.GetNodeID();
@@ -90,7 +90,7 @@ const bool Config :: CheckConfig()
 {
     if (!m_oSystemVSM.IsIMInMembership())
     {
-        PLG1Err("my node %lu is not in membership", m_iMyNodeID);
+        PLG1Err("my node %" PRIu64 " is not in membership", m_iMyNodeID);
         return false;
     }
 
@@ -208,7 +208,7 @@ const std::map<nodeid_t, uint64_t> & Config :: GetTmpNodeMap()
     {
         if (it->second < llNowTime)
         {
-            PLErr("tmpnode %lu timeout, nowtimems %lu tmpnode last add time %lu",
+            PLErr("tmpnode %" PRIu64 " timeout, nowtimems %" PRIu64 " tmpnode last add time %" PRIu64,
                     it->first, llNowTime, it->second);
             it = m_mapTmpNodeOnlyForLearn.erase(it);
         }
@@ -235,7 +235,7 @@ const std::map<nodeid_t, uint64_t> & Config :: GetMyFollowerMap()
     {
         if (it->second < llNowTime)
         {
-            PLErr("follower %lu timeout, nowtimems %lu tmpnode last add time %lu",
+            PLErr("follower %" PRIu64 " timeout, nowtimems %" PRIu64 " tmpnode last add time %" PRIu64,
                     it->first, llNowTime, it->second);
             it = m_mapMyFollower.erase(it);
         }

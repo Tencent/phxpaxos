@@ -40,11 +40,11 @@ bool TestSM :: Execute(const int iGroupIdx, const uint64_t llInstanceID,
     uint32_t iOtherLastChecksum = 0;
     string sBodyValue;
     UnPackTestValue(sPaxosValue, sBodyValue, iOtherLastChecksum);
-    NLDebug("instanceid %lu other %u my %u", llInstanceID, iOtherLastChecksum, m_iLastValueChecksum);
+    NLDebug("instanceid %" PRIu64 " other %u my %u", llInstanceID, iOtherLastChecksum, m_iLastValueChecksum);
 
     if (iOtherLastChecksum != 0 && iOtherLastChecksum != m_iLastValueChecksum)
     {
-        printf("instanceid %lu other last check sum %u my last check sum %u\n",
+        printf("instanceid %" PRIu64 " other last check sum %u my last check sum %u\n",
                 llInstanceID, iOtherLastChecksum, m_iLastValueChecksum);
         assert(iOtherLastChecksum == m_iLastValueChecksum);
     }
@@ -74,7 +74,7 @@ bool TestSM :: CheckExecuteValueCorrect(const std::vector<pair<uint64_t, std::st
     {
         if (it.first < llNowInstanceID)
         {
-            printf("instanceid not serial, actual %lu now %lu\n",
+            printf("instanceid not serial, actual %" PRIu64 " now %" PRIu64 "\n",
                     it.first, llNowInstanceID);
             return false;
         }
@@ -87,7 +87,7 @@ bool TestSM :: CheckExecuteValueCorrect(const std::vector<pair<uint64_t, std::st
         if (m_vecExecuted[i].first != vecOtherExecuted[i].first
                 || m_vecExecuted[i].second != vecOtherExecuted[i].second)
         {
-            printf("not same %lu %s | %lu %s\n",
+            printf("not same %" PRIu64 " %s | %" PRIu64 " %s\n",
                     m_vecExecuted[i].first, m_vecExecuted[i].second.c_str(),
                     vecOtherExecuted[i].first, vecOtherExecuted[i].second.c_str());
             return false;

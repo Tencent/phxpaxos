@@ -93,7 +93,7 @@ void Replayer :: run()
 
         if (llInstanceID >= m_poCheckpointMgr->GetMaxChosenInstanceID())
         {
-            //PLGImp("now maxchosen instanceid %lu small than excute instanceid %lu, wait",
+            //PLGImp("now maxchosen instanceid %" PRIu64 " small than excute instanceid %" PRIu64 ", wait",
                     //m_poCheckpointMgr->GetMaxChosenInstanceID(), llInstanceID);
             Time::MsSleep(1000);
             continue;
@@ -102,12 +102,12 @@ void Replayer :: run()
         bool bPlayRet = PlayOne(llInstanceID);
         if (bPlayRet)
         {
-            PLGImp("Play one done, instanceid %lu", llInstanceID);
+            PLGImp("Play one done, instanceid %" PRIu64, llInstanceID);
             llInstanceID++;
         }
         else
         {
-            PLGErr("Play one fail, instanceid %lu", llInstanceID);
+            PLGErr("Play one fail, instanceid %" PRIu64, llInstanceID);
             Time::MsSleep(500);
         }
     }
@@ -126,7 +126,7 @@ bool Replayer :: PlayOne(const uint64_t llInstanceID)
             m_poConfig->GetMyGroupIdx(), llInstanceID, oState.acceptedvalue());
     if (!bExecuteRet)
     {
-        PLGErr("Checkpoint sm excute fail, instanceid %lu", llInstanceID);
+        PLGErr("Checkpoint sm excute fail, instanceid %" PRIu64, llInstanceID);
     }
 
     return bExecuteRet;

@@ -142,7 +142,7 @@ int CommitCtx :: GetResult(uint64_t & llSuccInstanceID)
     if (m_iCommitRet == 0)
     {
         llSuccInstanceID = m_llInstanceID;
-        PLGImp("commit success, instanceid %lu", llSuccInstanceID);
+        PLGImp("commit success, instanceid %" PRIu64, llSuccInstanceID);
     }
     else
     {

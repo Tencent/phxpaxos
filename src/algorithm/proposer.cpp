@@ -51,7 +51,7 @@ void ProposerState ::  SetStartProposalID(const uint64_t llProposalID)
 
 void ProposerState :: NewPrepare()
 {
-    PLGHead("START ProposalID %lu HighestOther %lu MyNodeID %lu",
+    PLGHead("START ProposalID %" PRIu64 " HighestOther %" PRIu64 " MyNodeID %" PRIu64,
             m_llProposalID, m_llHighestOtherProposalID, m_poConfig->GetMyNodeID());
 
     uint64_t llMaxProposalID =
@@ -59,7 +59,7 @@ void ProposerState :: NewPrepare()
 
     m_llProposalID = llMaxProposalID + 1;
 
-    PLGHead("END New.ProposalID %lu", m_llProposalID);
+    PLGHead("END New.ProposalID %" PRIu64, m_llProposalID);
 
 }
 
@@ -67,8 +67,8 @@ void ProposerState :: AddPreAcceptValue(
         const BallotNumber & oOtherPreAcceptBallot,
         const std::string & sOtherPreAcceptValue)
 {
-    PLGDebug("OtherPreAcceptID %lu OtherPreAcceptNodeID %lu HighestOtherPreAcceptID %lu "
-            "HighestOtherPreAcceptNodeID %lu OtherPreAcceptValue %zu",
+    PLGDebug("OtherPreAcceptID %" PRIu64 " OtherPreAcceptNodeID %" PRIu64 " HighestOtherPreAcceptID %" PRIu64 " "
+            "HighestOtherPreAcceptNodeID %" PRIu64 " OtherPreAcceptValue %zu",
             oOtherPreAcceptBallot.m_llProposalID, oOtherPreAcceptBallot.m_llNodeID,
             m_oHighestOtherPreAcceptBallot.m_llProposalID, m_oHighestOtherPreAcceptBallot.m_llNodeID,
             sOtherPreAcceptValue.size());
@@ -280,7 +280,7 @@ void Proposer :: AddAcceptTimer(const int iTimeoutMs)
 
 void Proposer :: Prepare(const bool bNeedNewBallot)
 {
-    PLGHead("START Now.InstanceID %lu MyNodeID %lu State.ProposalID %lu State.ValueLen %zu",
+    PLGHead("START Now.InstanceID %" PRIu64 " MyNodeID %" PRIu64 " State.ProposalID %" PRIu64 " State.ValueLen %zu",
             GetInstanceID(), m_poConfig->GetMyNodeID(), m_oProposerState.GetProposalID(),
             m_oProposerState.GetValue().size());
 
@@ -315,7 +315,7 @@ void Proposer :: Prepare(const bool bNeedNewBallot)
 
 void Proposer :: OnPrepareReply(const PaxosMsg & oPaxosMsg)
 {
-    PLGHead("START Msg.ProposalID %lu State.ProposalID %lu Msg.from_nodeid %lu RejectByPromiseID %lu",
+    PLGHead("START Msg.ProposalID %" PRIu64 " State.ProposalID %" PRIu64 " Msg.from_nodeid %" PRIu64 " RejectByPromiseID %" PRIu64,
             oPaxosMsg.proposalid(), m_oProposerState.GetProposalID(),
             oPaxosMsg.nodeid(), oPaxosMsg.rejectbypromiseid());
 
@@ -340,14 +340,14 @@ void Proposer :: OnPrepareReply(const PaxosMsg & oPaxosMsg)
     if (oPaxosMsg.rejectbypromiseid() == 0)
     {
         BallotNumber oBallot(oPaxosMsg.preacceptid(), oPaxosMsg.preacceptnodeid());
-        PLGDebug("[Promise] PreAcceptedID %lu PreAcceptedNodeID %lu ValueSize %zu",
+        PLGDebug("[Promise] PreAcceptedID %" PRIu64 " PreAcceptedNodeID %" PRIu64 " ValueSize %zu",
                 oPaxosMsg.preacceptid(), oPaxosMsg.preacceptnodeid(), oPaxosMsg.value().size());
         m_oMsgCounter.AddPromiseOrAccept(oPaxosMsg.nodeid());
         m_oProposerState.AddPreAcceptValue(oBallot, oPaxosMsg.value());
     }
     else
     {
-        PLGDebug("[Reject] RejectByPromiseID %lu", oPaxosMsg.rejectbypromiseid());
+        PLGDebug("[Reject] RejectByPromiseID %" PRIu64, oPaxosMsg.rejectbypromiseid());
         m_oMsgCounter.AddReject(oPaxosMsg.nodeid());
         m_bWasRejectBySomeone = true;
         m_oProposerState.SetOtherProposalID(oPaxosMsg.rejectbypromiseid());
@@ -376,7 +376,7 @@ void Proposer :: OnExpiredPrepareReply(const PaxosMsg & oPaxosMsg)
 {
     if (oPaxosMsg.rejectbypromiseid() != 0)
     {
-        PLGDebug("[Expired Prepare Reply Reject] RejectByPromiseID %lu", oPaxosMsg.rejectbypromiseid());
+        PLGDebug("[Expired Prepare Reply Reject] RejectByPromiseID %" PRIu64, oPaxosMsg.rejectbypromiseid());
         m_bWasRejectBySomeone = true;
         m_oProposerState.SetOtherProposalID(oPaxosMsg.rejectbypromiseid());
     }
@@ -384,7 +384,7 @@ void Proposer :: OnExpiredPrepareReply(const PaxosMsg & oPaxosMsg)
 
 void Proposer :: Accept()
 {
-    PLGHead("START ProposalID %lu ValueSize %zu ValueLen %zu",
+    PLGHead("START ProposalID %" PRIu64 " ValueSize %zu ValueLen %zu",
             m_oProposerState.GetProposalID(), m_oProposerState.GetValue().size(), m_oProposerState.GetValue().size());
 
     BP->GetProposerBP()->Accept();
@@ -412,7 +412,7 @@ void Proposer :: Accept()
 
 void Proposer :: OnAcceptReply(const PaxosMsg & oPaxosMsg)
 {
-    PLGHead("START Msg.ProposalID %lu State.ProposalID %lu Msg.from_nodeid %lu RejectByPromiseID %lu",
+    PLGHead("START Msg.ProposalID %" PRIu64 " State.ProposalID %" PRIu64 " Msg.from_nodeid %" PRIu64 " RejectByPromiseID %" PRIu64,
             oPaxosMsg.proposalid(), m_oProposerState.GetProposalID(),
             oPaxosMsg.nodeid(), oPaxosMsg.rejectbypromiseid());
 
@@ -472,7 +472,7 @@ void Proposer :: OnExpiredAcceptReply(const PaxosMsg & oPaxosMsg)
 {
     if (oPaxosMsg.rejectbypromiseid() != 0)
     {
-        PLGDebug("[Expired Accept Reply Reject] RejectByPromiseID %lu", oPaxosMsg.rejectbypromiseid());
+        PLGDebug("[Expired Accept Reply Reject] RejectByPromiseID %" PRIu64, oPaxosMsg.rejectbypromiseid());
         m_bWasRejectBySomeone = true;
         m_oProposerState.SetOtherProposalID(oPaxosMsg.rejectbypromiseid());
     }
@@ -484,7 +484,7 @@ void Proposer :: OnPrepareTimeout()
 
     if (GetInstanceID() != m_llTimeoutInstanceID)
     {
-        PLGErr("TimeoutInstanceID %lu not same to NowInstanceID %lu, skip",
+        PLGErr("TimeoutInstanceID %" PRIu64 " not same to NowInstanceID %" PRIu64 ", skip",
                 m_llTimeoutInstanceID, GetInstanceID());
         return;
     }
@@ -500,7 +500,7 @@ void Proposer :: OnAcceptTimeout()
 
     if (GetInstanceID() != m_llTimeoutInstanceID)
     {
-        PLGErr("TimeoutInstanceID %lu not same to NowInstanceID %lu, skip",
+        PLGErr("TimeoutInstanceID %" PRIu64 " not same to NowInstanceID %" PRIu64 ", skip",
                 m_llTimeoutInstanceID, GetInstanceID());
         return;
     }

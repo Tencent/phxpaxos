@@ -189,7 +189,7 @@ void CheckpointSender :: SendCheckpoint()
             m_poSMFac->GetCheckpointInstanceID(m_poConfig->GetMyGroupIdx()));
     if (ret != 0)
     {
-        PLGErr("SendCheckpointEnd fail, sequence %lu ret %d", m_llSequence, ret);
+        PLGErr("SendCheckpointEnd fail, sequence %" PRIu64 " ret %d", m_llSequence, ret);
     }
 
     BP->GetCheckpointBP()->SendCheckpointEnd();
@@ -337,19 +337,19 @@ void CheckpointSender :: Ack(const nodeid_t iSendNodeID, const uint64_t llUUID, 
 {
     if (iSendNodeID != m_iSendNodeID)
     {
-        PLGErr("send nodeid not same, ack.sendnodeid %lu self.sendnodeid %lu", iSendNodeID, m_iSendNodeID);
+        PLGErr("send nodeid not same, ack.sendnodeid %" PRIu64 " self.sendnodeid %" PRIu64, iSendNodeID, m_iSendNodeID);
         return;
     }
 
     if (llUUID != m_llUUID)
     {
-        PLGErr("uuid not same, ack.uuid %lu self.uuid %lu", llUUID, m_llUUID);
+        PLGErr("uuid not same, ack.uuid %" PRIu64 " self.uuid %" PRIu64, llUUID, m_llUUID);
         return;
     }
 
     if (llSequence != m_llAckSequence)
     {
-        PLGErr("ack_sequence not same, ack.ack_sequence %lu self.ack_sequence %lu", llSequence, m_llAckSequence);
+        PLGErr("ack_sequence not same, ack.ack_sequence %" PRIu64 " self.ack_sequence %" PRIu64, llSequence, m_llAckSequence);
         return;
     }
 
@@ -371,11 +371,11 @@ const bool CheckpointSender :: CheckAck(const uint64_t llSendSequence)
 
         if (llPassTime >= Checkpoint_ACK_TIMEOUT)
         {
-            PLGErr("Ack timeout, last acktime %lu", m_llAbsLastAckTime);
+            PLGErr("Ack timeout, last acktime %" PRIu64, m_llAbsLastAckTime);
             return false;
         }
 
-        //PLGErr("Need sleep to slow down send speed, sendsequence %lu acksequence %lu",
+        //PLGErr("Need sleep to slow down send speed, sendsequence %" PRIu64 " acksequence %" PRIu64,
                 //llSendSequence, m_llAckSequence);
         Time::MsSleep(20);
     }

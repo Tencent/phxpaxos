@@ -166,7 +166,7 @@ public:
                     ret = goSuccWrite.AddSuccWrite(llInstanceID, iBatchIndex, sValue);
                     if (ret != 0)
                     {
-                        printf("this instance already exist, is error, instanceid %lu valuesize %zu ret %d\n",
+                        printf("this instance already exist, is error, instanceid %" PRIu64 " valuesize %zu ret %d\n",
                                 llInstanceID, sValue.size(), ret);
                         m_iRunRet = -1;
                         return;

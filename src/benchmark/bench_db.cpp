@@ -121,7 +121,7 @@ int main(int argc, char ** argv)
         ret = db.Put(wp, llInstanceID, sBuffer);
         if (ret != 0)
         {
-            printf("put fail, instanceid %lu ret %d\n",
+            printf("put fail, instanceid %" PRIu64 " ret %d\n",
                     llInstanceID, ret);
             return ret;
         }

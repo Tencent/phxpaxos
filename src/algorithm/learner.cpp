@@ -87,14 +87,14 @@ int LearnerState :: LearnValue(const uint64_t llInstanceID, const BallotNumber &
     int ret = m_oPaxosLog.WriteState(oWriteOptions, m_poConfig->GetMyGroupIdx(), llInstanceID, oState);
     if (ret != 0)
     {
-        PLGErr("LogStorage.WriteLog fail, InstanceID %lu ValueLen %zu ret %d",
+        PLGErr("LogStorage.WriteLog fail, InstanceID %" PRIu64 " ValueLen %zu ret %d",
                 llInstanceID, sValue.size(), ret);
         return ret;
     }
 
     LearnValueWithoutWrite(llInstanceID, sValue, m_iNewChecksum);
 
-    PLGDebug("OK, InstanceID %lu ValueLen %zu checksum %u",
+    PLGDebug("OK, InstanceID %" PRIu64 " ValueLen %zu checksum %u",
             llInstanceID, sValue.size(), m_iNewChecksum);
 
     return 0;
@@ -253,7 +253,7 @@ void Learner :: AskforLearn()
         oPaxosMsg.set_proposalnodeid(m_poConfig->GetFollowToNodeID());
     }
 
-    PLGHead("END InstanceID %lu MyNodeID %lu", oPaxosMsg.instanceid(), oPaxosMsg.nodeid());
+    PLGHead("END InstanceID %" PRIu64 " MyNodeID %" PRIu64, oPaxosMsg.instanceid(), oPaxosMsg.nodeid());
 
     BroadcastMessage(oPaxosMsg, BroadcastMessage_Type_RunSelf_None, Message_SendType_TCP);
     BroadcastMessageToTempNode(oPaxosMsg, Message_SendType_UDP);
@@ -263,7 +263,7 @@ void Learner :: OnAskforLearn(const PaxosMsg & oPaxosMsg)
 {
     BP->GetLearnerBP()->OnAskforLearn();
 
-    PLGHead("START Msg.InstanceID %lu Now.InstanceID %lu Msg.from_nodeid %lu MinChosenInstanceID %lu",
+    PLGHead("START Msg.InstanceID %" PRIu64 " Now.InstanceID %" PRIu64 " Msg.from_nodeid %" PRIu64 " MinChosenInstanceID %" PRIu64,
             oPaxosMsg.instanceid(), GetInstanceID(), oPaxosMsg.nodeid(),
             m_poCheckpointMgr->GetMinChosenInstanceID());
 
@@ -272,7 +272,7 @@ void Learner :: OnAskforLearn(const PaxosMsg & oPaxosMsg)
     if (oPaxosMsg.proposalnodeid() == m_poConfig->GetMyNodeID())
     {
         //Found a node follow me.
-        PLImp("Found a node %lu follow me.", oPaxosMsg.nodeid());
+        PLImp("Found a node %" PRIu64 " follow me.", oPaxosMsg.nodeid());
         m_poConfig->AddFollowerNode(oPaxosMsg.nodeid());
     }
 
@@ -348,7 +348,7 @@ void Learner :: OnSendNowInstanceID(const PaxosMsg & oPaxosMsg)
 {
     BP->GetLearnerBP()->OnSendNowInstanceID();
 
-    PLGHead("START Msg.InstanceID %lu Now.InstanceID %lu Msg.from_nodeid %lu Msg.MaxInstanceID %lu systemvariables_size %zu mastervariables_size %zu",
+    PLGHead("START Msg.InstanceID %" PRIu64 " Now.InstanceID %" PRIu64 " Msg.from_nodeid %" PRIu64 " Msg.MaxInstanceID %" PRIu64 " systemvariables_size %zu mastervariables_size %zu",
             oPaxosMsg.instanceid(), GetInstanceID(), oPaxosMsg.nodeid(), oPaxosMsg.nowinstanceid(),
             oPaxosMsg.systemvariables().size(), oPaxosMsg.mastervariables().size());
 
@@ -388,7 +388,7 @@ void Learner :: OnSendNowInstanceID(const PaxosMsg & oPaxosMsg)
     {
         BP->GetCheckpointBP()->NeedAskforCheckpoint();
 
-        PLGHead("my instanceid %lu small than other's minchoseninstanceid %lu, other nodeid %lu",
+        PLGHead("my instanceid %" PRIu64 " small than other's minchoseninstanceid %" PRIu64 ", other nodeid %" PRIu64,
                 GetInstanceID(), oPaxosMsg.minchoseninstanceid(), oPaxosMsg.nodeid());
 
         AskforCheckpoint(oPaxosMsg.nodeid());
@@ -413,7 +413,7 @@ void Learner :: ComfirmAskForLearn(const nodeid_t iSendNodeID)
     oPaxosMsg.set_nodeid(m_poConfig->GetMyNodeID());
     oPaxosMsg.set_msgtype(MsgType_PaxosLearner_ComfirmAskforLearn);
 
-    PLGHead("END InstanceID %lu MyNodeID %lu", GetInstanceID(), oPaxosMsg.nodeid());
+    PLGHead("END InstanceID %" PRIu64 " MyNodeID %" PRIu64, GetInstanceID(), oPaxosMsg.nodeid());
 
     SendMessage(iSendNodeID, oPaxosMsg);
 
@@ -424,7 +424,7 @@ void Learner :: OnComfirmAskForLearn(const PaxosMsg & oPaxosMsg)
 {
     BP->GetLearnerBP()->OnComfirmAskForLearn();
 
-    PLGHead("START Msg.InstanceID %lu Msg.from_nodeid %lu", oPaxosMsg.instanceid(), oPaxosMsg.nodeid());
+    PLGHead("START Msg.InstanceID %" PRIu64 " Msg.from_nodeid %" PRIu64, oPaxosMsg.instanceid(), oPaxosMsg.nodeid());
 
     if (!m_oLearnerSender.Comfirm(oPaxosMsg.instanceid(), oPaxosMsg.nodeid()))
     {
@@ -468,7 +468,7 @@ void Learner :: OnSendLearnValue(const PaxosMsg & oPaxosMsg)
 {
     BP->GetLearnerBP()->OnSendLearnValue();
 
-    PLGHead("START Msg.InstanceID %lu Now.InstanceID %lu Msg.ballot_proposalid %lu Msg.ballot_nodeid %lu Msg.ValueSize %zu",
+    PLGHead("START Msg.InstanceID %" PRIu64 " Now.InstanceID %" PRIu64 " Msg.ballot_proposalid %" PRIu64 " Msg.ballot_nodeid %" PRIu64 " Msg.ValueSize %zu",
             oPaxosMsg.instanceid(), GetInstanceID(), oPaxosMsg.proposalid(),
             oPaxosMsg.nodeid(), oPaxosMsg.value().size());
 
@@ -493,7 +493,7 @@ void Learner :: OnSendLearnValue(const PaxosMsg & oPaxosMsg)
             return;
         }
 
-        PLGHead("END LearnValue OK, proposalid %lu proposalid_nodeid %lu valueLen %zu",
+        PLGHead("END LearnValue OK, proposalid %" PRIu64 " proposalid_nodeid %" PRIu64 " valueLen %zu",
                 oPaxosMsg.proposalid(), oPaxosMsg.nodeid(), oPaxosMsg.value().size());
     }
 
@@ -508,7 +508,7 @@ void Learner :: OnSendLearnValue(const PaxosMsg & oPaxosMsg)
 
 void Learner :: SendLearnValue_Ack(const nodeid_t iSendNodeID)
 {
-    PLGHead("START LastAck.Instanceid %lu Now.Instanceid %lu", m_llLastAckInstanceID, GetInstanceID());
+    PLGHead("START LastAck.Instanceid %" PRIu64 " Now.Instanceid %" PRIu64, m_llLastAckInstanceID, GetInstanceID());
 
     if (GetInstanceID() < m_llLastAckInstanceID + LearnerReceiver_ACK_LEAD)
     {
@@ -534,7 +534,7 @@ void Learner :: OnSendLearnValue_Ack(const PaxosMsg & oPaxosMsg)
 {
     BP->GetLearnerBP()->OnSendLearnValue_Ack();
 
-    PLGHead("Msg.Ack.Instanceid %lu Msg.from_nodeid %lu", oPaxosMsg.instanceid(), oPaxosMsg.nodeid());
+    PLGHead("Msg.Ack.Instanceid %" PRIu64 " Msg.from_nodeid %" PRIu64, oPaxosMsg.instanceid(), oPaxosMsg.nodeid());
 
     m_oLearnerSender.Ack(oPaxosMsg.instanceid(), oPaxosMsg.nodeid());
 }
@@ -585,8 +585,8 @@ void Learner :: OnProposerSendSuccess(const PaxosMsg & oPaxosMsg)
 {
     BP->GetLearnerBP()->OnProposerSendSuccess();
 
-    PLGHead("START Msg.InstanceID %lu Now.InstanceID %lu Msg.ProposalID %lu State.AcceptedID %lu "
-            "State.AcceptedNodeID %lu, Msg.from_nodeid %lu",
+    PLGHead("START Msg.InstanceID %" PRIu64 " Now.InstanceID %" PRIu64 " Msg.ProposalID %" PRIu64 " State.AcceptedID %" PRIu64 " "
+            "State.AcceptedNodeID %" PRIu64 ", Msg.from_nodeid %" PRIu64,
             oPaxosMsg.instanceid(), GetInstanceID(), oPaxosMsg.proposalid(),
             m_poAcceptor->GetAcceptorState()->GetAcceptedBallot().m_llProposalID,
             m_poAcceptor->GetAcceptorState()->GetAcceptedBallot().m_llNodeID,
@@ -649,7 +649,7 @@ void Learner :: AskforCheckpoint(const nodeid_t iSendNodeID)
     oPaxosMsg.set_nodeid(m_poConfig->GetMyNodeID());
     oPaxosMsg.set_msgtype(MsgType_PaxosLearner_AskforCheckpoint);
 
-    PLGHead("END InstanceID %lu MyNodeID %lu", GetInstanceID(), oPaxosMsg.nodeid());
+    PLGHead("END InstanceID %" PRIu64 " MyNodeID %" PRIu64, GetInstanceID(), oPaxosMsg.nodeid());
 
     SendMessage(iSendNodeID, oPaxosMsg);
 }
@@ -660,7 +660,7 @@ void Learner :: OnAskforCheckpoint(const PaxosMsg & oPaxosMsg)
     if (poCheckpointSender != nullptr)
     {
         poCheckpointSender->start();
-        PLGHead("new checkpoint sender started, send to nodeid %lu", oPaxosMsg.nodeid());
+        PLGHead("new checkpoint sender started, send to nodeid %" PRIu64, oPaxosMsg.nodeid());
     }
     else
     {
@@ -683,7 +683,7 @@ int Learner :: SendCheckpointBegin(
     oCheckpointMsg.set_sequence(llSequence);
     oCheckpointMsg.set_checkpointinstanceid(llCheckpointInstanceID);
 
-    PLGImp("END, SendNodeID %lu uuid %lu sequence %lu cpi %lu",
+    PLGImp("END, SendNodeID %" PRIu64 " uuid %" PRIu64 " sequence %" PRIu64 " cpi %" PRIu64,
             iSendNodeID, llUUID, llSequence, llCheckpointInstanceID);
 
     return SendMessage(iSendNodeID, oCheckpointMsg, Message_SendType_TCP);
@@ -704,7 +704,7 @@ int Learner :: SendCheckpointEnd(
     oCheckpointMsg.set_sequence(llSequence);
     oCheckpointMsg.set_checkpointinstanceid(llCheckpointInstanceID);
 
-    PLGImp("END, SendNodeID %lu uuid %lu sequence %lu cpi %lu",
+    PLGImp("END, SendNodeID %" PRIu64 " uuid %" PRIu64 " sequence %" PRIu64 " cpi %" PRIu64,
             iSendNodeID, llUUID, llSequence, llCheckpointInstanceID);
 
     return SendMessage(iSendNodeID, oCheckpointMsg, Message_SendType_TCP);
@@ -735,7 +735,7 @@ int Learner :: SendCheckpoint(
     oCheckpointMsg.set_offset(llOffset);
     oCheckpointMsg.set_buffer(sBuffer);
 
-    PLGImp("END, SendNodeID %lu uuid %lu sequence %lu cpi %lu checksum %u smid %d offset %lu buffsize %zu filepath %s",
+    PLGImp("END, SendNodeID %" PRIu64 " uuid %" PRIu64 " sequence %" PRIu64 " cpi %" PRIu64 " checksum %u smid %d offset %" PRIu64 " buffsize %zu filepath %s",
             iSendNodeID, llUUID, llSequence, llCheckpointInstanceID,
             iChecksum, iSMID, llOffset, sBuffer.size(), sFilePath.c_str());
 
@@ -752,7 +752,7 @@ int Learner :: OnSendCheckpoint_Begin(const CheckpointMsg & oCheckpointMsg)
         ret = m_poCheckpointMgr->SetMinChosenInstanceID(oCheckpointMsg.checkpointinstanceid());
         if (ret != 0)
         {
-            PLGErr("SetMinChosenInstanceID fail, ret %d CheckpointInstanceID %lu",
+            PLGErr("SetMinChosenInstanceID fail, ret %d CheckpointInstanceID %" PRIu64,
                     ret, oCheckpointMsg.checkpointinstanceid());
 
             return ret;
@@ -827,7 +827,7 @@ int Learner :: OnSendCheckpoint_End(const CheckpointMsg & oCheckpointMsg)
 
 void Learner :: OnSendCheckpoint(const CheckpointMsg & oCheckpointMsg)
 {
-    PLGHead("START uuid %lu flag %d sequence %lu cpi %lu checksum %u smid %d offset %lu buffsize %zu filepath %s",
+    PLGHead("START uuid %" PRIu64 " flag %d sequence %" PRIu64 " cpi %" PRIu64 " checksum %u smid %d offset %" PRIu64 " buffsize %zu filepath %s",
             oCheckpointMsg.uuid(), oCheckpointMsg.flag(), oCheckpointMsg.sequence(),
             oCheckpointMsg.checkpointinstanceid(), oCheckpointMsg.checksum(), oCheckpointMsg.smid(),
             oCheckpointMsg.offset(), oCheckpointMsg.buffer().size(), oCheckpointMsg.filepath().c_str());

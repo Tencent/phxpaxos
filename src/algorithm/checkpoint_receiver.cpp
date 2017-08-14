@@ -208,21 +208,21 @@ int CheckpointReceiver :: ReceiveCheckpoint(const CheckpointMsg & oCheckpointMsg
     if (oCheckpointMsg.nodeid() != m_iSenderNodeID
             || oCheckpointMsg.uuid() != m_llUUID)
     {
-        PLGErr("msg not valid, Msg.SenderNodeID %lu Receiver.SenderNodeID %lu Msg.UUID %lu Receiver.UUID %lu",
+        PLGErr("msg not valid, Msg.SenderNodeID %" PRIu64 " Receiver.SenderNodeID %" PRIu64 " Msg.UUID %" PRIu64 " Receiver.UUID %" PRIu64,
                 oCheckpointMsg.nodeid(), m_iSenderNodeID, oCheckpointMsg.uuid(), m_llUUID);
         return -2;
     }
 
     if (oCheckpointMsg.sequence() == m_llSequence)
     {
-        PLGErr("msg already receive, skip, Msg.Sequence %lu Receiver.Sequence %lu",
+        PLGErr("msg already receive, skip, Msg.Sequence %" PRIu64 " Receiver.Sequence %" PRIu64,
                 oCheckpointMsg.sequence(), m_llSequence);
         return 0;
     }
 
     if (oCheckpointMsg.sequence() != m_llSequence + 1)
     {
-        PLGErr("msg sequence wrong, Msg.Sequence %lu Receiver.Sequence %lu",
+        PLGErr("msg sequence wrong, Msg.Sequence %" PRIu64 " Receiver.Sequence %" PRIu64,
                 oCheckpointMsg.sequence(), m_llSequence);
         return -2;
     }
@@ -245,7 +245,7 @@ int CheckpointReceiver :: ReceiveCheckpoint(const CheckpointMsg & oCheckpointMsg
     size_t llFileOffset = lseek(iFd, 0, SEEK_END);
     if ((uint64_t)llFileOffset != oCheckpointMsg.offset())
     {
-        PLGErr("file.offset %zu not equal to msg.offset %lu", llFileOffset, oCheckpointMsg.offset());
+        PLGErr("file.offset %zu not equal to msg.offset %" PRIu64, llFileOffset, oCheckpointMsg.offset());
         close(iFd);
         return -2;
     }

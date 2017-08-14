@@ -117,7 +117,7 @@ int main(int argc, char ** argv)
         ::sleep(1);
         uint64_t llVersion = 0;
         NodeInfo oMasterNode = oElection.GetMasterWithVersion(llVersion);
-        printf("master: nodeid %lu version %lu ip %s port %d\n",
+        printf("master: nodeid %" PRIu64 " version %" PRIu64 " ip %s port %d\n",
                 oMasterNode.GetNodeID(), llVersion, oMasterNode.GetIP().c_str(), oMasterNode.GetPort());
     }
 

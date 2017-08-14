@@ -82,7 +82,7 @@ void NodeInfo :: MakeNodeID()
 
     m_iNodeID = (((uint64_t)iIP) << 32) | m_iPort;
 
-    //PLImp("ip %s ip %u port %d nodeid %lu", m_sIP.c_str(), iIP, m_iPort, m_iNodeID);
+    //PLImp("ip %s ip %u port %d nodeid %" PRIu64, m_sIP.c_str(), iIP, m_iPort, m_iNodeID);
 }
 
 void NodeInfo :: ParseNodeID()
@@ -94,7 +94,7 @@ void NodeInfo :: ParseNodeID()
 
     m_sIP = std::string(inet_ntoa(addr));
 
-    //PLImp("nodeid %lu ip %s ip %u port %d", m_iNodeID, m_sIP.c_str(), addr.s_addr, m_iPort);
+    //PLImp("nodeid %" PRIu64 " ip %s ip %u port %d", m_iNodeID, m_sIP.c_str(), addr.s_addr, m_iPort);
 }
 
 /////////////////////////////////////////////////////////////

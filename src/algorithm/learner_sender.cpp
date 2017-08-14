@@ -108,7 +108,7 @@ const bool LearnerSender :: CheckAck(const uint64_t llSendInstanceID)
     if (llSendInstanceID < m_llAckInstanceID)
     {
         m_iAckLead = LearnerSender_ACK_LEAD;
-        PLGImp("Already catch up, ack instanceid %lu now send instanceid %lu",
+        PLGImp("Already catch up, ack instanceid %" PRIu64 " now send instanceid %" PRIu64,
                 m_llAckInstanceID, llSendInstanceID);
         m_oLock.UnLock();
         return false;
@@ -122,7 +122,7 @@ const bool LearnerSender :: CheckAck(const uint64_t llSendInstanceID)
         if ((int)llPassTime >= LearnerSender_ACK_TIMEOUT)
         {
             BP->GetLearnerBP()->SenderAckTimeout();
-            PLGErr("Ack timeout, last acktime %lu now send instanceid %lu",
+            PLGErr("Ack timeout, last acktime %" PRIu64 " now send instanceid %" PRIu64,
                     m_llAbsLastAckTime, llSendInstanceID);
             CutAckLead();
             m_oLock.UnLock();
@@ -130,7 +130,7 @@ const bool LearnerSender :: CheckAck(const uint64_t llSendInstanceID)
         }
 
         BP->GetLearnerBP()->SenderAckDelay();
-        //PLGErr("Need sleep to slow down send speed, sendinstaceid %lu ackinstanceid %lu",
+        //PLGErr("Need sleep to slow down send speed, sendinstaceid %" PRIu64 " ackinstanceid %" PRIu64,
                 //llSendInstanceID, m_llAckInstanceID);
 
         m_oLock.WaitTime(20);
@@ -223,7 +223,7 @@ void LearnerSender :: WaitToSend()
 
 void LearnerSender :: SendLearnedValue(const uint64_t llBeginInstanceID, const nodeid_t iSendToNodeID)
 {
-    PLGHead("BeginInstanceID %lu SendToNodeID %lu", llBeginInstanceID, iSendToNodeID);
+    PLGHead("BeginInstanceID %" PRIu64 " SendToNodeID %" PRIu64, llBeginInstanceID, iSendToNodeID);
 
     uint64_t llSendInstanceID = llBeginInstanceID;
     int ret = 0;
@@ -244,7 +244,7 @@ void LearnerSender :: SendLearnedValue(const uint64_t llBeginInstanceID, const n
         ret = SendOne(llSendInstanceID, iSendToNodeID, iLastChecksum);
         if (ret != 0)
         {
-            PLGErr("SendOne fail, SendInstanceID %lu SendToNodeID %lu ret %d",
+            PLGErr("SendOne fail, SendInstanceID %" PRIu64 " SendToNodeID %" PRIu64 " ret %d",
                     llSendInstanceID, iSendToNodeID, ret);
             return;
         }
@@ -267,7 +267,7 @@ void LearnerSender :: SendLearnedValue(const uint64_t llBeginInstanceID, const n
 
     //succ send, reset ack lead.
     m_iAckLead = LearnerSender_ACK_LEAD;
-    PLGImp("SendDone, SendEndInstanceID %lu", llSendInstanceID);
+    PLGImp("SendDone, SendEndInstanceID %" PRIu64, llSendInstanceID);
 }
 
 int LearnerSender :: SendOne(const uint64_t llSendInstanceID, const nodeid_t iSendToNodeID, uint32_t & iLastChecksum)

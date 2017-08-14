@@ -64,7 +64,7 @@ int PhxElection :: MakeLogStoragePath(std::string & sLogStoragePath)
 
 void PhxElection :: OnMasterChange(const int iGroupIdx, const NodeInfo & oNewMaster, const uint64_t llVersion)
 {
-    printf("master change!!! groupidx %d newmaster ip %s port %d version %lu\n",
+    printf("master change!!! groupidx %d newmaster ip %s port %d version %" PRIu64 "\n",
         iGroupIdx, oNewMaster.GetIP().c_str(), oNewMaster.GetPort(), llVersion);
 }
 

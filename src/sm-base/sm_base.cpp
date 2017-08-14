@@ -42,7 +42,7 @@ bool SMFac :: Execute(const int iGroupIdx, const uint64_t llInstanceID, const st
 {
     if (sPaxosValue.size() < sizeof(int))
     {
-        PLG1Err("Value wrong, instanceid %lu size %zu", llInstanceID, sPaxosValue.size());
+        PLG1Err("Value wrong, instanceid %" PRIu64 " size %zu", llInstanceID, sPaxosValue.size());
         //need do nothing, just skip
         return true;
     }
@@ -52,7 +52,7 @@ bool SMFac :: Execute(const int iGroupIdx, const uint64_t llInstanceID, const st
 
     if (iSMID == 0)
     {
-        PLG1Imp("Value no need to do sm, just skip, instanceid %lu", llInstanceID);
+        PLG1Imp("Value no need to do sm, just skip, instanceid %" PRIu64, llInstanceID);
         return true;
     }
 
@@ -111,13 +111,13 @@ bool SMFac :: DoExecute(const int iGroupIdx, const uint64_t llInstanceID,
 {
     if (iSMID == 0)
     {
-        PLG1Imp("Value no need to do sm, just skip, instanceid %lu", llInstanceID);
+        PLG1Imp("Value no need to do sm, just skip, instanceid %" PRIu64, llInstanceID);
         return true;
     }
 
     if (m_vecSMList.size() == 0)
     {
-        PLG1Imp("No any sm, need wait sm, instanceid %lu", llInstanceID);
+        PLG1Imp("No any sm, need wait sm, instanceid %" PRIu64, llInstanceID);
         return false;
     }
 
@@ -129,7 +129,7 @@ bool SMFac :: DoExecute(const int iGroupIdx, const uint64_t llInstanceID,
         }
     }
 
-    PLG1Err("Unknown smid %d instanceid %lu", iSMID, llInstanceID);
+    PLG1Err("Unknown smid %d instanceid %" PRIu64, iSMID, llInstanceID);
     return false;
 }
 
@@ -140,7 +140,7 @@ bool SMFac :: ExecuteForCheckpoint(const int iGroupIdx, const uint64_t llInstanc
 {
     if (sPaxosValue.size() < sizeof(int))
     {
-        PLG1Err("Value wrong, instanceid %lu size %zu", llInstanceID, sPaxosValue.size());
+        PLG1Err("Value wrong, instanceid %" PRIu64 " size %zu", llInstanceID, sPaxosValue.size());
         //need do nothing, just skip
         return true;
     }
@@ -150,7 +150,7 @@ bool SMFac :: ExecuteForCheckpoint(const int iGroupIdx, const uint64_t llInstanc
 
     if (iSMID == 0)
     {
-        PLG1Imp("Value no need to do sm, just skip, instanceid %lu", llInstanceID);
+        PLG1Imp("Value no need to do sm, just skip, instanceid %" PRIu64, llInstanceID);
         return true;
     }
 
@@ -194,13 +194,13 @@ bool SMFac :: DoExecuteForCheckpoint(const int iGroupIdx, const uint64_t llInsta
 {
     if (iSMID == 0)
     {
-        PLG1Imp("Value no need to do sm, just skip, instanceid %lu", llInstanceID);
+        PLG1Imp("Value no need to do sm, just skip, instanceid %" PRIu64, llInstanceID);
         return true;
     }
 
     if (m_vecSMList.size() == 0)
     {
-        PLG1Imp("No any sm, need wait sm, instanceid %lu", llInstanceID);
+        PLG1Imp("No any sm, need wait sm, instanceid %" PRIu64, llInstanceID);
         return false;
     }
 
@@ -212,7 +212,7 @@ bool SMFac :: DoExecuteForCheckpoint(const int iGroupIdx, const uint64_t llInsta
         }
     }
 
-    PLG1Err("Unknown smid %d instanceid %lu", iSMID, llInstanceID);
+    PLG1Err("Unknown smid %d instanceid %" PRIu64, iSMID, llInstanceID);
 
     return false;
 }

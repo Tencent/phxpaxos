@@ -332,7 +332,7 @@ int MessageEvent :: DoOnWrite()
     BP->GetNetworkBP()->TcpOutQueue(iDelayMs);
     if (iDelayMs > TCP_OUTQUEUE_DROP_TIMEMS)
     {
-        //PLErr("drop request because enqueue timeout, nowtime %lu unqueuetime %lu",
+        //PLErr("drop request because enqueue timeout, nowtime %" PRIu64 " unqueuetime %" PRIu64,
                 //llNowTime, tData.llEnqueueAbsTime);
         delete poMessage;
         return 0;

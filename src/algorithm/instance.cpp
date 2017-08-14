@@ -73,7 +73,7 @@ int Instance :: Init()
 
     uint64_t llCPInstanceID = m_oCheckpointMgr.GetCheckpointInstanceID() + 1;
 
-    PLGImp("Acceptor.OK, Log.InstanceID %lu Checkpoint.InstanceID %lu",
+    PLGImp("Acceptor.OK, Log.InstanceID %" PRIu64 " Checkpoint.InstanceID %" PRIu64,
             m_oAcceptor.GetInstanceID(), llCPInstanceID);
 
     uint64_t llNowInstanceID = llCPInstanceID;
@@ -85,7 +85,7 @@ int Instance :: Init()
             return ret;
         }
 
-        PLGImp("PlayLog OK, begin instanceid %lu end instanceid %lu", llNowInstanceID, m_oAcceptor.GetInstanceID());
+        PLGImp("PlayLog OK, begin instanceid %" PRIu64 " end instanceid %" PRIu64, llNowInstanceID, m_oAcceptor.GetInstanceID());
 
         llNowInstanceID = m_oAcceptor.GetInstanceID();
     }
@@ -104,7 +104,7 @@ int Instance :: Init()
         m_oAcceptor.SetInstanceID(llNowInstanceID);
     }
 
-    PLGImp("NowInstanceID %lu", llNowInstanceID);
+    PLGImp("NowInstanceID %" PRIu64, llNowInstanceID);
 
     m_oLearner.SetInstanceID(llNowInstanceID);
     m_oProposer.SetInstanceID(llNowInstanceID);
@@ -177,12 +177,12 @@ int Instance :: ProtectionLogic_IsCheckpointInstanceIDCorrect(const uint64_t llC
             int ret = m_oCheckpointMgr.SetMinChosenInstanceID(llCPInstanceID);
             if (ret != 0)
             {
-                PLGErr("SetMinChosenInstanceID fail, now minchosen %lu max instanceid %lu checkpoint instanceid %lu",
+                PLGErr("SetMinChosenInstanceID fail, now minchosen %" PRIu64 " max instanceid %" PRIu64 " checkpoint instanceid %" PRIu64,
                         m_oCheckpointMgr.GetMinChosenInstanceID(), llLogMaxInstanceID, llCPInstanceID);
                 return -1;
             }
 
-            PLGStatus("Fix minchonse instanceid ok, old minchosen %lu now minchosen %lu max %lu checkpoint %lu",
+            PLGStatus("Fix minchonse instanceid ok, old minchosen %" PRIu64 " now minchosen %" PRIu64 " max %" PRIu64 " checkpoint %" PRIu64,
                     llMinChosenInstanceID, m_oCheckpointMgr.GetMinChosenInstanceID(),
                     llLogMaxInstanceID, llCPInstanceID);
         }
@@ -192,7 +192,7 @@ int Instance :: ProtectionLogic_IsCheckpointInstanceIDCorrect(const uint64_t llC
     else
     {
         //other case.
-        PLGErr("checkpoint instanceid %lu larger than log max instanceid %lu. "
+        PLGErr("checkpoint instanceid %" PRIu64 " larger than log max instanceid %" PRIu64 ". "
                 "Please ensure that your checkpoint data is correct. "
                 "If you ensure that, just delete all paxos log data and restart.",
                 llCPInstanceID, llLogMaxInstanceID);
@@ -223,7 +223,7 @@ int Instance :: InitLastCheckSum()
 
     if (ret == 1)
     {
-        PLGErr("las checksum not exist, now instanceid %lu", m_oAcceptor.GetInstanceID());
+        PLGErr("las checksum not exist, now instanceid %" PRIu64, m_oAcceptor.GetInstanceID());
         m_iLastChecksum = 0;
         return 0;
     }
@@ -239,7 +239,7 @@ int Instance :: PlayLog(const uint64_t llBeginInstanceID, const uint64_t llEndIn
 {
     if (llBeginInstanceID < m_oCheckpointMgr.GetMinChosenInstanceID())
     {
-        PLGErr("now instanceid %lu small than min chosen instanceid %lu",
+        PLGErr("now instanceid %" PRIu64 " small than min chosen instanceid %" PRIu64,
                 llBeginInstanceID, m_oCheckpointMgr.GetMinChosenInstanceID());
         return -2;
     }
@@ -250,14 +250,14 @@ int Instance :: PlayLog(const uint64_t llBeginInstanceID, const uint64_t llEndIn
         int ret = m_oPaxosLog.ReadState(m_poConfig->GetMyGroupIdx(), llInstanceID, oState);
         if (ret != 0)
         {
-            PLGErr("log read fail, instanceid %lu ret %d", llInstanceID, ret);
+            PLGErr("log read fail, instanceid %" PRIu64 " ret %d", llInstanceID, ret);
             return ret;
         }
 
         bool bExecuteRet = m_oSMFac.Execute(m_poConfig->GetMyGroupIdx(), llInstanceID, oState.acceptedvalue(), nullptr);
         if (!bExecuteRet)
         {
-            PLGErr("Execute fail, instanceid %lu", llInstanceID);
+            PLGErr("Execute fail, instanceid %" PRIu64, llInstanceID);
             return -1;
         }
     }
@@ -334,7 +334,7 @@ void Instance :: CheckNewValue()
             && (m_oProposer.GetInstanceID() == 0 || m_poConfig->GetGid() == 0))
     {
         //Init system variables.
-        PLGHead("Need to init system variables, Now.InstanceID %lu Now.Gid %lu",
+        PLGHead("Need to init system variables, Now.InstanceID %" PRIu64 " Now.Gid %" PRIu64,
                 m_oProposer.GetInstanceID(), m_poConfig->GetGid());
 
         uint64_t llGid = OtherUtils::GenGid(m_poConfig->GetMyNodeID());
@@ -383,7 +383,7 @@ bool Instance :: ReceiveMsgHeaderCheck(const Header & oHeader, const nodeid_t iF
     if (m_poConfig->GetGid() != oHeader.gid())
     {
         BP->GetAlgorithmBaseBP()->HeaderGidNotSame();
-        PLGErr("Header check fail, header.gid %lu config.gid %lu, msg.from_nodeid %lu",
+        PLGErr("Header check fail, header.gid %" PRIu64 " config.gid %" PRIu64 ", msg.from_nodeid %" PRIu64,
                 oHeader.gid(), m_poConfig->GetGid(), iFromNodeID);
         return false;
     }
@@ -458,8 +458,8 @@ void Instance :: OnReceive(const std::string & sBuffer)
 
 void Instance :: OnReceiveCheckpointMsg(const CheckpointMsg & oCheckpointMsg)
 {
-    PLGImp("Now.InstanceID %lu MsgType %d Msg.from_nodeid %lu My.nodeid %lu flag %d"
-            " uuid %lu sequence %lu checksum %lu offset %lu buffsize %zu filepath %s",
+    PLGImp("Now.InstanceID %" PRIu64 " MsgType %d Msg.from_nodeid %" PRIu64 " My.nodeid %" PRIu64 " flag %d"
+            " uuid %" PRIu64 " sequence %" PRIu64 " checksum %" PRIu64 " offset %" PRIu64 " buffsize %zu filepath %s",
             m_oAcceptor.GetInstanceID(), oCheckpointMsg.msgtype(), oCheckpointMsg.nodeid(),
             m_poConfig->GetMyNodeID(), oCheckpointMsg.flag(), oCheckpointMsg.uuid(), oCheckpointMsg.sequence(), oCheckpointMsg.checksum(),
             oCheckpointMsg.offset(), oCheckpointMsg.buffer().size(), oCheckpointMsg.filepath().c_str());
@@ -484,7 +484,7 @@ int Instance :: OnReceivePaxosMsg(const PaxosMsg & oPaxosMsg, const bool bIsRetr
 {
     BP->GetInstanceBP()->OnReceivePaxosMsg();
 
-    PLGImp("Now.InstanceID %lu Msg.InstanceID %lu MsgType %d Msg.from_nodeid %lu My.nodeid %lu Seen.LatestInstanceID %lu",
+    PLGImp("Now.InstanceID %" PRIu64 " Msg.InstanceID %" PRIu64 " MsgType %d Msg.from_nodeid %" PRIu64 " My.nodeid %" PRIu64 " Seen.LatestInstanceID %" PRIu64,
             m_oProposer.GetInstanceID(), oPaxosMsg.instanceid(), oPaxosMsg.msgtype(),
             oPaxosMsg.nodeid(), m_poConfig->GetMyNodeID(), m_oLearner.GetSeenLatestInstanceID());
 
@@ -513,7 +513,7 @@ int Instance :: OnReceivePaxosMsg(const PaxosMsg & oPaxosMsg, const bool bIsRetr
         if ((!m_poConfig->IsValidNodeID(oPaxosMsg.nodeid())))
         {
             PLGErr("prepare/accept type msg, from nodeid not in my membership(or i'm null membership), "
-                    "skip this message and add node to tempnode, my gid %lu",
+                    "skip this message and add node to tempnode, my gid %" PRIu64,
                     m_poConfig->GetGid());
 
             m_poConfig->AddTmpNodeOnlyForLearn(oPaxosMsg.nodeid());
@@ -714,7 +714,7 @@ int Instance :: ReceiveMsgForLearner(const PaxosMsg & oPaxosMsg)
         {
             BP->GetInstanceBP()->OnInstanceLearnedSMExecuteFail();
 
-            PLGErr("SMExecute fail, instanceid %lu, not increase instanceid", m_oLearner.GetInstanceID());
+            PLGErr("SMExecute fail, instanceid %" PRIu64 ", not increase instanceid", m_oLearner.GetInstanceID());
             m_oCommitCtx.SetResult(PaxosTryCommitRet_ExecuteFail,
                     m_oLearner.GetInstanceID(), m_oLearner.GetLearnValue());
 
@@ -734,8 +734,8 @@ int Instance :: ReceiveMsgForLearner(const PaxosMsg & oPaxosMsg)
             }
         }
 
-        PLGHead("[Learned] New paxos starting, Now.Proposer.InstanceID %lu "
-                "Now.Acceptor.InstanceID %lu Now.Learner.InstanceID %lu",
+        PLGHead("[Learned] New paxos starting, Now.Proposer.InstanceID %" PRIu64 " "
+                "Now.Acceptor.InstanceID %" PRIu64 " Now.Learner.InstanceID %" PRIu64,
                 m_oProposer.GetInstanceID(), m_oAcceptor.GetInstanceID(), m_oLearner.GetInstanceID());
 
         PLGHead("[Learned] Checksum change, last checksum %u new checksum %u",
@@ -745,8 +745,8 @@ int Instance :: ReceiveMsgForLearner(const PaxosMsg & oPaxosMsg)
 
         NewInstance();
 
-        PLGHead("[Learned] New paxos instance has started, Now.Proposer.InstanceID %lu "
-                "Now.Acceptor.InstanceID %lu Now.Learner.InstanceID %lu",
+        PLGHead("[Learned] New paxos instance has started, Now.Proposer.InstanceID %" PRIu64 " "
+                "Now.Acceptor.InstanceID %" PRIu64 " Now.Learner.InstanceID %" PRIu64,
                 m_oProposer.GetInstanceID(), m_oAcceptor.GetInstanceID(), m_oLearner.GetInstanceID());
 
         m_oCheckpointMgr.SetMaxChosenInstanceID(m_oAcceptor.GetInstanceID());

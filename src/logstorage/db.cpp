@@ -240,7 +240,7 @@ int Database :: RebuildOneIndex(const uint64_t llInstanceID, const std::string &
     if (!oStatus.ok())
     {
         BP->GetLogStorageBP()->LevelDBPutFail();
-        PLG1Err("LevelDB.Put fail, instanceid %lu valuelen %zu", llInstanceID, sFileID.size());
+        PLG1Err("LevelDB.Put fail, instanceid %" PRIu64 " valuelen %zu", llInstanceID, sFileID.size());
         return -1;
     }
 
@@ -259,12 +259,12 @@ int Database :: GetFromLevelDB(const uint64_t llInstanceID, std::string & sValue
         if (oStatus.IsNotFound())
         {
             BP->GetLogStorageBP()->LevelDBGetNotExist();
-            PLG1Debug("LevelDB.Get not found, instanceid %lu", llInstanceID);
+            PLG1Debug("LevelDB.Get not found, instanceid %" PRIu64, llInstanceID);
             return 1;
         }
 
         BP->GetLogStorageBP()->LevelDBGetFail();
-        PLG1Err("LevelDB.Get fail, instanceid %lu", llInstanceID);
+        PLG1Err("LevelDB.Get fail, instanceid %" PRIu64, llInstanceID);
         return -1;
     }
 
@@ -296,7 +296,7 @@ int Database :: Get(const uint64_t llInstanceID, std::string & sValue)
 
     if (llFileInstanceID != llInstanceID)
     {
-        PLG1Err("file instanceid %lu not equal to key.instanceid %lu", llFileInstanceID, llInstanceID);
+        PLG1Err("file instanceid %" PRIu64 " not equal to key.instanceid %" PRIu64, llFileInstanceID, llInstanceID);
         return -2;
     }
 
@@ -341,7 +341,7 @@ int Database :: PutToLevelDB(const bool bSync, const uint64_t llInstanceID, cons
     if (!oStatus.ok())
     {
         BP->GetLogStorageBP()->LevelDBPutFail();
-        PLG1Err("LevelDB.Put fail, instanceid %lu valuelen %zu", llInstanceID, sValue.size());
+        PLG1Err("LevelDB.Put fail, instanceid %" PRIu64 " valuelen %zu", llInstanceID, sValue.size());
         return -1;
     }
 
@@ -386,11 +386,11 @@ int Database :: ForceDel(const WriteOptions & oWriteOptions, const uint64_t llIn
     {
         if (oStatus.IsNotFound())
         {
-            PLG1Debug("LevelDB.Get not found, instanceid %lu", llInstanceID);
+            PLG1Debug("LevelDB.Get not found, instanceid %" PRIu64, llInstanceID);
             return 0;
         }
 
-        PLG1Err("LevelDB.Get fail, instanceid %lu", llInstanceID);
+        PLG1Err("LevelDB.Get fail, instanceid %" PRIu64, llInstanceID);
         return -1;
     }
 
@@ -406,7 +406,7 @@ int Database :: ForceDel(const WriteOptions & oWriteOptions, const uint64_t llIn
     oStatus = m_poLevelDB->Delete(oLevelDBWriteOptions, sKey);
     if (!oStatus.ok())
     {
-        PLG1Err("LevelDB.Delete fail, instanceid %lu", llInstanceID);
+        PLG1Err("LevelDB.Delete fail, instanceid %" PRIu64, llInstanceID);
         return -1;
     }
 
@@ -432,11 +432,11 @@ int Database :: Del(const WriteOptions & oWriteOptions, const uint64_t llInstanc
         {
             if (oStatus.IsNotFound())
             {
-                PLG1Debug("LevelDB.Get not found, instanceid %lu", llInstanceID);
+                PLG1Debug("LevelDB.Get not found, instanceid %" PRIu64, llInstanceID);
                 return 0;
             }
 
-            PLG1Err("LevelDB.Get fail, instanceid %lu", llInstanceID);
+            PLG1Err("LevelDB.Get fail, instanceid %" PRIu64, llInstanceID);
             return -1;
         }
 
@@ -453,7 +453,7 @@ int Database :: Del(const WriteOptions & oWriteOptions, const uint64_t llInstanc
     leveldb::Status oStatus = m_poLevelDB->Delete(oLevelDBWriteOptions, sKey);
     if (!oStatus.ok())
     {
-        PLG1Err("LevelDB.Delete fail, instanceid %lu", llInstanceID);
+        PLG1Err("LevelDB.Delete fail, instanceid %" PRIu64, llInstanceID);
         return -1;
     }
 
@@ -547,7 +547,7 @@ int Database :: GetMinChosenInstanceID(uint64_t & llMinInstanceID)
 
     memcpy(&llMinInstanceID, sValue.data(), sizeof(uint64_t));
 
-    PLG1Imp("ok, min chosen instanceid %lu", llMinInstanceID);
+    PLG1Imp("ok, min chosen instanceid %" PRIu64, llMinInstanceID);
 
     return 0;
 }
@@ -570,7 +570,7 @@ int Database :: SetMinChosenInstanceID(const WriteOptions & oWriteOptions, const
         return ret;
     }
 
-    PLG1Imp("ok, min chosen instanceid %lu", llMinInstanceID);
+    PLG1Imp("ok, min chosen instanceid %" PRIu64, llMinInstanceID);
 
     return 0;
 }

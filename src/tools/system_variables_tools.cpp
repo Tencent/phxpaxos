@@ -32,15 +32,15 @@ void ShowVariables(SystemVSM & oVSM)
     SystemVariables oVariables;
     oVSM.GetSystemVariables(oVariables);
 
-    printf("gid %llu\n", oVariables.gid());
-    printf("version %llu\n", oVariables.version());
+    printf("gid %" PRIu64 "\n", oVariables.gid());
+    printf("version %" PRIu64 "\n", oVariables.version());
 
     for (int i = 0; i < oVariables.membership_size(); i++)
     {
         PaxosNodeInfo oNodeInfo = oVariables.membership(i);
         NodeInfo tTmpNode(oNodeInfo.nodeid());
 
-        printf("ip %s port %d nodeid %lu\n",
+        printf("ip %s port %d nodeid %" PRIu64 "\n",
                 tTmpNode.GetIP().c_str(), tTmpNode.GetPort(), tTmpNode.GetNodeID());
     }
 }
@@ -55,7 +55,7 @@ void ModGid(SystemVSM & oVSM, const uint64_t llGid)
     int ret = oVSM.UpdateSystemVariables(oVariables);
     if (ret != 0)
     {
-        printf("mod gid fail, ret %d gid %lu\n", ret, llGid);
+        printf("mod gid fail, ret %d gid %" PRIu64 "\n", ret, llGid);
     }
     else
     {

@@ -63,7 +63,7 @@ const bool PhxKVSM :: Init()
     }
     else
     {
-        PLImp("CheckpointInstanceID %lu", m_llCheckpointInstanceID);
+        PLImp("CheckpointInstanceID %" PRIu64, m_llCheckpointInstanceID);
     }
 
     return true;
@@ -80,11 +80,11 @@ int PhxKVSM :: SyncCheckpointInstanceID(const uint64_t llInstanceID)
     int ret = m_oKVClient.SetCheckpointInstanceID(llInstanceID);
     if (ret != 0)
     {
-        PLErr("KVClient::SetCheckpointInstanceID fail, ret %d instanceid %lu", ret, llInstanceID);
+        PLErr("KVClient::SetCheckpointInstanceID fail, ret %d instanceid %" PRIu64, ret, llInstanceID);
         return ret;
     }
 
-    PLImp("ok, old checkpoint instanceid %lu new checkpoint instanceid %lu",
+    PLImp("ok, old checkpoint instanceid %" PRIu64 " new checkpoint instanceid %" PRIu64,
             m_llCheckpointInstanceID, llInstanceID);
 
     m_llCheckpointInstanceID = llInstanceID;

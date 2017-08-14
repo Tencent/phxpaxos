@@ -151,7 +151,7 @@ int Base :: UnPackBaseMsg(const std::string & sBuffer, Header & oHeader, size_t 
         return -1;
     }
 
-    NLDebug("buffer_size %zu header len %d cmdid %d gid %lu rid %lu version %d body_startpos %zu",
+    NLDebug("buffer_size %zu header len %d cmdid %d gid %" PRIu64 " rid %" PRIu64 " version %d body_startpos %zu",
             sBuffer.size(), iHeaderLen, oHeader.cmdid(), oHeader.gid(), oHeader.rid(), oHeader.version(), iBodyStartPos);
 
     if (oHeader.version() >= 1)

@@ -116,7 +116,7 @@ void Cleaner :: run()
             bool bDeleteRet = DeleteOne(llInstanceID);
             if (bDeleteRet)
             {
-                //PLGImp("delete one done, instanceid %lu", llInstanceID);
+                //PLGImp("delete one done, instanceid %" PRIu64, llInstanceID);
                 llInstanceID++;
                 iDeleteCount++;
                 if (iDeleteCount >= iDeleteInterval)
@@ -127,19 +127,19 @@ void Cleaner :: run()
             }
             else
             {
-                PLGDebug("delete system fail, instanceid %lu", llInstanceID);
+                PLGDebug("delete system fail, instanceid %" PRIu64, llInstanceID);
                 break;
             }
         }
 
         if (llCPInstanceID == 0)
         {
-            PLGStatus("sleep a while, max deleted instanceid %lu checkpoint instanceid (no checkpoint) now instanceid %lu",
+            PLGStatus("sleep a while, max deleted instanceid %" PRIu64 " checkpoint instanceid (no checkpoint) now instanceid %" PRIu64,
                     llInstanceID, m_poCheckpointMgr->GetMaxChosenInstanceID());
         }
         else
         {
-            PLGStatus("sleep a while, max deleted instanceid %lu checkpoint instanceid %lu now instanceid %lu",
+            PLGStatus("sleep a while, max deleted instanceid %" PRIu64 " checkpoint instanceid %" PRIu64 " now instanceid %" PRIu64,
                     llInstanceID, llCPInstanceID, m_poCheckpointMgr->GetMaxChosenInstanceID());
         }
 
@@ -186,7 +186,7 @@ int Cleaner :: FixMinChosenInstanceID(const uint64_t llOldMinChosenInstanceID)
         }
     }
 
-    PLGImp("ok, old minchosen %lu fix minchosen %lu", llOldMinChosenInstanceID, llFixMinChosenInstanceID);
+    PLGImp("ok, old minchosen %" PRIu64 " fix minchosen %" PRIu64, llOldMinChosenInstanceID, llFixMinChosenInstanceID);
 
     return 0;
 }
@@ -209,13 +209,13 @@ bool Cleaner :: DeleteOne(const uint64_t llInstanceID)
         int ret = m_poCheckpointMgr->SetMinChosenInstanceID(llInstanceID + 1);
         if (ret != 0)
         {
-            PLGErr("SetMinChosenInstanceID fail, now delete instanceid %lu", llInstanceID);
+            PLGErr("SetMinChosenInstanceID fail, now delete instanceid %" PRIu64, llInstanceID);
             return false;
         }
 
         m_llLastSave = llInstanceID;
 
-        PLGImp("delete %d instance done, now minchosen instanceid %lu",
+        PLGImp("delete %d instance done, now minchosen instanceid %" PRIu64,
                 DELETE_SAVE_INTERVAL, llInstanceID + 1);
     }
 

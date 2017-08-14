@@ -48,11 +48,11 @@ int PaxosLog :: WriteLog(const WriteOptions & oWriteOptions, const int iGroupIdx
     int ret = WriteState(oWriteOptions, iGroupIdx, llInstanceID, oState);
     if (ret != 0)
     {
-        PLG1Err("WriteState to db fail, groupidx %d instanceid %lu ret %d", iGroupIdx, llInstanceID, ret);
+        PLG1Err("WriteState to db fail, groupidx %d instanceid %" PRIu64 " ret %d", iGroupIdx, llInstanceID, ret);
         return ret;
     }
 
-    PLG1Imp("OK, groupidx %d InstanceID %lu valuelen %zu",
+    PLG1Imp("OK, groupidx %d InstanceID %" PRIu64 " valuelen %zu",
             iGroupIdx, llInstanceID, sValue.size());
 
     return 0;
@@ -66,7 +66,7 @@ int PaxosLog :: ReadLog(const int iGroupIdx, const uint64_t llInstanceID, std::s
     int ret = ReadState(iGroupIdx, llInstanceID, oState);
     if (ret != 0)
     {
-        PLG1Err("ReadState from db fail, groupidx %d instanceid %lu ret %d",
+        PLG1Err("ReadState from db fail, groupidx %d instanceid %" PRIu64 " ret %d",
                 iGroupIdx, llInstanceID, ret);
         return ret;
 
@@ -74,7 +74,7 @@ int PaxosLog :: ReadLog(const int iGroupIdx, const uint64_t llInstanceID, std::s
 
     sValue = oState.acceptedvalue();
 
-    PLG1Imp("OK, groupidx %d InstanceID %lu value %zu",
+    PLG1Imp("OK, groupidx %d InstanceID %" PRIu64 " value %zu",
             iGroupIdx, llInstanceID, sValue.size());
 
     return 0;
@@ -145,7 +145,7 @@ int PaxosLog :: GetMaxInstanceIDFromLog(const int iGroupIdx, uint64_t & llInstan
     }
     else
     {
-        PLG1Imp("OK, MaxInstanceID %llu groupidsx %d", llInstanceID, iGroupIdx);
+        PLG1Imp("OK, MaxInstanceID %" PRIu64 " groupidsx %d", llInstanceID, iGroupIdx);
     }
 
     return ret;

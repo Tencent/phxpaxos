@@ -48,7 +48,7 @@ Status PhxKVServiceImpl :: Put(ServerContext* context, const KVOperator * reques
         uint64_t llMasterNodeID = m_oPhxKV.GetMaster(request->key()).GetNodeID();
         reply->set_master_nodeid(llMasterNodeID);
 
-        PLImp("I'm not master, need redirect, master nodeid i saw %lu, key %s version %lu",
+        PLImp("I'm not master, need redirect, master nodeid i saw %" PRIu64 ", key %s version %" PRIu64,
                 llMasterNodeID, request->key().c_str(), request->version());
         return Status::OK;
     }
@@ -56,7 +56,7 @@ Status PhxKVServiceImpl :: Put(ServerContext* context, const KVOperator * reques
     PhxKVStatus status = m_oPhxKV.Put(request->key(), request->value(), request->version());
     reply->set_ret((int)status);
 
-    PLImp("ret %d, key %s version %lu", reply->ret(), request->key().c_str(), request->version());
+    PLImp("ret %d, key %s version %" PRIu64, reply->ret(), request->key().c_str(), request->version());
 
     return Status::OK;
 }
@@ -80,7 +80,7 @@ Status PhxKVServiceImpl :: GetLocal(ServerContext* context, const KVOperator * r
 
     reply->set_ret((int)status);
 
-    PLImp("ret %d, key %s version %lu", reply->ret(), request->key().c_str(), llReadVersion);
+    PLImp("ret %d, key %s version %" PRIu64, reply->ret(), request->key().c_str(), llReadVersion);
 
     return Status::OK;
 }
@@ -93,7 +93,7 @@ Status PhxKVServiceImpl :: GetGlobal(ServerContext* context, const KVOperator * 
         uint64_t llMasterNodeID = m_oPhxKV.GetMaster(request->key()).GetNodeID();
         reply->set_master_nodeid(llMasterNodeID);
 
-        PLImp("I'm not master, need redirect, master nodeid i saw %lu, key %s version %lu",
+        PLImp("I'm not master, need redirect, master nodeid i saw %" PRIu64 ", key %s version %" PRIu64,
                 llMasterNodeID, request->key().c_str(), request->version());
 
         return Status::OK;
@@ -110,7 +110,7 @@ Status PhxKVServiceImpl :: Delete(ServerContext* context, const KVOperator * req
         uint64_t llMasterNodeID = m_oPhxKV.GetMaster(request->key()).GetNodeID();
         reply->set_master_nodeid(llMasterNodeID);
 
-        PLImp("I'm not master, need redirect, master nodeid i saw %lu, key %s version %lu",
+        PLImp("I'm not master, need redirect, master nodeid i saw %" PRIu64 ", key %s version %" PRIu64,
                 llMasterNodeID, request->key().c_str(), request->version());
 
         return Status::OK;
@@ -119,7 +119,7 @@ Status PhxKVServiceImpl :: Delete(ServerContext* context, const KVOperator * req
     PhxKVStatus status = m_oPhxKV.Delete(request->key(), request->version());
     reply->set_ret((int)status);
 
-    PLImp("ret %d, key %s version %lu", reply->ret(), request->key().c_str(), request->version());
+    PLImp("ret %d, key %s version %" PRIu64, reply->ret(), request->key().c_str(), request->version());
 
     return Status::OK;
 }

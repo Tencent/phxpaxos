@@ -402,7 +402,7 @@ int LogStore :: Append(const WriteOptions & oWriteOptions, const uint64_t llInst
 
     GenFileID(iFileID, iOffset, iCheckSum, sFileID);
 
-    PLG1Imp("ok, offset %d fileid %d checksum %u instanceid %lu buffer size %zu usetime %dms sync %d",
+    PLG1Imp("ok, offset %d fileid %d checksum %u instanceid %" PRIu64 " buffer size %zu usetime %dms sync %d",
             iOffset, iFileID, iCheckSum, llInstanceID, sBuffer.size(), iUseTimeMs, (int)oWriteOptions.bSync);
 
     return 0;
@@ -462,7 +462,7 @@ int LogStore :: Read(const std::string & sFileID, uint64_t & llInstanceID, std::
     memcpy(&llInstanceID, m_oTmpBuffer.GetPtr(), sizeof(uint64_t));
     sBuffer = string(m_oTmpBuffer.GetPtr() + sizeof(uint64_t), iLen - sizeof(uint64_t));
 
-    PLG1Imp("ok, fileid %d offset %d instanceid %lu buffer size %zu",
+    PLG1Imp("ok, fileid %d offset %d instanceid %" PRIu64 " buffer size %zu",
             iFileID, iOffset, llInstanceID, sBuffer.size());
 
     return 0;
@@ -688,7 +688,7 @@ int LogStore :: RebuildIndexForOneFile(const int iFileID, const int iOffset,
         //InstanceID must be ascending order.
         if (llInstanceID < llNowInstanceID)
         {
-            PLG1Err("File data wrong, read instanceid %lu smaller than now instanceid %lu",
+            PLG1Err("File data wrong, read instanceid %" PRIu64 " smaller than now instanceid %" PRIu64,
                     llInstanceID, llNowInstanceID);
             ret = -1;
             break;
@@ -700,7 +700,7 @@ int LogStore :: RebuildIndexForOneFile(const int iFileID, const int iOffset,
         if (!bBufferValid)
         {
             m_iNowFileOffset = iNowOffset;
-            PLG1Err("This instance's buffer wrong, can't parse to acceptState, instanceid %lu bufferlen %d nowoffset %d",
+            PLG1Err("This instance's buffer wrong, can't parse to acceptState, instanceid %" PRIu64 " bufferlen %d nowoffset %d",
                     llInstanceID, iLen - sizeof(uint64_t), iNowOffset);
             bNeedTruncate = true;
             break;
@@ -717,7 +717,7 @@ int LogStore :: RebuildIndexForOneFile(const int iFileID, const int iOffset,
             break;
         }
 
-        PLG1Imp("rebuild one index ok, fileid %d offset %d instanceid %lu checksum %u buffer size %zu",
+        PLG1Imp("rebuild one index ok, fileid %d offset %d instanceid %" PRIu64 " checksum %u buffer size %zu",
                 iFileID, iNowOffset, llInstanceID, iFileCheckSum, iLen - sizeof(uint64_t));
 
         iNowOffset += sizeof(int) + iLen;

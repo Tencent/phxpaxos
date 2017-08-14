@@ -110,7 +110,7 @@ KVClientRet KVClient :: Get(const std::string & sKey, std::string & sValue, uint
 
     sValue = oData.value();
 
-    PLImp("OK, key %s value %s version %lu", sKey.c_str(), sValue.c_str(), llVersion);
+    PLImp("OK, key %s value %s version %" PRIu64, sKey.c_str(), sValue.c_str(), llVersion);
 
     return KVCLIENT_OK;
 }
@@ -159,7 +159,7 @@ KVClientRet KVClient :: Set(const std::string & sKey, const std::string & sValue
         return KVCLIENT_SYS_FAIL;
     }
 
-    PLImp("OK, key %s value %s version %lu", sKey.c_str(), sValue.c_str(), llVersion);
+    PLImp("OK, key %s value %s version %" PRIu64, sKey.c_str(), sValue.c_str(), llVersion);
 
     return KVCLIENT_OK;
 }
@@ -208,7 +208,7 @@ KVClientRet KVClient :: Del(const std::string & sKey, const uint64_t llVersion)
         return KVCLIENT_SYS_FAIL;
     }
 
-    PLImp("OK, key %s version %lu", sKey.c_str(), llVersion);
+    PLImp("OK, key %s version %" PRIu64, sKey.c_str(), llVersion);
 
     return KVCLIENT_OK;
 }
@@ -239,7 +239,7 @@ KVClientRet KVClient :: GetCheckpointInstanceID(uint64_t & llCheckpointInstanceI
 
     memcpy(&llCheckpointInstanceID, sBuffer.data(), sizeof(uint64_t));
 
-    PLImp("OK, CheckpointInstanceID %lu", llCheckpointInstanceID);
+    PLImp("OK, CheckpointInstanceID %" PRIu64, llCheckpointInstanceID);
 
     return KVCLIENT_OK;
 }
@@ -270,7 +270,7 @@ KVClientRet KVClient :: SetCheckpointInstanceID(const uint64_t llCheckpointInsta
         return KVCLIENT_SYS_FAIL;
     }
 
-    PLImp("OK, CheckpointInstanceID %lu", llCheckpointInstanceID);
+    PLImp("OK, CheckpointInstanceID %" PRIu64, llCheckpointInstanceID);
 
     return KVCLIENT_OK;
 }

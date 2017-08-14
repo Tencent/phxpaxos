@@ -29,17 +29,17 @@ void Put(PhxKVClient & oPhxKVClient, const string & sKey, const string & sValue,
     int ret = oPhxKVClient.Put(sKey, sValue, llVersion);
     if (ret == 0)
     {
-        printf("Put ok, key %s value %s version %lu\n",
+        printf("Put ok, key %s value %s version %" PRIu64 "\n",
                 sKey.c_str(), sValue.c_str(), llVersion);
     }
     else if (ret == -11)
     {
-        printf("Put version conflict, key %s value %s version %lu\n",
+        printf("Put version conflict, key %s value %s version %" PRIu64 "\n",
                 sKey.c_str(), sValue.c_str(), llVersion);
     }
     else
     {
-        printf("Put fail, ret %d, key %s value %s version %lu\n",
+        printf("Put fail, ret %d, key %s value %s version %" PRIu64 "\n",
                 ret, sKey.c_str(), sValue.c_str(), llVersion);
     }
 }
@@ -51,12 +51,12 @@ void GetGlobal(PhxKVClient & oPhxKVClient, const string & sKey)
     int ret = oPhxKVClient.GetGlobal(sKey, sReadValue, iReadVersion);
     if (ret == 0)
     {
-        printf("GetGlobal ok, key %s value %s version %lu\n",
+        printf("GetGlobal ok, key %s value %s version %" PRIu64 "\n",
                 sKey.c_str(), sReadValue.c_str(), iReadVersion);
     }
     else if (ret == 1)
     {
-        printf("GetGlobal key %s not exist, version %lu\n", sKey.c_str(), iReadVersion);
+        printf("GetGlobal key %s not exist, version %" PRIu64 "\n", sKey.c_str(), iReadVersion);
     }
     else if (ret == 101)
     {
@@ -75,12 +75,12 @@ void GetLocal(PhxKVClient & oPhxKVClient, const string & sKey)
     int ret = oPhxKVClient.GetLocal(sKey, sReadValue, iReadVersion);
     if (ret == 0)
     {
-        printf("GetLocal ok, key %s value %s version %lu\n",
+        printf("GetLocal ok, key %s value %s version %" PRIu64 "\n",
                 sKey.c_str(), sReadValue.c_str(), iReadVersion);
     }
     else if (ret == 1)
     {
-        printf("GetLocal key %s not exist, version %lu\n", sKey.c_str(), iReadVersion);
+        printf("GetLocal key %s not exist, version %" PRIu64 "\n", sKey.c_str(), iReadVersion);
     }
     else
     {
@@ -93,12 +93,12 @@ void Delete(PhxKVClient & oPhxKVClient, const string & sKey, const uint64_t llVe
     int ret = oPhxKVClient.Delete(sKey, llVersion);
     if (ret == 0)
     {
-        printf("Delete ok, key %s version %lu\n",
+        printf("Delete ok, key %s version %" PRIu64 "\n",
                 sKey.c_str(), llVersion);
     }
     else if (ret == -11)
     {
-        printf("Delete version conflict, key %s version %lu\n",
+        printf("Delete version conflict, key %s version %" PRIu64 "\n",
                 sKey.c_str(), llVersion);
     }
     else
