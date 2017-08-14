@@ -8,7 +8,7 @@ before_install:
 language: cpp
 compiler: g++
 git:
-    submodules: false
+    submodules: true
 script:
     - ./gyp_build.sh
 notifications:
