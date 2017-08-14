@@ -1,0 +1,20 @@
+image: Visual Studio 2017
+
+# fetch repository as zip archive
+shallow_clone: true                 # default is "false"
+
+# set clone depth
+clone_depth: 1                      # clone entire repository history if not defined
+
+matrix:
+  fast_finish: true     # set this flag to immediately finish build once one of the jobs fails.
+
+before_build:
+  - cmd: git submodule update --init --quiet --force
+  - cmd: gyp_build.bat
+
+platform: x86
+configuration: Release
+build:
+  project: phxpaxos.sln
+  verbosity: minimal
