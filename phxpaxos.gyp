@@ -350,6 +350,10 @@
             '<(glog_source_dir)/src/windows/glog/raw_logging.h',
             '<(glog_source_dir)/src/windows/glog/vlog_is_on.h',
             '<(glog_source_dir)/src/windows/glog/stl_logging.h',
+
+            '<(glog_source_dir)/src/windows/config.h',
+            '<(glog_source_dir)/src/windows/port.cc',
+            '<(glog_source_dir)/src/windows/port.h',
           ],
           'include_dirs': ['<(glog_source_dir)/src/windows'],
           'msvs_settings': {
