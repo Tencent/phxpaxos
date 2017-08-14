@@ -335,7 +335,10 @@
     {
       'target_name': 'glog',
       'type': 'static_library',
-      'defines': ['HAVE_CONFIG'],
+      'defines': ['GOOGLE_GLOG_DLL_DECL='],
+      'direct_dependent_settings': {
+        'defines': ['GOOGLE_GLOG_DLL_DECL='],
+      },
       'include_dirs': [
         '<(glog_source_dir)/src'
       ],
