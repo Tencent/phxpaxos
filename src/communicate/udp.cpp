@@ -44,7 +44,11 @@ UDPRecv :: ~UDPRecv()
 {
     if (m_iSockFD != -1)
     {
+#ifdef _WIN32
+        closesocket(m_iSockFD);
+#else
         close(m_iSockFD);
+#endif // _WIN32
         m_iSockFD = -1;
     }
 }
@@ -73,7 +77,7 @@ int UDPRecv :: Init(const int iPort)
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
     int enable = 1;
-    setsockopt(m_iSockFD, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
+    setsockopt(m_iSockFD, SOL_SOCKET, SO_REUSEADDR, (char*)&enable, sizeof(int));
 
     if (bind(m_iSockFD, (struct sockaddr *)&addr, sizeof(addr)) < 0)
     {
