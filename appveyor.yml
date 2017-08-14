@@ -16,7 +16,7 @@ clone_script:
 before_build:
   - cmd: gyp_build.bat
 
-platform: x86
+platform: Win32
 configuration: Release
 build:
   project: phxpaxos.sln
