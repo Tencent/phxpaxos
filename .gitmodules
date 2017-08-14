@@ -22,7 +22,7 @@
 	path = third_party/protobuf
 	url = https://github.com/google/protobuf.git
 	branch = v3.0.0
-[submodules "third_party/gyp"]
+[submodule "third_party/gyp"]
 	path = third_party/gyp
 	url = https://github.com/boolking/gyp.git
 	branch = master
