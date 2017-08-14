@@ -39,7 +39,7 @@ Thread::Thread() {}
 Thread::~Thread() {}
 
 void Thread::start() {
-    _thread.swap(std::thread(std::bind(&mmThreadRun, this)));
+    _thread = std::move(std::thread(std::bind(&mmThreadRun, this)));
 }
 
 
