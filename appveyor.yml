@@ -14,7 +14,7 @@ clone_script:
   - cmd: git checkout -qf %APPVEYOR_REPO_COMMIT%
 
 before_build:
-  - cmd: cd %APPVEYOR_BUILD_FOLDER%; gyp_build.bat
+  - cmd: gyp_build.bat
 
 platform: x86
 configuration: Release
