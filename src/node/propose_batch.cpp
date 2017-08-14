@@ -36,7 +36,11 @@ namespace phxpaxos
 
 uint64_t GetThreadID()
 {
+#ifdef _WIN32
+    return (uint64_t)GetCurrentThreadId();
+#else
     return (uint64_t)pthread_self();
+#endif // _WIN32
 }
 
 PendingProposal :: PendingProposal()
