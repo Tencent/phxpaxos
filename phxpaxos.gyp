@@ -18,6 +18,7 @@
           'direct_dependent_settings': {
             'include_dirs': ['port/win'],
           },
+          'defines': ['FD_SETSIZE=8192'],
           'sources': [
             'port/win/dirent.h',
             'port/win/dirent.c',
