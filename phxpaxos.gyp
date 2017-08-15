@@ -356,11 +356,6 @@
             '<(glog_source_dir)/src/windows/port.h',
           ],
           'include_dirs': ['<(glog_source_dir)/src/windows'],
-          'msvs_settings': {
-            'VCCLCompilerTool': {
-              'ForcedIncludeFiles': ['algorithm'],
-            },
-          },
           'direct_dependent_settings': {
             'include_dirs': [
               '<(glog_source_dir)/src/windows'
