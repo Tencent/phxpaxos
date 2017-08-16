@@ -25,9 +25,8 @@ See the AUTHORS file for names of contributors.
 namespace phxpaxos
 {
 
-SerialLock :: SerialLock() : m_oLock(m_oMutex)
+SerialLock :: SerialLock()
 {
-    m_oLock.unlock();
 }
 
 SerialLock :: ~SerialLock()
@@ -46,7 +45,7 @@ void SerialLock :: UnLock()
 
 void SerialLock :: Wait()
 {
-    m_oCond.wait(m_oLock);
+    m_oCond.wait(m_oMutex);
 }
 
 void SerialLock :: Interupt()
@@ -56,7 +55,7 @@ void SerialLock :: Interupt()
 
 bool SerialLock :: WaitTime(const int iTimeMs)
 {
-    return m_oCond.wait_for(m_oLock, std::chrono::milliseconds(iTimeMs)) != std::cv_status::timeout;
+    return m_oCond.wait_for(m_oMutex, std::chrono::milliseconds(iTimeMs)) != std::cv_status::timeout;
 }
 
 }
