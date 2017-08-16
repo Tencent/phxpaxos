@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "acceptor.h"
@@ -40,7 +40,7 @@ AcceptorState :: ~AcceptorState()
 void AcceptorState :: Init()
 {
     m_oAcceptedBallot.reset();
-    
+
     m_sAcceptedValue = "";
 
     m_iChecksum = 0;
@@ -91,7 +91,7 @@ int AcceptorState :: Persist(const uint64_t llInstanceID, const uint32_t iLastCh
     {
         m_iChecksum = crc32(iLastChecksum, (const uint8_t *)m_sAcceptedValue.data(), m_sAcceptedValue.size(), CRC32SKIP);
     }
-    
+
     AcceptorStateData oState;
     oState.set_instanceid(llInstanceID);
     oState.set_promiseid(m_oPromiseBallot.m_llProposalID);
@@ -121,13 +121,13 @@ int AcceptorState :: Persist(const uint64_t llInstanceID, const uint32_t iLastCh
     {
         return ret;
     }
-    
-    PLGImp("GroupIdx %d InstanceID %lu PromiseID %lu PromiseNodeID %lu "
-            "AccectpedID %lu AcceptedNodeID %lu ValueLen %zu Checksum %u", 
-            m_poConfig->GetMyGroupIdx(), llInstanceID, m_oPromiseBallot.m_llProposalID, 
-            m_oPromiseBallot.m_llNodeID, m_oAcceptedBallot.m_llProposalID, 
+
+    PLGImp("GroupIdx %d InstanceID %" PRIu64 " PromiseID %" PRIu64 " PromiseNodeID %" PRIu64 " "
+            "AccectpedID %" PRIu64 " AcceptedNodeID %" PRIu64 " ValueLen %zu Checksum %u",
+            m_poConfig->GetMyGroupIdx(), llInstanceID, m_oPromiseBallot.m_llProposalID,
+            m_oPromiseBallot.m_llNodeID, m_oAcceptedBallot.m_llProposalID,
             m_oAcceptedBallot.m_llNodeID, m_sAcceptedValue.size(), m_iChecksum);
-    
+
     return 0;
 }
 
@@ -153,28 +153,28 @@ int AcceptorState :: Load(uint64_t & llInstanceID)
     {
         return ret;
     }
-    
+
     m_oPromiseBallot.m_llProposalID = oState.promiseid();
     m_oPromiseBallot.m_llNodeID = oState.promisenodeid();
     m_oAcceptedBallot.m_llProposalID = oState.acceptedid();
     m_oAcceptedBallot.m_llNodeID = oState.acceptednodeid();
     m_sAcceptedValue = oState.acceptedvalue();
     m_iChecksum = oState.checksum();
-    
-    PLGImp("GroupIdx %d InstanceID %lu PromiseID %lu PromiseNodeID %lu"
-           " AccectpedID %lu AcceptedNodeID %lu ValueLen %zu Checksum %u", 
-            m_poConfig->GetMyGroupIdx(), llInstanceID, m_oPromiseBallot.m_llProposalID, 
-            m_oPromiseBallot.m_llNodeID, m_oAcceptedBallot.m_llProposalID, 
+
+    PLGImp("GroupIdx %d InstanceID %" PRIu64 " PromiseID %" PRIu64 " PromiseNodeID %" PRIu64
+           " AccectpedID %" PRIu64 " AcceptedNodeID %" PRIu64 " ValueLen %zu Checksum %u",
+            m_poConfig->GetMyGroupIdx(), llInstanceID, m_oPromiseBallot.m_llProposalID,
+            m_oPromiseBallot.m_llNodeID, m_oAcceptedBallot.m_llProposalID,
             m_oAcceptedBallot.m_llNodeID, m_sAcceptedValue.size(), m_iChecksum);
-    
+
     return 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////
 
 Acceptor :: Acceptor(
-        const Config * poConfig, 
-        const MsgTransport * poMsgTransport, 
+        const Config * poConfig,
+        const MsgTransport * poMsgTransport,
         const Instance * poInstance,
         const LogStorage * poLogStorage)
     : Base(poConfig, poMsgTransport, poInstance), m_oAcceptorState(poConfig, poLogStorage)
@@ -219,11 +219,11 @@ AcceptorState * Acceptor :: GetAcceptorState()
 
 int Acceptor :: OnPrepare(const PaxosMsg & oPaxosMsg)
 {
-    PLGHead("START Msg.InstanceID %lu Msg.from_nodeid %lu Msg.ProposalID %lu",
+    PLGHead("START Msg.InstanceID %" PRIu64 " Msg.from_nodeid %" PRIu64 " Msg.ProposalID %" PRIu64,
             oPaxosMsg.instanceid(), oPaxosMsg.nodeid(), oPaxosMsg.proposalid());
 
     BP->GetAcceptorBP()->OnPrepare();
-    
+
     PaxosMsg oReplyPaxosMsg;
     oReplyPaxosMsg.set_instanceid(GetInstanceID());
     oReplyPaxosMsg.set_nodeid(m_poConfig->GetMyNodeID());
@@ -231,16 +231,16 @@ int Acceptor :: OnPrepare(const PaxosMsg & oPaxosMsg)
     oReplyPaxosMsg.set_msgtype(MsgType_PaxosPrepareReply);
 
     BallotNumber oBallot(oPaxosMsg.proposalid(), oPaxosMsg.nodeid());
-    
+
     if (oBallot >= m_oAcceptorState.GetPromiseBallot())
     {
-        PLGDebug("[Promise] State.PromiseID %lu State.PromiseNodeID %lu "
-                "State.PreAcceptedID %lu State.PreAcceptedNodeID %lu",
-                m_oAcceptorState.GetPromiseBallot().m_llProposalID, 
+        PLGDebug("[Promise] State.PromiseID %" PRIu64 " State.PromiseNodeID %" PRIu64 " "
+                "State.PreAcceptedID %" PRIu64 " State.PreAcceptedNodeID %" PRIu64,
+                m_oAcceptorState.GetPromiseBallot().m_llProposalID,
                 m_oAcceptorState.GetPromiseBallot().m_llNodeID,
                 m_oAcceptorState.GetAcceptedBallot().m_llProposalID,
                 m_oAcceptorState.GetAcceptedBallot().m_llNodeID);
-        
+
         oReplyPaxosMsg.set_preacceptid(m_oAcceptorState.GetAcceptedBallot().m_llProposalID);
         oReplyPaxosMsg.set_preacceptnodeid(m_oAcceptorState.GetAcceptedBallot().m_llNodeID);
 
@@ -255,9 +255,9 @@ int Acceptor :: OnPrepare(const PaxosMsg & oPaxosMsg)
         if (ret != 0)
         {
             BP->GetAcceptorBP()->OnPreparePersistFail();
-            PLGErr("Persist fail, Now.InstanceID %lu ret %d",
+            PLGErr("Persist fail, Now.InstanceID %" PRIu64 " ret %d",
                     GetInstanceID(), ret);
-            
+
             return -1;
         }
 
@@ -267,16 +267,16 @@ int Acceptor :: OnPrepare(const PaxosMsg & oPaxosMsg)
     {
         BP->GetAcceptorBP()->OnPrepareReject();
 
-        PLGDebug("[Reject] State.PromiseID %lu State.PromiseNodeID %lu", 
-                m_oAcceptorState.GetPromiseBallot().m_llProposalID, 
+        PLGDebug("[Reject] State.PromiseID %" PRIu64 " State.PromiseNodeID %" PRIu64,
+                m_oAcceptorState.GetPromiseBallot().m_llProposalID,
                 m_oAcceptorState.GetPromiseBallot().m_llNodeID);
-        
+
         oReplyPaxosMsg.set_rejectbypromiseid(m_oAcceptorState.GetPromiseBallot().m_llProposalID);
     }
 
     nodeid_t iReplyNodeID = oPaxosMsg.nodeid();
 
-    PLGHead("END Now.InstanceID %lu ReplyNodeID %lu",
+    PLGHead("END Now.InstanceID %" PRIu64 " ReplyNodeID %" PRIu64,
             GetInstanceID(), oPaxosMsg.nodeid());;
 
     SendMessage(iReplyNodeID, oReplyPaxosMsg);
@@ -286,7 +286,7 @@ int Acceptor :: OnPrepare(const PaxosMsg & oPaxosMsg)
 
 void Acceptor :: OnAccept(const PaxosMsg & oPaxosMsg)
 {
-    PLGHead("START Msg.InstanceID %lu Msg.from_nodeid %lu Msg.ProposalID %lu Msg.ValueLen %zu",
+    PLGHead("START Msg.InstanceID %" PRIu64 " Msg.from_nodeid %" PRIu64 " Msg.ProposalID %" PRIu64 " Msg.ValueLen %zu",
             oPaxosMsg.instanceid(), oPaxosMsg.nodeid(), oPaxosMsg.proposalid(), oPaxosMsg.value().size());
 
     BP->GetAcceptorBP()->OnAccept();
@@ -301,9 +301,9 @@ void Acceptor :: OnAccept(const PaxosMsg & oPaxosMsg)
 
     if (oBallot >= m_oAcceptorState.GetPromiseBallot())
     {
-        PLGDebug("[Promise] State.PromiseID %lu State.PromiseNodeID %lu "
-                "State.PreAcceptedID %lu State.PreAcceptedNodeID %lu",
-                m_oAcceptorState.GetPromiseBallot().m_llProposalID, 
+        PLGDebug("[Promise] State.PromiseID %" PRIu64 " State.PromiseNodeID %" PRIu64 " "
+                "State.PreAcceptedID %" PRIu64 " State.PreAcceptedNodeID %" PRIu64,
+                m_oAcceptorState.GetPromiseBallot().m_llProposalID,
                 m_oAcceptorState.GetPromiseBallot().m_llNodeID,
                 m_oAcceptorState.GetAcceptedBallot().m_llProposalID,
                 m_oAcceptorState.GetAcceptedBallot().m_llNodeID);
@@ -311,15 +311,15 @@ void Acceptor :: OnAccept(const PaxosMsg & oPaxosMsg)
         m_oAcceptorState.SetPromiseBallot(oBallot);
         m_oAcceptorState.SetAcceptedBallot(oBallot);
         m_oAcceptorState.SetAcceptedValue(oPaxosMsg.value());
-        
+
         int ret = m_oAcceptorState.Persist(GetInstanceID(), GetLastChecksum());
         if (ret != 0)
         {
             BP->GetAcceptorBP()->OnAcceptPersistFail();
 
-            PLGErr("Persist fail, Now.InstanceID %lu ret %d",
+            PLGErr("Persist fail, Now.InstanceID %" PRIu64 " ret %d",
                     GetInstanceID(), ret);
-            
+
             return;
         }
 
@@ -329,16 +329,16 @@ void Acceptor :: OnAccept(const PaxosMsg & oPaxosMsg)
     {
         BP->GetAcceptorBP()->OnAcceptReject();
 
-        PLGDebug("[Reject] State.PromiseID %lu State.PromiseNodeID %lu", 
-                m_oAcceptorState.GetPromiseBallot().m_llProposalID, 
+        PLGDebug("[Reject] State.PromiseID %" PRIu64 " State.PromiseNodeID %" PRIu64,
+                m_oAcceptorState.GetPromiseBallot().m_llProposalID,
                 m_oAcceptorState.GetPromiseBallot().m_llNodeID);
-        
+
         oReplyPaxosMsg.set_rejectbypromiseid(m_oAcceptorState.GetPromiseBallot().m_llProposalID);
     }
 
     nodeid_t iReplyNodeID = oPaxosMsg.nodeid();
 
-    PLGHead("END Now.InstanceID %lu ReplyNodeID %lu",
+    PLGHead("END Now.InstanceID %" PRIu64 " ReplyNodeID %" PRIu64,
             GetInstanceID(), oPaxosMsg.nodeid());
 
     SendMessage(iReplyNodeID, oReplyPaxosMsg);

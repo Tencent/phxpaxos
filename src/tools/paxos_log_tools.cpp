@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "db.h"
@@ -32,11 +32,11 @@ void DelInstance(const int iGroupIdx, MultiDatabase & oLogStorage, uint64_t llIn
     int ret = oLogStorage.Get(iGroupIdx, llInstanceID, sValue);
     if (ret != 0)
     {
-        printf("get this instance %lu fail, do you want to delete it? (y/n)\n", llInstanceID);
+        printf("get this instance %" PRIu64 " fail, do you want to delete it? (y/n)\n", llInstanceID);
     }
     else
     {
-        printf("this instance %lu value size is %zu, do you want to delete it? (y/n)\n", 
+        printf("this instance %" PRIu64 " value size is %zu, do you want to delete it? (y/n)\n",
                 llInstanceID, sValue.size());
     }
 
@@ -50,11 +50,11 @@ void DelInstance(const int iGroupIdx, MultiDatabase & oLogStorage, uint64_t llIn
         ret = oLogStorage.ForceDel(oWriteOptions, iGroupIdx, llInstanceID);
         if (ret != 0)
         {
-            printf("delete instance %lu fail\n", llInstanceID);
+            printf("delete instance %" PRIu64 " fail\n", llInstanceID);
         }
         else
         {
-            printf("delete instance %lu ok\n", llInstanceID);
+            printf("delete instance %" PRIu64 " ok\n", llInstanceID);
         }
     }
 }
@@ -65,7 +65,7 @@ void GetInstance(const int iGroupIdx, MultiDatabase & oLogStorage, uint64_t llIn
     int ret = oLogStorage.Get(iGroupIdx, llInstanceID, sValue);
     if (ret != 0)
     {
-        printf("get this instance %lu fail\n", llInstanceID);
+        printf("get this instance %" PRIu64 " fail\n", llInstanceID);
         return;
     }
 
@@ -78,11 +78,11 @@ void GetInstance(const int iGroupIdx, MultiDatabase & oLogStorage, uint64_t llIn
     }
 
     printf("------------------------------------------------------\n");
-    printf("instanceid %llu\n", oState.instanceid());
-    printf("promiseid %llu\n", oState.promiseid());
-    printf("promisenodid %llu\n", oState.promisenodeid());
-    printf("acceptedid %llu\n", oState.acceptedid());
-    printf("acceptednodeid %llu\n", oState.acceptednodeid());
+    printf("instanceid %" PRIu64 "\n", oState.instanceid());
+    printf("promiseid %" PRIu64 "\n", oState.promiseid());
+    printf("promisenodid %" PRIu64 "\n", oState.promisenodeid());
+    printf("acceptedid %" PRIu64 "\n", oState.acceptedid());
+    printf("acceptednodeid %" PRIu64 "\n", oState.acceptednodeid());
     printf("acceptedvaluesize %zu\n", oState.acceptedvalue().size());
     printf("checksum %u\n", oState.checksum());
 }
@@ -97,7 +97,7 @@ void GetMaxInstanceID(const int iGroupIdx, MultiDatabase & oLogStorage)
         return;
     }
 
-    printf("max instanceid %lu\n", llInstanceID);
+    printf("max instanceid %" PRIu64 "\n", llInstanceID);
 }
 
 int main(int argc, char ** argv)
@@ -143,7 +143,7 @@ int main(int argc, char ** argv)
     else if (sOP == "del")
     {
         DelInstance(iGroupIdx, oDefaultLogStorage, llInstanceID);
-    } 
+    }
     else if (sOP == "get")
     {
         GetInstance(iGroupIdx, oDefaultLogStorage, llInstanceID);

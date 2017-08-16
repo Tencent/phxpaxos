@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #pragma once
@@ -34,6 +34,27 @@ using std::string;
 namespace phxpaxos
 {
 
+#ifdef _WIN32
+#define NLDebug(format, ...) LOG_VERBOSE("DEBUG: %s " format, __func__, __VA_ARGS__);
+#define NLErr(format, ...) LOG_ERROR("ERR: %s " format, __func__, __VA_ARGS__);
+
+#define PLErr(format, ...) LOG_ERROR("ERR: %s::%s " format, typeid(this).name(), __func__, __VA_ARGS__);
+#define PLImp(format, ...) LOG_SHOWY("Showy: %s::%s " format, typeid(this).name(), __func__, __VA_ARGS__);
+#define PLHead(format, ...) LOG_WARNING("Imp: %s::%s " format, typeid(this).name(), __func__, __VA_ARGS__);
+#define PLDebug(format, ...) LOG_VERBOSE("DEBUG: %s::%s " format, typeid(this).name(), __func__, __VA_ARGS__);
+
+#define PLGErr(format, ...) LOG_ERROR("ERR(%d): %s::%s " format, m_poConfig->GetMyGroupIdx(), typeid(this).name(), __func__, __VA_ARGS__);
+#define PLGStatus(format, ...) LOG_STATUS("STATUS(%d): %s::%s " format, m_poConfig->GetMyGroupIdx(), typeid(this).name(), __func__, __VA_ARGS__);
+#define PLGImp(format, ...) LOG_SHOWY("Showy(%d): %s::%s " format, m_poConfig->GetMyGroupIdx(), typeid(this).name(), __func__, __VA_ARGS__);
+#define PLGHead(format, ...) LOG_WARNING("Imp(%d): %s::%s " format, m_poConfig->GetMyGroupIdx(), typeid(this).name(), __func__, __VA_ARGS__);
+#define PLGDebug(format, ...) LOG_VERBOSE("DEBUG(%d): %s::%s " format, m_poConfig->GetMyGroupIdx(), typeid(this).name(), __func__, __VA_ARGS__);
+
+#define PLG1Err(format, ...) LOG_ERROR("ERR(%d): %s::%s " format, m_iMyGroupIdx, typeid(this).name(), __func__, __VA_ARGS__);
+#define PLG1Imp(format, ...) LOG_SHOWY("Showy(%d): %s::%s " format, m_iMyGroupIdx, typeid(this).name(), __func__, __VA_ARGS__);
+#define PLG1Head(format, ...) LOG_WARNING("Imp(%d): %s::%s " format, m_iMyGroupIdx, typeid(this).name(), __func__, __VA_ARGS__);
+#define PLG1Debug(format, ...) LOG_VERBOSE("DEBUG(%d): %s::%s " format, m_iMyGroupIdx, typeid(this).name(), __func__, __VA_ARGS__);
+
+#else
 #define NLDebug(format, args...) LOG_VERBOSE("DEBUG: %s " format, __func__, ## args);
 #define NLErr(format, args...) LOG_ERROR("ERR: %s " format, __func__, ## args);
 
@@ -47,17 +68,17 @@ namespace phxpaxos
 #define PLGImp(format, args...) LOG_SHOWY("Showy(%d): %s::%s " format, m_poConfig->GetMyGroupIdx(), typeid(this).name(), __func__, ## args);
 #define PLGHead(format, args...) LOG_WARNING("Imp(%d): %s::%s " format, m_poConfig->GetMyGroupIdx(), typeid(this).name(), __func__, ## args);
 #define PLGDebug(format, args...) LOG_VERBOSE("DEBUG(%d): %s::%s " format, m_poConfig->GetMyGroupIdx(), typeid(this).name(), __func__, ## args);
-    
+
 #define PLG1Err(format, args...) LOG_ERROR("ERR(%d): %s::%s " format, m_iMyGroupIdx, typeid(this).name(), __func__, ## args);
 #define PLG1Imp(format, args...) LOG_SHOWY("Showy(%d): %s::%s " format, m_iMyGroupIdx, typeid(this).name(), __func__, ## args);
 #define PLG1Head(format, args...) LOG_WARNING("Imp(%d): %s::%s " format, m_iMyGroupIdx, typeid(this).name(), __func__, ## args);
 #define PLG1Debug(format, args...) LOG_VERBOSE("DEBUG(%d): %s::%s " format, m_iMyGroupIdx, typeid(this).name(), __func__, ## args);
-
+#endif
 
 #define nullvalue "nullvalue"
 
 #define CRC32SKIP 8
-#define NET_CRC32SKIP 7 
+#define NET_CRC32SKIP 7
 
 //network protocal
 #define GROUPIDXLEN (sizeof(int))
@@ -122,5 +143,5 @@ enum TimerType
     Timer_Instance_Commit_Timeout = 4,
 };
 
-    
+
 }

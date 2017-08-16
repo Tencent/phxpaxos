@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "checkpoint_receiver.h"
@@ -44,7 +44,7 @@ CheckpointReceiver :: ~CheckpointReceiver()
 void CheckpointReceiver :: Reset()
 {
     m_mapHasInitDir.clear();
-    
+
     m_iSenderNodeID = nullnode;
     m_llUUID = 0;
     m_llSequence = 0;
@@ -61,11 +61,11 @@ int CheckpointReceiver :: NewReceiver(const nodeid_t iSenderNodeID, const uint64
     ret = m_poLogStorage->ClearAllLog(m_poConfig->GetMyGroupIdx());
     if (ret != 0)
     {
-        PLGErr("ClearAllLog fail, groupidx %d ret %d", 
+        PLGErr("ClearAllLog fail, groupidx %d ret %d",
                 m_poConfig->GetMyGroupIdx(), ret);
         return ret;
     }
-    
+
     m_mapHasInitDir.clear();
 
     m_iSenderNodeID = iSenderNodeID;
@@ -96,7 +96,7 @@ int CheckpointReceiver :: ClearCheckpointTmp()
             char sChildPath[1024] = {0};
             snprintf(sChildPath, sizeof(sChildPath), "%s/%s", sLogStoragePath.c_str(), ptr->d_name);
             ret = FileUtils::DeleteDir(sChildPath);
-            
+
             if (ret != 0)
             {
                 break;
@@ -111,7 +111,7 @@ int CheckpointReceiver :: ClearCheckpointTmp()
     return ret;
 }
 
-const bool CheckpointReceiver :: IsReceiverFinish(const nodeid_t iSenderNodeID, 
+const bool CheckpointReceiver :: IsReceiverFinish(const nodeid_t iSenderNodeID,
         const uint64_t llUUID, const uint64_t llEndSequence)
 {
     if (iSenderNodeID == m_iSenderNodeID
@@ -194,10 +194,10 @@ int CheckpointReceiver :: CreateDir(const std::string & sDirPath)
     if (access(sDirPath.c_str(), F_OK) == -1)
     {
         if (mkdir(sDirPath.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1)
-        {       
+        {
             PLGErr("Create dir fail, path %s", sDirPath.c_str());
             return -1;
-        }       
+        }
     }
 
     return 0;
@@ -208,21 +208,21 @@ int CheckpointReceiver :: ReceiveCheckpoint(const CheckpointMsg & oCheckpointMsg
     if (oCheckpointMsg.nodeid() != m_iSenderNodeID
             || oCheckpointMsg.uuid() != m_llUUID)
     {
-        PLGErr("msg not valid, Msg.SenderNodeID %lu Receiver.SenderNodeID %lu Msg.UUID %lu Receiver.UUID %lu",
+        PLGErr("msg not valid, Msg.SenderNodeID %" PRIu64 " Receiver.SenderNodeID %" PRIu64 " Msg.UUID %" PRIu64 " Receiver.UUID %" PRIu64,
                 oCheckpointMsg.nodeid(), m_iSenderNodeID, oCheckpointMsg.uuid(), m_llUUID);
         return -2;
     }
 
     if (oCheckpointMsg.sequence() == m_llSequence)
     {
-        PLGErr("msg already receive, skip, Msg.Sequence %lu Receiver.Sequence %lu",
+        PLGErr("msg already receive, skip, Msg.Sequence %" PRIu64 " Receiver.Sequence %" PRIu64,
                 oCheckpointMsg.sequence(), m_llSequence);
         return 0;
     }
 
     if (oCheckpointMsg.sequence() != m_llSequence + 1)
     {
-        PLGErr("msg sequence wrong, Msg.Sequence %lu Receiver.Sequence %lu",
+        PLGErr("msg sequence wrong, Msg.Sequence %" PRIu64 " Receiver.Sequence %" PRIu64,
                 oCheckpointMsg.sequence(), m_llSequence);
         return -2;
     }
@@ -245,7 +245,7 @@ int CheckpointReceiver :: ReceiveCheckpoint(const CheckpointMsg & oCheckpointMsg
     size_t llFileOffset = lseek(iFd, 0, SEEK_END);
     if ((uint64_t)llFileOffset != oCheckpointMsg.offset())
     {
-        PLGErr("file.offset %zu not equal to msg.offset %lu", llFileOffset, oCheckpointMsg.offset());
+        PLGErr("file.offset %zu not equal to msg.offset %" PRIu64, llFileOffset, oCheckpointMsg.offset());
         close(iFd);
         return -2;
     }
@@ -265,7 +265,7 @@ int CheckpointReceiver :: ReceiveCheckpoint(const CheckpointMsg & oCheckpointMsg
 
     return 0;
 }
-    
+
 }
 
 

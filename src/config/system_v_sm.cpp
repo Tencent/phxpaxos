@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "system_v_sm.h"
@@ -28,11 +28,11 @@ namespace phxpaxos
 {
 
 SystemVSM :: SystemVSM(
-        const int iGroupIdx, 
+        const int iGroupIdx,
         const nodeid_t iMyNodeID,
         const LogStorage * poLogStorage,
-        MembershipChangeCallback pMembershipChangeCallback) 
-    : m_iMyGroupIdx(iGroupIdx), m_oSystemVStore(poLogStorage), 
+        MembershipChangeCallback pMembershipChangeCallback)
+    : m_iMyGroupIdx(iGroupIdx), m_oSystemVStore(poLogStorage),
     m_iMyNodeID(iMyNodeID), m_pMembershipChangeCallback(pMembershipChangeCallback)
 {
 }
@@ -58,7 +58,7 @@ int SystemVSM :: Init()
     else
     {
         RefleshNodeID();
-        PLG1Imp("OK, gourpidx %d gid %lu version %lu", 
+        PLG1Imp("OK, gourpidx %d gid %" PRIu64 " version %" PRIu64,
                 m_iMyGroupIdx, m_oSystemVariables.gid(), m_oSystemVariables.version());
     }
 
@@ -102,14 +102,14 @@ bool SystemVSM :: Execute(const int iGroupIdx, const uint64_t llInstanceID, cons
 
     if (m_oSystemVariables.gid() != 0 && oVariables.gid() != m_oSystemVariables.gid())
     {
-        PLG1Err("modify.gid %lu not equal to now.gid %lu", oVariables.gid(), m_oSystemVariables.gid());
+        PLG1Err("modify.gid %" PRIu64 " not equal to now.gid %" PRIu64, oVariables.gid(), m_oSystemVariables.gid());
         if (smret != nullptr) *smret = Paxos_MembershipOp_GidNotSame;
         return true;
     }
 
     if (oVariables.version() != m_oSystemVariables.version())
     {
-        PLG1Err("modify.version %lu not equal to now.version %lu", oVariables.version(), m_oSystemVariables.version());
+        PLG1Err("modify.version %" PRIu64 " not equal to now.version %" PRIu64, oVariables.version(), m_oSystemVariables.version());
         if (smret != nullptr) *smret = Paxos_MembershipOp_VersionConflit;
         return true;
     }
@@ -121,7 +121,7 @@ bool SystemVSM :: Execute(const int iGroupIdx, const uint64_t llInstanceID, cons
         return false;
     }
 
-    PLG1Head("OK, new version %lu gid %lu", m_oSystemVariables.version(), m_oSystemVariables.gid());
+    PLG1Head("OK, new version %" PRIu64 " gid %" PRIu64, m_oSystemVariables.version(), m_oSystemVariables.gid());
 
     if (smret != nullptr) *smret = 0;
 
@@ -155,7 +155,7 @@ int SystemVSM :: Membership_OPValue(const NodeInfoList & vecNodeInfoList, const 
     //must must set version first!
     oVariables.set_version(llVersion);
     oVariables.set_gid(m_oSystemVariables.gid());
-    
+
     for (auto & tNodeInfo : vecNodeInfoList)
     {
         PaxosNodeInfo * poNodeInfo = oVariables.add_membership();
@@ -187,7 +187,7 @@ int SystemVSM :: CreateGid_OPValue(const uint64_t llGid, std::string & sOpValue)
         return -1;
     }
     */
-    
+
     bool sSucc = oVariables.SerializeToString(&sOpValue);
     if (!sSucc)
     {
@@ -197,7 +197,7 @@ int SystemVSM :: CreateGid_OPValue(const uint64_t llGid, std::string & sOpValue)
 
     return 0;
 }
-    
+
 /////////////////////////////////////////////////
 
 void SystemVSM :: AddNodeIDList(const NodeInfoList & vecNodeInfoList)
@@ -229,13 +229,13 @@ void SystemVSM :: RefleshNodeID()
     m_setNodeID.clear();
 
     NodeInfoList vecNodeInfoList;
-    
+
     for (int i = 0; i < m_oSystemVariables.membership_size(); i++)
     {
         PaxosNodeInfo oNodeInfo = m_oSystemVariables.membership(i);
         NodeInfo tTmpNode(oNodeInfo.nodeid());
 
-        PLG1Head("ip %s port %d nodeid %lu", 
+        PLG1Head("ip %s port %d nodeid %" PRIu64,
                 tTmpNode.GetIP().c_str(), tTmpNode.GetPort(), tTmpNode.GetNodeID());
 
         m_setNodeID.insert(tTmpNode.GetNodeID());
@@ -265,7 +265,7 @@ const bool SystemVSM :: IsValidNodeID(const nodeid_t iNodeID)
     {
         return true;
     }
-        
+
     return m_setNodeID.find(iNodeID) != end(m_setNodeID);
 }
 
@@ -283,7 +283,7 @@ int SystemVSM :: GetCheckpointBuffer(std::string & sCPBuffer)
     {
         return 0;
     }
-    
+
     bool sSucc = m_oSystemVariables.SerializeToString(&sCPBuffer);
     if (!sSucc)
     {
@@ -300,9 +300,9 @@ int SystemVSM :: UpdateByCheckpoint(const std::string & sCPBuffer, bool & bChang
     {
         return 0;
     }
-    
+
     bChange = false;
-    
+
     SystemVariables oVariables;
     bool bSucc = oVariables.ParseFromArray(sCPBuffer.data(), sCPBuffer.size());
     if (!bSucc)
@@ -317,17 +317,17 @@ int SystemVSM :: UpdateByCheckpoint(const std::string & sCPBuffer, bool & bChang
         return -2;
     }
 
-    if (m_oSystemVariables.gid() != 0 
+    if (m_oSystemVariables.gid() != 0
             && oVariables.gid() != m_oSystemVariables.gid())
     {
-        PLG1Err("gid not same, cp.gid %lu now.gid %lu", oVariables.gid(), m_oSystemVariables.gid());
+        PLG1Err("gid not same, cp.gid %" PRIu64 " now.gid %" PRIu64, oVariables.gid(), m_oSystemVariables.gid());
         return -2;
     }
 
-    if (m_oSystemVariables.version() != (uint64_t)-1 
+    if (m_oSystemVariables.version() != (uint64_t)-1
             && oVariables.version() <= m_oSystemVariables.version())
     {
-        PLG1Imp("lag checkpoint, no need update, cp.version %lu now.version %lu",
+        PLG1Imp("lag checkpoint, no need update, cp.version %" PRIu64 " now.version %" PRIu64,
                 oVariables.version(), m_oSystemVariables.version());
         return 0;
     }
@@ -341,7 +341,7 @@ int SystemVSM :: UpdateByCheckpoint(const std::string & sCPBuffer, bool & bChang
         return -1;
     }
 
-    PLG1Head("ok, cp.version %lu cp.membercount %d old.version %lu old.membercount %d", 
+    PLG1Head("ok, cp.version %" PRIu64 " cp.membercount %d old.version %" PRIu64 " old.membercount %d",
             oVariables.version(), oVariables.membership_size(),
             oOldVariables.version(), oOldVariables.membership_size());
 

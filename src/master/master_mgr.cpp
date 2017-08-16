@@ -1,46 +1,46 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "master_mgr.h"
 #include "comm_include.h"
 #include "commdef.h"
 
-namespace phxpaxos 
+namespace phxpaxos
 {
 
 MasterMgr :: MasterMgr(
-    const Node * poPaxosNode, 
-    const int iGroupIdx, 
+    const Node * poPaxosNode,
+    const int iGroupIdx,
     const LogStorage * poLogStorage,
-    MasterChangeCallback pMasterChangeCallback) 
-    : m_oDefaultMasterSM(poLogStorage, poPaxosNode->GetMyNodeID(), iGroupIdx, pMasterChangeCallback) 
+    MasterChangeCallback pMasterChangeCallback)
+    : m_oDefaultMasterSM(poLogStorage, poPaxosNode->GetMyNodeID(), iGroupIdx, pMasterChangeCallback)
 {
     m_iLeaseTime = 10000;
 
     m_poPaxosNode = (Node *)poPaxosNode;
     m_iMyGroupIdx = iGroupIdx;
-    
+
     m_bIsEnd = false;
     m_bIsStarted = false;
-    
+
     m_bNeedDropMaster = false;
 }
 
@@ -92,11 +92,11 @@ void MasterMgr :: run()
         {
             return;
         }
-        
+
         int iLeaseTime = m_iLeaseTime;
 
         uint64_t llBeginTime = Time::GetSteadyClockMS();
-        
+
         TryBeMaster(iLeaseTime);
 
         int iContinueLeaseTimeout = (iLeaseTime - 100) / 4;
@@ -109,7 +109,7 @@ void MasterMgr :: run()
             iContinueLeaseTimeout = iLeaseTime * 2;
             PLG1Imp("Need drop master, this round wait time %dms", iContinueLeaseTimeout);
         }
-        
+
         uint64_t llEndTime = Time::GetSteadyClockMS();
         int iRunTime = llEndTime > llBeginTime ? llEndTime - llBeginTime : 0;
         int iNeedSleepTime = iContinueLeaseTimeout > iRunTime ? iContinueLeaseTimeout - iRunTime : 0;
@@ -129,7 +129,7 @@ void MasterMgr :: TryBeMaster(const int iLeaseTime)
 
     if (iMasterNodeID != nullnode && (iMasterNodeID != m_poPaxosNode->GetMyNodeID()))
     {
-        PLG1Imp("Ohter as master, can't try be master, masterid %lu myid %lu", 
+        PLG1Imp("Other as master, can't try be master, masterid %" PRIu64 " myid %" PRIu64,
                 iMasterNodeID, m_poPaxosNode->GetMyNodeID());
         return;
     }
@@ -150,8 +150,8 @@ void MasterMgr :: TryBeMaster(const int iLeaseTime)
     }
 
     const int iMasterLeaseTimeout = iLeaseTime - 100;
-    
-    uint64_t llAbsMasterTimeout = Time::GetSteadyClockMS() + iMasterLeaseTimeout; 
+
+    uint64_t llAbsMasterTimeout = Time::GetSteadyClockMS() + iMasterLeaseTimeout;
     uint64_t llCommitInstanceID = 0;
 
     SMCtx oCtx;
@@ -170,7 +170,7 @@ MasterStateMachine * MasterMgr :: GetMasterSM()
     return &m_oDefaultMasterSM;
 }
 
-    
+
 }
 
 

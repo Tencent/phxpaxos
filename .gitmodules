@@ -9,11 +9,7 @@
 [submodule "third_party/gtest"]
 	path = third_party/gtest
 	url = https://github.com/google/googletest
-	branch = release-1.6.0
-[submodule "third_party/gmock"]
-	path = third_party/gmock
-	url = https://github.com/google/googlemock
-	branch = release-1.6.0
+	branch = release-1.8.0
 [submodule "third_party/glog"]
 	path = third_party/glog
 	url = https://github.com/google/glog.git
@@ -26,3 +22,7 @@
 	path = third_party/protobuf
 	url = https://github.com/google/protobuf.git
 	branch = v3.0.0
+[submodule "third_party/gyp"]
+	path = third_party/gyp
+	url = https://github.com/boolking/gyp.git
+	branch = master

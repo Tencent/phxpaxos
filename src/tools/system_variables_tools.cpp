@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "db.h"
@@ -31,16 +31,16 @@ void ShowVariables(SystemVSM & oVSM)
 {
     SystemVariables oVariables;
     oVSM.GetSystemVariables(oVariables);
-    
-    printf("gid %llu\n", oVariables.gid());
-    printf("version %llu\n", oVariables.version());
+
+    printf("gid %" PRIu64 "\n", oVariables.gid());
+    printf("version %" PRIu64 "\n", oVariables.version());
 
     for (int i = 0; i < oVariables.membership_size(); i++)
     {
         PaxosNodeInfo oNodeInfo = oVariables.membership(i);
         NodeInfo tTmpNode(oNodeInfo.nodeid());
 
-        printf("ip %s port %d nodeid %lu\n", 
+        printf("ip %s port %d nodeid %" PRIu64 "\n",
                 tTmpNode.GetIP().c_str(), tTmpNode.GetPort(), tTmpNode.GetNodeID());
     }
 }
@@ -55,7 +55,7 @@ void ModGid(SystemVSM & oVSM, const uint64_t llGid)
     int ret = oVSM.UpdateSystemVariables(oVariables);
     if (ret != 0)
     {
-        printf("mod gid fail, ret %d gid %lu\n", ret, llGid);
+        printf("mod gid fail, ret %d gid %" PRIu64 "\n", ret, llGid);
     }
     else
     {

@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "event_loop.h"
@@ -70,7 +70,7 @@ int EventLoop :: Init(const int iEpollLength)
 
     m_poNotify = new Notify(this);
     assert(m_poNotify != nullptr);
-    
+
     int ret = m_poNotify->Init();
     if (ret != 0)
     {
@@ -102,15 +102,15 @@ void EventLoop :: ModEvent(const Event * poEvent, const int iEvents)
     {
         PLErr("epoll_ctl fail, EpollFd %d EpollOpertion %d SocketFd %d EpollEvent %d",
                 m_iEpollFd, iEpollOpertion, poEvent->GetSocketFd(), iEvents);
-        
-        //to do 
+
+        //to do
         return;
     }
 
     EventCtx tCtx;
     tCtx.m_poEvent = (Event *)poEvent;
     tCtx.m_iEvents = iEvents;
-    
+
     m_mapEvent[poEvent->GetSocketFd()] = tCtx;
 }
 
@@ -134,7 +134,7 @@ void EventLoop :: RemoveEvent(const Event * poEvent)
         PLErr("epoll_ctl fail, EpollFd %d EpollOpertion %d SocketFd %d",
                 m_iEpollFd, iEpollOpertion, poEvent->GetSocketFd());
 
-        //to do 
+        //to do
         //when error
         return;
     }
@@ -150,7 +150,7 @@ void EventLoop :: StartLoop()
         BP->GetNetworkBP()->TcpEpollLoop();
 
         int iNextTimeout = 1000;
-        
+
         DealwithTimeout(iNextTimeout);
 
         //PLHead("nexttimeout %d", iNextTimeout);
@@ -174,6 +174,11 @@ void EventLoop :: StartLoop()
             break;
         }
     }
+#ifdef _WIN32
+    epoll_close(m_iEpollFd);
+#else
+    close(m_iEpollFd);
+#endif
 }
 
 void EventLoop :: Stop()
@@ -211,7 +216,7 @@ void EventLoop :: OneLoop(const int iTimeoutMs)
             OnError(iEvents, poEvent);
             continue;
         }
-        
+
         try
         {
             if (iEvents & EPOLLIN)
@@ -240,14 +245,14 @@ void EventLoop :: OnError(const int iEvents, Event * poEvent)
 {
     BP->GetNetworkBP()->TcpOnError();
 
-    PLErr("event error, events %d socketfd %d socket ip %s errno %d", 
+    PLErr("event error, events %d socketfd %d socket ip %s errno %d",
             iEvents, poEvent->GetSocketFd(), poEvent->GetSocketHost().c_str(), errno);
 
     RemoveEvent(poEvent);
 
     bool bNeedDelete = false;
     poEvent->OnError(bNeedDelete);
-    
+
     if (bNeedDelete)
     {
         poEvent->Destroy();
@@ -259,7 +264,7 @@ bool EventLoop :: AddTimer(const Event * poEvent, const int iTimeout, const int 
     if (poEvent->GetSocketFd() == 0)
     {
         return false;
-    }    
+    }
 
     if (m_mapEvent.find(poEvent->GetSocketFd()) == end(m_mapEvent))
     {

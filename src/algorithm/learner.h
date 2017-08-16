@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #pragma once
@@ -42,10 +42,10 @@ public:
 
     void Init();
 
-    int LearnValue(const uint64_t llInstanceID, const BallotNumber & oLearnedBallot, 
+    int LearnValue(const uint64_t llInstanceID, const BallotNumber & oLearnedBallot,
             const std::string & sValue, const uint32_t iNewChecksum);
 
-    void LearnValueWithoutWrite(const uint64_t llInstanceID, 
+    void LearnValueWithoutWrite(const uint64_t llInstanceID,
             const std::string & sValue, const uint32_t iNewChecksum);
 
     const std::string & GetLearnValue();
@@ -74,7 +74,7 @@ class Learner : public Base
 {
 public:
     Learner(
-            const Config * poConfig, 
+            const Config * poConfig,
             const MsgTransport * poMsgTransport,
             const Instance * poInstance,
             const Acceptor * poAcceptor,
@@ -113,10 +113,10 @@ public:
     void ComfirmAskForLearn(const nodeid_t iSendNodeID);
 
     void OnComfirmAskForLearn(const PaxosMsg & oPaxosMsg);
-    
+
     int SendLearnValue(
-            const nodeid_t iSendNodeID, 
-            const uint64_t llLearnInstanceID, 
+            const nodeid_t iSendNodeID,
+            const uint64_t llLearnInstanceID,
             const BallotNumber & oLearnedBallot,
             const std::string & sLearnedValue,
             const uint32_t iChecksum,
@@ -148,7 +148,7 @@ public:
             const uint64_t llUUID,
             const uint64_t llSequence,
             const uint64_t llCheckpointInstanceID);
-    
+
     int SendCheckpoint(
             const nodeid_t iSendNodeID,
             const uint64_t llUUID,
@@ -159,7 +159,7 @@ public:
             const int iSMID,
             const uint64_t llOffset,
             const std::string & sBuffer);
-    
+
     int SendCheckpointEnd(
             const nodeid_t iSendNodeID,
             const uint64_t llUUID,
@@ -177,7 +177,7 @@ public:
     void OnSendCheckpointAck(const CheckpointMsg & oCheckpointMsg);
 
     CheckpointSender * GetNewCheckpointSender(const nodeid_t iSendNodeID);
-    
+
     ///////////////////
 
     const bool IsIMLatest();

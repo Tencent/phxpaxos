@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "udp.h"
@@ -32,10 +32,10 @@ See the AUTHORS file for names of contributors.
 #include "comm_include.h"
 #include <poll.h>
 
-namespace phxpaxos 
+namespace phxpaxos
 {
 
-UDPRecv :: UDPRecv(DFNetWork * poDFNetWork) 
+UDPRecv :: UDPRecv(DFNetWork * poDFNetWork)
     : m_poDFNetWork(poDFNetWork), m_iSockFD(-1), m_bIsEnd(false), m_bIsStarted(false)
 {
 }
@@ -44,7 +44,11 @@ UDPRecv :: ~UDPRecv()
 {
     if (m_iSockFD != -1)
     {
+#ifdef _WIN32
+        closesocket(m_iSockFD);
+#else
         close(m_iSockFD);
+#endif // _WIN32
         m_iSockFD = -1;
     }
 }
@@ -60,7 +64,7 @@ void UDPRecv :: Stop()
 
 int UDPRecv :: Init(const int iPort)
 {
-    if ((m_iSockFD = socket(AF_INET, SOCK_DGRAM, 0)) < 0) 
+    if ((m_iSockFD = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
     {
         return -1;
     }
@@ -73,9 +77,9 @@ int UDPRecv :: Init(const int iPort)
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
     int enable = 1;
-    setsockopt(m_iSockFD, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
+    setsockopt(m_iSockFD, SOL_SOCKET, SO_REUSEADDR, (char*)&enable, sizeof(int));
 
-    if (bind(m_iSockFD, (struct sockaddr *)&addr, sizeof(addr)) < 0) 
+    if (bind(m_iSockFD, (struct sockaddr *)&addr, sizeof(addr)) < 0)
     {
         return -1;
     }
@@ -112,13 +116,13 @@ void UDPRecv :: run()
         {
             continue;
         }
-        
+
         int iRecvLen = recvfrom(m_iSockFD, sBuffer, sizeof(sBuffer), 0,
                 (struct sockaddr *)&addr, &addr_len);
 
         //printf("recvlen %d, buffer %s client %s\n",
                 //iRecvLen, sBuffer, inet_ntoa(addr.sin_addr));
-        
+
         BP->GetNetworkBP()->UDPReceive(iRecvLen);
 
         if (iRecvLen > 0)
@@ -146,7 +150,7 @@ UDPSend :: ~UDPSend()
 
 int UDPSend :: Init()
 {
-    if ((m_iSockFD = socket(AF_INET, SOCK_DGRAM, 0)) < 0) 
+    if ((m_iSockFD = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
     {
         return -1;
     }
@@ -172,7 +176,7 @@ void UDPSend :: SendMessage(const std::string & sIP, const int iPort, const std:
     addr.sin_family = AF_INET;
     addr.sin_port = htons(iPort);
     addr.sin_addr.s_addr = inet_addr(sIP.c_str());
-    
+
     int ret = sendto(m_iSockFD, sMessage.data(), (int)sMessage.size(), 0, (struct sockaddr *)&addr, addr_len);
     if (ret > 0)
     {
@@ -236,7 +240,7 @@ int UDPSend :: AddMessage(const std::string & sIP, const int iPort, const std::s
 
     return 0;
 }
-    
+
 }
 
 

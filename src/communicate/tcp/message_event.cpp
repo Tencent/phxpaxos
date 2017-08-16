@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "message_event.h"
@@ -30,8 +30,8 @@ namespace phxpaxos
 
 MessageEvent :: MessageEvent(
         const int iType,
-        const int fd, 
-        const SocketAddress & oAddr, 
+        const int fd,
+        const SocketAddress & oAddr,
         EventLoop * poEventLoop,
         NetWork * poNetWork) :
     Event(poEventLoop), m_oSocket(fd), m_oAddr(oAddr), m_poNetWork(poNetWork)
@@ -87,7 +87,7 @@ const bool MessageEvent :: IsActive()
     {
         return false;
     }
-    
+
     return true;
 }
 
@@ -161,7 +161,7 @@ int MessageEvent :: OnRead()
     {
         return ReadLeft();
     }
-    
+
     int iReadLen = m_oSocket.receive(m_sReadHeadBuffer + m_iLastReadHeadPos, sizeof(int) - m_iLastReadHeadPos);
     if (iReadLen == 0)
     {
@@ -176,24 +176,24 @@ int MessageEvent :: OnRead()
         PLImp("head read pos %d small than sizeof(int) %zu", m_iLastReadHeadPos, sizeof(int));
         return 0;
     }
-    
+
     m_iLastReadHeadPos = 0;
     int niLen = 0;
     int iLen = 0;
     memcpy((char *)&niLen, m_sReadHeadBuffer, sizeof(int));
     iLen = ntohl(niLen) - 4;
-    
+
     if (iLen < 0 || iLen > MAX_VALUE_SIZE)
     {
         PLErr("need to read len wrong %d", iLen);
-        return -2; 
+        return -2;
     }
 
     m_oReadCacheBuffer.Ready(iLen);
 
     m_iLeftReadLen = iLen;
     m_iLastReadPos = 0;
-    
+
     //second read maybe no data read, so readlen == 0 is ok.
     bool bAgain = false;
     iReadLen = m_oSocket.receive(m_oReadCacheBuffer.GetPtr(), iLen, &bAgain);
@@ -262,7 +262,7 @@ int MessageEvent :: WriteLeft()
     //PLImp("writelen %d", iWriteLen);
     if (iWriteLen < 0)
     {
-        return -1; 
+        return -1;
     }
 
     if (iWriteLen == 0)
@@ -332,7 +332,7 @@ int MessageEvent :: DoOnWrite()
     BP->GetNetworkBP()->TcpOutQueue(iDelayMs);
     if (iDelayMs > TCP_OUTQUEUE_DROP_TIMEMS)
     {
-        //PLErr("drop request because enqueue timeout, nowtime %lu unqueuetime %lu",
+        //PLErr("drop request because enqueue timeout, nowtime %" PRIu64 " unqueuetime %" PRIu64,
                 //llNowTime, tData.llEnqueueAbsTime);
         delete poMessage;
         return 0;
@@ -442,13 +442,13 @@ void MessageEvent :: OnTimeout(const uint32_t iTimerID, const int iType)
     {
         ReConnect();
     }
-}    
+}
 
 void MessageEvent :: ReConnect()
 {
     BP->GetNetworkBP()->TcpReconnect();
 
-    //reset 
+    //reset
     m_iEvents = 0;
     m_iLeftWriteLen = 0;
     m_iLastWritePos = 0;
@@ -458,10 +458,10 @@ void MessageEvent :: ReConnect()
     m_oSocket.setNoDelay(true);
     m_oSocket.connect(m_oAddr);
     AddEvent(EPOLLOUT);
-    
+
     PLErr("start, ip %s", GetSocketHost().c_str());
 }
-    
+
 }
 
 

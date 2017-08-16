@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #pragma once
@@ -38,15 +38,17 @@ using std::string;
 class SocketAddress {
 public:
     enum Type {
-        TYPE_LOOPBACK = 1, 
-        TYPE_INNER = 2, 
-        TYPE_OUTER = 3 
+        TYPE_LOOPBACK = 1,
+        TYPE_INNER = 2,
+        TYPE_OUTER = 3
     };
 
     union Addr {
         sockaddr addr;
         sockaddr_in in;
+#ifndef _WIN32
         sockaddr_un un;
+#endif
     };
 
     SocketAddress();
@@ -61,15 +63,18 @@ public:
 
     SocketAddress(const sockaddr_in& addr);
 
+#ifndef _WIN32
     SocketAddress(const sockaddr_un& addr);
-
+#endif
     void setAddress(unsigned short port);
 
     void setAddress(const string& addr);
 
     void setAddress(const string& addr, unsigned short port);
 
+#ifndef _WIN32
     void setUnixDomain(const string& path);
+#endif
 
     unsigned long getIp() const;
 
@@ -79,13 +84,17 @@ public:
 
     void getAddress(sockaddr_in& addr) const;
 
+#ifndef _WIN32
     void getAddress(sockaddr_un& addr) const;
+#endif
 
     void setAddress(const Addr& addr);
 
     void setAddress(const sockaddr_in& addr);
 
+#ifndef _WIN32
     void setAddress(const sockaddr_un& addr);
+#endif
 
     string getHost() const;
 
@@ -177,7 +186,7 @@ public:
     SocketAddress getRemoteAddress() const;
 
     static SocketAddress getRemoteAddress(int fd);
-    
+
     SocketAddress getLocalAddress() const;
 
     static SocketAddress getLocalAddress(int fd);
@@ -226,5 +235,5 @@ public:
     virtual ~SocketException() throw () {}
 };
 
-} 
+}
 

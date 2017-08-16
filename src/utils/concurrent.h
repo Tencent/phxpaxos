@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #pragma once
@@ -37,31 +37,11 @@ See the AUTHORS file for names of contributors.
 #include <string>
 #include <condition_variable>
 #include <mutex>
+#include <thread>
 
 namespace phxpaxos {
 
 using std::deque;
-
-class ThreadAttr {
-public:
-    ThreadAttr();
-
-    ~ThreadAttr();
-
-    void setScope(bool sys);
-
-    void setStackSize(size_t n);
-
-    void setDetached(bool detached);
-
-    void setPriority(int prio);
-    
-    pthread_attr_t* impl();
-
-private:
-
-    pthread_attr_t _attr;
-};
 
 class Thread : public Noncopyable {
 public:
@@ -71,28 +51,22 @@ public:
 
     void start();
 
-    void start(ThreadAttr& attr);
-
     void join();
 
     void detach();
-    
-    pthread_t getId() const;
-
-    void kill(int sig);
 
     virtual void run() = 0;
 
     static void sleep(int ms);
 
 protected:
-    pthread_t _thread;
+    std::thread _thread;
 };
 
 template <class T>
 class Queue {
 public:
-    Queue() : _lock(_mutex), _size(0) { _lock.unlock(); }
+    Queue() : _size(0) {}
 
     virtual ~Queue() {}
 
@@ -177,11 +151,11 @@ public:
     }
 
     virtual void lock() {
-        _mutex.lock();
+        _lock.lock();
     }
 
     virtual void unlock() {
-        _mutex.unlock();
+        _lock.unlock();
     }
 
     void swap(Queue& q) {
@@ -192,9 +166,8 @@ public:
     }
 
 protected:
-    std::mutex _mutex;
-    std::unique_lock<std::mutex> _lock;
-    std::condition_variable _cond;
+    std::mutex _lock;
+    std::condition_variable_any _cond;
     deque<T> _storage;
     size_t _size;
 };
@@ -215,5 +188,5 @@ public:
     virtual ~ThreadException() throw () {}
 };
 
-} 
+}
 

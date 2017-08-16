@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "propose_batch.h"
@@ -36,11 +36,15 @@ namespace phxpaxos
 
 uint64_t GetThreadID()
 {
+#ifdef _WIN32
+    return (uint64_t)GetCurrentThreadId();
+#else
     return (uint64_t)pthread_self();
+#endif // _WIN32
 }
 
 PendingProposal :: PendingProposal()
-    : psValue(nullptr), poSMCtx(nullptr), pllInstanceID(nullptr), 
+    : psValue(nullptr), poSMCtx(nullptr), pllInstanceID(nullptr),
     piBatchIndex(nullptr), poNotifier(nullptr), llAbsEnqueueTime(0)
 {
 }
@@ -48,7 +52,7 @@ PendingProposal :: PendingProposal()
 ////////////////////////////////////////////////////////////////////
 
 ProposeBatch :: ProposeBatch(const int iGroupIdx, Node * poPaxosNode, NotifierPool * poNotifierPool)
-    : m_iMyGroupIdx(iGroupIdx), m_poPaxosNode(poPaxosNode), 
+    : m_iMyGroupIdx(iGroupIdx), m_poPaxosNode(poPaxosNode),
     m_poNotifierPool(poNotifierPool), m_bIsEnd(false), m_bIsStarted(false), m_iNowQueueValueSize(0),
     m_iBatchCount(5), m_iBatchDelayTimeMs(20), m_iBatchMaxSize(500 * 1024),
     m_poThread(nullptr)
@@ -93,7 +97,7 @@ int ProposeBatch :: Propose(const std::string & sValue, uint64_t & llInstanceID,
 {
     if (m_bIsEnd)
     {
-        return Paxos_SystemError; 
+        return Paxos_SystemError;
     }
 
     BP->GetCommiterBP()->BatchPropose();
@@ -322,7 +326,7 @@ void ProposeBatch :: DoPropose(std::vector<PendingProposal> & vecRequest)
     {
         PendingProposal & oPendingProposal = vecRequest[i];
         *oPendingProposal.piBatchIndex = (uint32_t)i;
-        *oPendingProposal.pllInstanceID = llInstanceID; 
+        *oPendingProposal.pllInstanceID = llInstanceID;
         oPendingProposal.poNotifier->SendNotify(ret);
     }
 }

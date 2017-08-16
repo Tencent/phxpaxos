@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "cleaner.h"
@@ -30,13 +30,13 @@ namespace phxpaxos
 {
 
 Cleaner :: Cleaner(
-    Config * poConfig, 
-    SMFac * poSMFac, 
-    LogStorage * poLogStorage, 
+    Config * poConfig,
+    SMFac * poSMFac,
+    LogStorage * poLogStorage,
     CheckpointMgr * poCheckpointMgr)
-    : m_poConfig(poConfig), 
-    m_poSMFac(poSMFac), 
-    m_poLogStorage(poLogStorage), 
+    : m_poConfig(poConfig),
+    m_poSMFac(poSMFac),
+    m_poLogStorage(poLogStorage),
     m_poCheckpointMgr(poCheckpointMgr),
     m_llLastSave(0),
     m_bCanrun(false),
@@ -84,7 +84,7 @@ void Cleaner :: run()
     //control delete speed to avoid affecting the io too much.
     int iDeleteQps = Cleaner_DELETE_QPS;
     int iSleepMs = iDeleteQps > 1000 ? 1 : 1000 / iDeleteQps;
-    int iDeleteInterval = iDeleteQps > 1000 ? iDeleteQps / 1000 + 1 : 1; 
+    int iDeleteInterval = iDeleteQps > 1000 ? iDeleteQps / 1000 + 1 : 1;
 
     PLGDebug("DeleteQps %d SleepMs %d DeleteInterval %d",
             iDeleteQps, iSleepMs, iDeleteInterval);
@@ -96,7 +96,7 @@ void Cleaner :: run()
             PLGHead("Checkpoint.Cleaner [END]");
             return;
         }
-        
+
         if (!m_bCanrun)
         {
             PLGImp("Pausing, sleep");
@@ -116,7 +116,7 @@ void Cleaner :: run()
             bool bDeleteRet = DeleteOne(llInstanceID);
             if (bDeleteRet)
             {
-                //PLGImp("delete one done, instanceid %lu", llInstanceID);
+                //PLGImp("delete one done, instanceid %" PRIu64, llInstanceID);
                 llInstanceID++;
                 iDeleteCount++;
                 if (iDeleteCount >= iDeleteInterval)
@@ -127,19 +127,19 @@ void Cleaner :: run()
             }
             else
             {
-                PLGDebug("delete system fail, instanceid %lu", llInstanceID);
+                PLGDebug("delete system fail, instanceid %" PRIu64, llInstanceID);
                 break;
             }
         }
 
         if (llCPInstanceID == 0)
         {
-            PLGStatus("sleep a while, max deleted instanceid %lu checkpoint instanceid (no checkpoint) now instanceid %lu",
+            PLGStatus("sleep a while, max deleted instanceid %" PRIu64 " checkpoint instanceid (no checkpoint) now instanceid %" PRIu64,
                     llInstanceID, m_poCheckpointMgr->GetMaxChosenInstanceID());
         }
         else
         {
-            PLGStatus("sleep a while, max deleted instanceid %lu checkpoint instanceid %lu now instanceid %lu",
+            PLGStatus("sleep a while, max deleted instanceid %" PRIu64 " checkpoint instanceid %" PRIu64 " now instanceid %" PRIu64,
                     llInstanceID, llCPInstanceID, m_poCheckpointMgr->GetMaxChosenInstanceID());
         }
 
@@ -154,13 +154,13 @@ int Cleaner :: FixMinChosenInstanceID(const uint64_t llOldMinChosenInstanceID)
     int ret = 0;
 
     for (uint64_t llInstanceID = llOldMinChosenInstanceID; llInstanceID < llOldMinChosenInstanceID + DELETE_SAVE_INTERVAL;
-           llInstanceID++)    
+           llInstanceID++)
     {
         if (llInstanceID >= llCPInstanceID)
         {
             break;
         }
-        
+
         std::string sValue;
         ret = m_poLogStorage->Get(m_poConfig->GetMyGroupIdx(), llInstanceID, sValue);
         if (ret != 0 && ret != 1)
@@ -176,7 +176,7 @@ int Cleaner :: FixMinChosenInstanceID(const uint64_t llOldMinChosenInstanceID)
             break;
         }
     }
-    
+
     if (llFixMinChosenInstanceID > llOldMinChosenInstanceID)
     {
         ret = m_poCheckpointMgr->SetMinChosenInstanceID(llFixMinChosenInstanceID);
@@ -186,7 +186,7 @@ int Cleaner :: FixMinChosenInstanceID(const uint64_t llOldMinChosenInstanceID)
         }
     }
 
-    PLGImp("ok, old minchosen %lu fix minchosen %lu", llOldMinChosenInstanceID, llFixMinChosenInstanceID);
+    PLGImp("ok, old minchosen %" PRIu64 " fix minchosen %" PRIu64, llOldMinChosenInstanceID, llFixMinChosenInstanceID);
 
     return 0;
 }
@@ -209,13 +209,13 @@ bool Cleaner :: DeleteOne(const uint64_t llInstanceID)
         int ret = m_poCheckpointMgr->SetMinChosenInstanceID(llInstanceID + 1);
         if (ret != 0)
         {
-            PLGErr("SetMinChosenInstanceID fail, now delete instanceid %lu", llInstanceID);
+            PLGErr("SetMinChosenInstanceID fail, now delete instanceid %" PRIu64, llInstanceID);
             return false;
         }
 
         m_llLastSave = llInstanceID;
 
-        PLGImp("delete %d instance done, now minchosen instanceid %lu", 
+        PLGImp("delete %d instance done, now minchosen instanceid %" PRIu64,
                 DELETE_SAVE_INTERVAL, llInstanceID + 1);
     }
 

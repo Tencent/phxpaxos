@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "socket.h"
@@ -26,6 +26,7 @@ See the AUTHORS file for names of contributors.
 #include <iostream>
 #include <sys/socket.h>
 #include <netinet/tcp.h>
+#include "../port/port.h"
 
 namespace phxpaxos {
 
@@ -59,9 +60,11 @@ SocketAddress::SocketAddress(const sockaddr_in& addr) {
     setAddress(addr);
 }
 
+#ifndef _WIN32
 SocketAddress::SocketAddress(const sockaddr_un& addr) {
     setAddress(addr);
 }
+#endif
 
 void SocketAddress::setAddress(unsigned short port) {
     _addr.addr.sa_family = AF_INET;
@@ -90,6 +93,7 @@ void SocketAddress::setAddress(const string& addr, unsigned short port) {
     _addr.in.sin_addr.s_addr = ip;
 }
 
+#ifndef _WIN32
 void SocketAddress::setUnixDomain(const string& path) {
     if (path.size() + 1 > sizeof(_addr.un.sun_path)) {
         throw SocketException("unix domain path \"" + path + "\" too long");
@@ -98,6 +102,7 @@ void SocketAddress::setUnixDomain(const string& path) {
     _addr.addr.sa_family = AF_UNIX;
     strcpy(_addr.un.sun_path, path.c_str());
 }
+#endif
 
 unsigned long SocketAddress::getIp() const {
     return _addr.in.sin_addr.s_addr;
@@ -115,9 +120,11 @@ void SocketAddress::getAddress(sockaddr_in& addr) const {
     memcpy(&addr, &_addr.in, sizeof(addr));
 }
 
+#ifndef _WIN32
 void SocketAddress::getAddress(sockaddr_un& addr) const {
     memcpy(&addr, &_addr.un, sizeof(addr));
 }
+#endif
 
 void SocketAddress::setAddress(const Addr& addr) {
     memcpy(&_addr, &addr, sizeof(addr));
@@ -128,9 +135,11 @@ void SocketAddress::setAddress(const sockaddr_in& addr) {
     _addr.addr.sa_family = AF_INET;
 }
 
+#ifndef _WIN32
 void SocketAddress::setAddress(const sockaddr_un& addr) {
     memcpy(&_addr.un, &addr, sizeof(addr));
 }
+#endif
 
 int SocketAddress::getFamily() const {
     return _addr.addr.sa_family;
@@ -139,16 +148,22 @@ int SocketAddress::getFamily() const {
 socklen_t SocketAddress::getAddressLength(const Addr& addr) {
     if (addr.addr.sa_family == AF_INET) {
         return sizeof(addr.in);
-    } else if (addr.addr.sa_family == AF_UNIX || addr.addr.sa_family == AF_LOCAL) {
+    }
+#ifndef _WIN32
+     else if (addr.addr.sa_family == AF_UNIX || addr.addr.sa_family == AF_LOCAL) {
         return sizeof(addr.un);
     }
+#endif
     return sizeof(addr);
 }
 
 string SocketAddress::getHost() const {
+#ifndef _WIN32
     if (_addr.addr.sa_family == AF_UNIX || _addr.addr.sa_family == AF_LOCAL) {
         return _addr.un.sun_path;
-    } else {
+    } else
+#endif
+    {
         char buff[16];
 
         if (inet_ntop(AF_INET, &_addr.in.sin_addr, buff, sizeof(buff)) == 0) {
@@ -160,18 +175,24 @@ string SocketAddress::getHost() const {
 }
 
 string SocketAddress::toString() const {
+#ifndef _WIN32
     if (_addr.addr.sa_family == AF_UNIX || _addr.addr.sa_family == AF_LOCAL) {
         return _addr.un.sun_path;
     }
+#endif
     return getHost() + ":" + str(ntohs(_addr.in.sin_port));
 }
 
 bool SocketAddress::operator ==(const SocketAddress& addr) const {
     if (_addr.addr.sa_family != addr._addr.addr.sa_family) {
         return false;
-    } else if (_addr.addr.sa_family == AF_UNIX || _addr.addr.sa_family == AF_LOCAL) {
+    }
+#ifndef _WIN32
+     else if (_addr.addr.sa_family == AF_UNIX || _addr.addr.sa_family == AF_LOCAL) {
         return strcmp(_addr.un.sun_path, addr._addr.un.sun_path) == 0;
-    } else {
+    }
+#endif
+    else {
         return _addr.in.sin_addr.s_addr == addr._addr.in.sin_addr.s_addr
                 && _addr.in.sin_port == addr._addr.in.sin_port;
     }
@@ -189,7 +210,11 @@ SocketBase::SocketBase(int family, int handle) : _family(family), _handle(handle
 
 SocketBase::~SocketBase() {
     if (_handle != -1) {
+#ifdef _WIN32
+        ::closesocket(_handle);
+#else
         ::close(_handle);
+#endif // _WIN32
         _handle = -1;
     }
 }
@@ -234,11 +259,19 @@ void SocketBase::setNonBlocking(bool on) {
 }
 
 bool SocketBase::getNonBlocking(int fd) {
+#ifdef _WIN32
+    return true;
+#else
     int flags = fcntl(fd, F_GETFL, 0);
     return flags & O_NONBLOCK;
+#endif // _WIN32
 }
 
 void SocketBase::setNonBlocking(int fd, bool on) {
+#ifdef _WIN32
+    u_long v = on;
+    ::ioctlsocket(fd, FIONBIO, &v);
+#else
     int flags = ::fcntl(fd, F_GETFL, 0);
 
     if (on) {
@@ -256,6 +289,7 @@ void SocketBase::setNonBlocking(int fd, bool on) {
     if (0 != ::fcntl(fd, F_SETFL, flags)) {
         ;
     }
+#endif // _WIN32
 }
 
 socklen_t SocketBase::getOption(int level, int option, void* value, socklen_t optLen) const {
@@ -267,13 +301,19 @@ socklen_t SocketBase::getOption(int level, int option, void* value, socklen_t op
 
 void SocketBase::setOption(int level, int option, void* value, socklen_t optLen) const {
     if (::setsockopt(_handle, level, option, static_cast<char*>(value), optLen) == -1) {
+#ifndef _WIN32
         throw SocketException("setsockopt error");
+#endif // _WIN32
     }
 }
 
 void SocketBase::close() {
     if (_handle != -1) {
+#ifdef _WIN32
+        if (::closesocket(_handle) == -1) {
+#else
         if (::close(_handle) == -1) {
+#endif
             _handle = -1;
             throw SocketException("close error");
         } else {
@@ -286,7 +326,6 @@ void SocketBase::reset() {
     close();
     initHandle(_family);
 }
-
 ///////////////////////////////////////////////////////////Socket
 
 const static int SOCKET_BUF_SIZE = 512;
@@ -311,9 +350,14 @@ int Socket::getSendTimeout() const {
 
 void Socket::setSendTimeout(int timeout) {
     if (timeout >= 0) {
+#ifdef _WIN32
+        DWORD tv;
+        tv = timeout;
+#else
         timeval tv;
         tv.tv_sec = timeout / 1000;
         tv.tv_usec = (timeout % 1000) * 1000;
+#endif // _WIN32
         setOption(SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
     } else {
         setOption(SOL_SOCKET, SO_SNDTIMEO, 0, sizeof(int));
@@ -321,16 +365,28 @@ void Socket::setSendTimeout(int timeout) {
 }
 
 int Socket::getReceiveTimeout() const {
+#ifdef _WIN32
+    DWORD tv;
+#else
     timeval tv;
+#endif // _WIN32
     getOption(SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(timeval));
+#ifdef _WIN32
+    return tv;
+#else
     return tv.tv_sec * 1000 + tv.tv_usec / 1000;
+#endif // _WIN32
 }
-    
+
 void Socket::setReceiveTimeout(int timeout) {
     if (timeout >= 0) {
+#ifdef _WIN32
+        DWORD tv = timeout;
+#else
         timeval tv;
         tv.tv_sec = timeout / 1000;
         tv.tv_usec = (timeout % 1000) * 1000;
+#endif // _WIN32
         setOption(SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
     } else {
         setOption(SOL_SOCKET, SO_RCVTIMEO, 0, sizeof(int));
@@ -346,19 +402,25 @@ void Socket::setReceiveBufferSize(int size) {
 }
 
 void Socket::setQuickAck(bool on) {
+#ifndef _WIN32
     int v = on ? 1 : 0;
     setOption(IPPROTO_TCP, TCP_QUICKACK, &v, sizeof(v));
+#endif // _WIN32
 }
 
 void Socket::setNoDelay(bool on) {
+#ifdef _WIN32
+    BOOL v = on ? 1 : 0;
+#else
     int v = on ? 1 : 0;
+#endif // _WIN32
     setOption(IPPROTO_TCP, TCP_NODELAY, &v, sizeof(v));
 }
 
 SocketAddress Socket::getRemoteAddress() const {
     return getRemoteAddress(_handle);
 }
-    
+
 SocketAddress Socket::getRemoteAddress(int fd) {
     SocketAddress::Addr addr;
     socklen_t len = sizeof(addr);
@@ -401,7 +463,12 @@ void Socket::connect(const SocketAddress& addr) {
     }
 
     if (::connect(_handle, &sockAddr.addr, SocketAddress::getAddressLength(sockAddr)) == -1) {
+#ifdef _WIN32
+        DWORD err = WSAGetLastError();
+        if (err != WSAEWOULDBLOCK) {
+#else
         if (errno != EINPROGRESS) {
+#endif
             string msg = "connect " + addr.toString() + " error";
             throw SocketException(msg);
         } else if (!getNonBlocking()) {
@@ -421,10 +488,17 @@ int Socket::send(const char* data, int dataSize, bool* again) {
 
     while (dataSize > 0) {
         n = ::send(_handle, p, dataSize, 0);
+#ifdef _WIN32
+        DWORD err = WSAGetLastError();
+#endif
         if (n > 0) {
             p += n;
             dataSize -= n;
-        } else if (errno == EAGAIN) { 
+#ifdef _WIN32
+        } else if (err == WSAEWOULDBLOCK) {
+#else
+        } else if (errno == EAGAIN) {
+#endif // _WIN32
             if (again) {
                 *again = true;
             }
@@ -434,8 +508,10 @@ int Socket::send(const char* data, int dataSize, bool* again) {
             }
 
             break;
-        } else if (errno == EINTR) { 
+#ifndef _WIN32
+        } else if (errno == EINTR) {
             continue;
+#endif // _WIN32
         } else {
             throw SocketException("send error");
         }
@@ -454,6 +530,9 @@ int Socket::receive(char* buffer, int bufferSize, bool* again) {
 
     while (bufferSize > 0) {
         n = ::recv(_handle, p, bufferSize, 0);
+#ifdef _WIN32
+        DWORD err = WSAGetLastError();
+#endif
         if (n > 0) {
             p += n;
 
@@ -462,9 +541,13 @@ int Socket::receive(char* buffer, int bufferSize, bool* again) {
             }
 
             bufferSize -= n;
-        } else if (n == 0) { 
+        } else if (n == 0) {
             break;
-        } else if (errno == EAGAIN) { 
+#ifdef _WIN32
+        } else if (err == WSAEWOULDBLOCK) {
+#else
+        } else if (errno == EAGAIN) {
+#endif // _WIN32
             if (again) {
                 *again = true;
             }
@@ -474,8 +557,10 @@ int Socket::receive(char* buffer, int bufferSize, bool* again) {
             }
 
             break;
+#ifndef _WIN32
         } else if (errno == EINTR) {
             continue;
+#endif // _WIN32
         } else {
             throw SocketException("recv error");
         }
@@ -524,10 +609,12 @@ void ServerSocket::listen(const SocketAddress& addr, int backlog) {
     if (_handle < 0) {
         throw SocketException("bad handle");
     }
-
+#ifndef _WIN32
     if (addr.getFamily() == AF_UNIX) {
         ::unlink(localAddr.un.sun_path);
-    } else {
+    } else
+#endif
+    {
         int reuse = 1;
         setOption(SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
     }

@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "learner_sender.h"
@@ -28,7 +28,7 @@ namespace phxpaxos
 LearnerSender :: LearnerSender(Config * poConfig, Learner * poLearner, PaxosLog * poPaxosLog)
     : m_poConfig(poConfig), m_poLearner(poLearner), m_poPaxosLog(poPaxosLog)
 {
-    m_iAckLead = LearnerSender_ACK_LEAD; 
+    m_iAckLead = LearnerSender_ACK_LEAD;
     m_bIsEnd = false;
     m_bIsStart = false;
     SendDone();
@@ -108,7 +108,7 @@ const bool LearnerSender :: CheckAck(const uint64_t llSendInstanceID)
     if (llSendInstanceID < m_llAckInstanceID)
     {
         m_iAckLead = LearnerSender_ACK_LEAD;
-        PLGImp("Already catch up, ack instanceid %lu now send instanceid %lu", 
+        PLGImp("Already catch up, ack instanceid %" PRIu64 " now send instanceid %" PRIu64,
                 m_llAckInstanceID, llSendInstanceID);
         m_oLock.UnLock();
         return false;
@@ -122,7 +122,7 @@ const bool LearnerSender :: CheckAck(const uint64_t llSendInstanceID)
         if ((int)llPassTime >= LearnerSender_ACK_TIMEOUT)
         {
             BP->GetLearnerBP()->SenderAckTimeout();
-            PLGErr("Ack timeout, last acktime %lu now send instanceid %lu", 
+            PLGErr("Ack timeout, last acktime %" PRIu64 " now send instanceid %" PRIu64,
                     m_llAbsLastAckTime, llSendInstanceID);
             CutAckLead();
             m_oLock.UnLock();
@@ -130,9 +130,9 @@ const bool LearnerSender :: CheckAck(const uint64_t llSendInstanceID)
         }
 
         BP->GetLearnerBP()->SenderAckDelay();
-        //PLGErr("Need sleep to slow down send speed, sendinstaceid %lu ackinstanceid %lu",
+        //PLGErr("Need sleep to slow down send speed, sendinstaceid %" PRIu64 " ackinstanceid %" PRIu64,
                 //llSendInstanceID, m_llAckInstanceID);
-        
+
         m_oLock.WaitTime(20);
     }
 
@@ -146,7 +146,7 @@ const bool LearnerSender :: CheckAck(const uint64_t llSendInstanceID)
 const bool LearnerSender :: Prepare(const uint64_t llBeginInstanceID, const nodeid_t iSendToNodeID)
 {
     m_oLock.Lock();
-    
+
     bool bPrepareRet = false;
     if (!IsIMSending() && !m_bIsComfirmed)
     {
@@ -157,7 +157,7 @@ const bool LearnerSender :: Prepare(const uint64_t llBeginInstanceID, const node
         m_llBeginInstanceID = m_llAckInstanceID = llBeginInstanceID;
         m_iSendToNodeID = iSendToNodeID;
     }
-    
+
     m_oLock.UnLock();
 
     return bPrepareRet;
@@ -203,7 +203,7 @@ void LearnerSender :: Ack(const uint64_t llAckInstanceID, const nodeid_t iFromNo
     }
 
     m_oLock.UnLock();
-}    
+}
 
 ///////////////////////////////////////////////
 
@@ -223,28 +223,28 @@ void LearnerSender :: WaitToSend()
 
 void LearnerSender :: SendLearnedValue(const uint64_t llBeginInstanceID, const nodeid_t iSendToNodeID)
 {
-    PLGHead("BeginInstanceID %lu SendToNodeID %lu", llBeginInstanceID, iSendToNodeID);
+    PLGHead("BeginInstanceID %" PRIu64 " SendToNodeID %" PRIu64, llBeginInstanceID, iSendToNodeID);
 
     uint64_t llSendInstanceID = llBeginInstanceID;
     int ret = 0;
-    
+
     uint32_t iLastChecksum = 0;
 
     //control send speed to avoid affecting the network too much.
     int iSendQps = LearnerSender_SEND_QPS;
     int iSleepMs = iSendQps > 1000 ? 1 : 1000 / iSendQps;
-    int iSendInterval = iSendQps > 1000 ? iSendQps / 1000 + 1 : 1; 
+    int iSendInterval = iSendQps > 1000 ? iSendQps / 1000 + 1 : 1;
 
     PLGDebug("SendQps %d SleepMs %d SendInterval %d AckLead %d",
             iSendQps, iSleepMs, iSendInterval, m_iAckLead);
 
     int iSendCount = 0;
     while (llSendInstanceID < m_poLearner->GetInstanceID())
-    {    
+    {
         ret = SendOne(llSendInstanceID, iSendToNodeID, iLastChecksum);
         if (ret != 0)
         {
-            PLGErr("SendOne fail, SendInstanceID %lu SendToNodeID %lu ret %d",
+            PLGErr("SendOne fail, SendInstanceID %" PRIu64 " SendToNodeID %" PRIu64 " ret %d",
                     llSendInstanceID, iSendToNodeID, ret);
             return;
         }
@@ -267,7 +267,7 @@ void LearnerSender :: SendLearnedValue(const uint64_t llBeginInstanceID, const n
 
     //succ send, reset ack lead.
     m_iAckLead = LearnerSender_ACK_LEAD;
-    PLGImp("SendDone, SendEndInstanceID %lu", llSendInstanceID);
+    PLGImp("SendDone, SendEndInstanceID %" PRIu64, llSendInstanceID);
 }
 
 int LearnerSender :: SendOne(const uint64_t llSendInstanceID, const nodeid_t iSendToNodeID, uint32_t & iLastChecksum)
@@ -299,14 +299,14 @@ void LearnerSender :: SendDone()
     m_llBeginInstanceID = (uint64_t)-1;
     m_iSendToNodeID = nullnode;
     m_llAbsLastSendTime = 0;
-    
+
     m_llAckInstanceID = 0;
     m_llAbsLastAckTime = 0;
 
     m_oLock.UnLock();
 }
 
-    
+
 }
 
 

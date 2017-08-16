@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "util.h"
@@ -27,19 +27,20 @@ See the AUTHORS file for names of contributors.
 #include <time.h>
 #include <errno.h>
 #include <math.h>
+#include <thread>
 
 namespace phxpaxos {
 
 using namespace std;
 
-const uint64_t Time :: GetTimestampMS() 
+const uint64_t Time :: GetTimestampMS()
 {
     auto now_time = chrono::system_clock::now();
     uint64_t now = (chrono::duration_cast<chrono::milliseconds>(now_time.time_since_epoch())).count();
     return now;
 }
 
-const uint64_t Time :: GetSteadyClockMS() 
+const uint64_t Time :: GetSteadyClockMS()
 {
     auto now_time = chrono::steady_clock::now();
     uint64_t now = (chrono::duration_cast<chrono::milliseconds>(now_time.time_since_epoch())).count();
@@ -48,15 +49,7 @@ const uint64_t Time :: GetSteadyClockMS()
 
 void Time :: MsSleep(const int iTimeMs)
 {
-    timespec t;
-    t.tv_sec = iTimeMs / 1000; 
-    t.tv_nsec = (iTimeMs % 1000) * 1000000;
-
-    int ret = 0;
-    do 
-    {
-        ret = ::nanosleep(&t, &t);
-    } while (ret == -1 && errno == EINTR); 
+    std::this_thread::sleep_for(std::chrono::milliseconds(iTimeMs));
 }
 
 /////////////////////////////////////////////
@@ -131,7 +124,7 @@ int FileUtils :: DeleteDir(const std::string & sDirPath)
 
     if (ret == 0)
     {
-        ret = remove(sDirPath.c_str());
+        ret = rmdir(sDirPath.c_str());
     }
 
     return ret;
@@ -243,12 +236,13 @@ struct FastRandomSeed {
     unsigned int seed;
 };
 
+#ifndef _WIN32
 static __thread FastRandomSeed seed_thread_safe = { false, 0 };
 
 static void ResetFastRandomSeed()
 {
     seed_thread_safe.seed = rdtsc();
-    seed_thread_safe.init = true; 
+    seed_thread_safe.init = true;
 }
 
 static void InitFastRandomSeedAtFork()
@@ -263,15 +257,24 @@ static void InitFastRandomSeed()
 
     ResetFastRandomSeed();
 }
+#else
+extern "C" errno_t __cdecl rand_s (unsigned int *_RandomValue);
+#endif
 
 const uint32_t OtherUtils :: FastRand()
 {
+#ifndef _WIN32
     if (!seed_thread_safe.init)
     {
         InitFastRandomSeed();
     }
 
     return rand_r(&seed_thread_safe.seed);
+#else
+    unsigned int v;
+    rand_s(&v);
+    return v;
+#endif // _WIN32
 }
 
 }

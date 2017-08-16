@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "phxpaxos_plugin/logger_google.h"
@@ -32,28 +32,28 @@ using namespace std;
 namespace phxpaxos
 {
 
-int LoggerGoogle :: GetLogger(const std::string & sModuleName, const std::string & sLogPath, const int iLogLevel, LogFunc & pLogFunc) 
+int LoggerGoogle :: GetLogger(const std::string & sModuleName, const std::string & sLogPath, const int iLogLevel, LogFunc & pLogFunc)
 {
     google::InitGoogleLogging(sModuleName.c_str());
     FLAGS_log_dir = sLogPath;
     FLAGS_stderrthreshold = google :: FATAL;
     switch( iLogLevel )
     {
-        case 1: 
+        case 1:
             FLAGS_minloglevel = google::ERROR;
-            break;  
-        case 2: 
+            break;
+        case 2:
             FLAGS_minloglevel = google::WARNING;
-            break;  
-        case 3: 
+            break;
+        case 3:
             FLAGS_minloglevel = google::INFO;
-            break;  
+            break;
     }
 
     LogError("%s", "init_glog_warning_file");
 
     pLogFunc = LoggerGoogle::Log;
-    
+
     return 0;
 }
 
@@ -111,7 +111,7 @@ void LoggerGoogle :: Log(const int iLogLevel, const char * pcFormat, va_list arg
         LOG(INFO) << sBuf;
     }
 }
-    
+
 }
 
 

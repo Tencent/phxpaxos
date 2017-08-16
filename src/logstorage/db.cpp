@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "db.h"
@@ -31,7 +31,7 @@ int PaxosComparator :: Compare(const leveldb::Slice & a, const leveldb::Slice & 
     return PCompare(a, b);
 }
 
-int PaxosComparator :: PCompare(const leveldb::Slice & a, const leveldb::Slice & b) 
+int PaxosComparator :: PCompare(const leveldb::Slice & a, const leveldb::Slice & b)
 {
     if (a.size() != sizeof(uint64_t))
     {
@@ -44,7 +44,7 @@ int PaxosComparator :: PCompare(const leveldb::Slice & a, const leveldb::Slice &
         NLErr("assert a.size %zu b.size %zu", a.size(), b.size());
         assert(b.size() == sizeof(uint64_t));
     }
-    
+
     uint64_t lla = 0;
     uint64_t llb = 0;
 
@@ -155,7 +155,7 @@ int Database :: Init(const std::string & sDBPath, const int iMyGroupIdx)
     m_iMyGroupIdx = iMyGroupIdx;
 
     m_sDBPath = sDBPath;
-    
+
     leveldb::Options oOptions;
     oOptions.create_if_missing = true;
     oOptions.comparator = &m_oPaxosCmp;
@@ -170,7 +170,7 @@ int Database :: Init(const std::string & sDBPath, const int iMyGroupIdx)
         return -1;
     }
 
-    m_poValueStore = new LogStore(); 
+    m_poValueStore = new LogStore();
     assert(m_poValueStore != nullptr);
 
     int ret = m_poValueStore->Init(sDBPath, iMyGroupIdx, (Database *)this);
@@ -208,7 +208,7 @@ int Database :: GetMaxInstanceIDFileID(std::string & sFileID, uint64_t & llInsta
     }
 
     string sKey = GenKey(llMaxInstanceID);
-    
+
     leveldb::Status oStatus = m_poLevelDB->Get(leveldb::ReadOptions(), sKey, &sFileID);
     if (!oStatus.ok())
     {
@@ -218,7 +218,7 @@ int Database :: GetMaxInstanceIDFileID(std::string & sFileID, uint64_t & llInsta
             //PLG1Err("LevelDB.Get not found %s", sKey.c_str());
             return 1;
         }
-        
+
         BP->GetLogStorageBP()->LevelDBGetFail();
         PLG1Err("LevelDB.Get fail");
         return -1;
@@ -240,7 +240,7 @@ int Database :: RebuildOneIndex(const uint64_t llInstanceID, const std::string &
     if (!oStatus.ok())
     {
         BP->GetLogStorageBP()->LevelDBPutFail();
-        PLG1Err("LevelDB.Put fail, instanceid %lu valuelen %zu", llInstanceID, sFileID.size());
+        PLG1Err("LevelDB.Put fail, instanceid %" PRIu64 " valuelen %zu", llInstanceID, sFileID.size());
         return -1;
     }
 
@@ -252,19 +252,19 @@ int Database :: RebuildOneIndex(const uint64_t llInstanceID, const std::string &
 int Database :: GetFromLevelDB(const uint64_t llInstanceID, std::string & sValue)
 {
     string sKey = GenKey(llInstanceID);
-    
+
     leveldb::Status oStatus = m_poLevelDB->Get(leveldb::ReadOptions(), sKey, &sValue);
     if (!oStatus.ok())
     {
         if (oStatus.IsNotFound())
         {
             BP->GetLogStorageBP()->LevelDBGetNotExist();
-            PLG1Debug("LevelDB.Get not found, instanceid %lu", llInstanceID);
+            PLG1Debug("LevelDB.Get not found, instanceid %" PRIu64, llInstanceID);
             return 1;
         }
-        
+
         BP->GetLogStorageBP()->LevelDBGetFail();
-        PLG1Err("LevelDB.Get fail, instanceid %lu", llInstanceID);
+        PLG1Err("LevelDB.Get fail, instanceid %" PRIu64, llInstanceID);
         return -1;
     }
 
@@ -296,7 +296,7 @@ int Database :: Get(const uint64_t llInstanceID, std::string & sValue)
 
     if (llFileInstanceID != llInstanceID)
     {
-        PLG1Err("file instanceid %lu not equal to key.instanceid %lu", llFileInstanceID, llInstanceID);
+        PLG1Err("file instanceid %" PRIu64 " not equal to key.instanceid %" PRIu64, llFileInstanceID, llInstanceID);
         return -2;
     }
 
@@ -341,7 +341,7 @@ int Database :: PutToLevelDB(const bool bSync, const uint64_t llInstanceID, cons
     if (!oStatus.ok())
     {
         BP->GetLogStorageBP()->LevelDBPutFail();
-        PLG1Err("LevelDB.Put fail, instanceid %lu valuelen %zu", llInstanceID, sValue.size());
+        PLG1Err("LevelDB.Put fail, instanceid %" PRIu64 " valuelen %zu", llInstanceID, sValue.size());
         return -1;
     }
 
@@ -366,7 +366,7 @@ int Database :: Put(const WriteOptions & oWriteOptions, const uint64_t llInstanc
     }
 
     ret = PutToLevelDB(false, llInstanceID, sFileID);
-    
+
     return ret;
 }
 
@@ -380,17 +380,17 @@ int Database :: ForceDel(const WriteOptions & oWriteOptions, const uint64_t llIn
 
     string sKey = GenKey(llInstanceID);
     string sFileID;
-    
+
     leveldb::Status oStatus = m_poLevelDB->Get(leveldb::ReadOptions(), sKey, &sFileID);
     if (!oStatus.ok())
     {
         if (oStatus.IsNotFound())
         {
-            PLG1Debug("LevelDB.Get not found, instanceid %lu", llInstanceID);
+            PLG1Debug("LevelDB.Get not found, instanceid %" PRIu64, llInstanceID);
             return 0;
         }
-        
-        PLG1Err("LevelDB.Get fail, instanceid %lu", llInstanceID);
+
+        PLG1Err("LevelDB.Get fail, instanceid %" PRIu64, llInstanceID);
         return -1;
     }
 
@@ -402,11 +402,11 @@ int Database :: ForceDel(const WriteOptions & oWriteOptions, const uint64_t llIn
 
     leveldb::WriteOptions oLevelDBWriteOptions;
     oLevelDBWriteOptions.sync = oWriteOptions.bSync;
-    
+
     oStatus = m_poLevelDB->Delete(oLevelDBWriteOptions, sKey);
     if (!oStatus.ok())
     {
-        PLG1Err("LevelDB.Delete fail, instanceid %lu", llInstanceID);
+        PLG1Err("LevelDB.Delete fail, instanceid %" PRIu64, llInstanceID);
         return -1;
     }
 
@@ -432,11 +432,11 @@ int Database :: Del(const WriteOptions & oWriteOptions, const uint64_t llInstanc
         {
             if (oStatus.IsNotFound())
             {
-                PLG1Debug("LevelDB.Get not found, instanceid %lu", llInstanceID);
+                PLG1Debug("LevelDB.Get not found, instanceid %" PRIu64, llInstanceID);
                 return 0;
             }
-            
-            PLG1Err("LevelDB.Get fail, instanceid %lu", llInstanceID);
+
+            PLG1Err("LevelDB.Get fail, instanceid %" PRIu64, llInstanceID);
             return -1;
         }
 
@@ -449,11 +449,11 @@ int Database :: Del(const WriteOptions & oWriteOptions, const uint64_t llInstanc
 
     leveldb::WriteOptions oLevelDBWriteOptions;
     oLevelDBWriteOptions.sync = oWriteOptions.bSync;
-    
+
     leveldb::Status oStatus = m_poLevelDB->Delete(oLevelDBWriteOptions, sKey);
     if (!oStatus.ok())
     {
-        PLG1Err("LevelDB.Delete fail, instanceid %lu", llInstanceID);
+        PLG1Err("LevelDB.Delete fail, instanceid %" PRIu64, llInstanceID);
         return -1;
     }
 
@@ -465,7 +465,7 @@ int Database :: GetMaxInstanceID(uint64_t & llInstanceID)
     llInstanceID = MINCHOSEN_KEY;
 
     leveldb::Iterator * it = m_poLevelDB->NewIterator(leveldb::ReadOptions());
-    
+
     it->SeekToLast();
 
     while (it->Valid())
@@ -547,7 +547,7 @@ int Database :: GetMinChosenInstanceID(uint64_t & llMinInstanceID)
 
     memcpy(&llMinInstanceID, sValue.data(), sizeof(uint64_t));
 
-    PLG1Imp("ok, min chosen instanceid %lu", llMinInstanceID);
+    PLG1Imp("ok, min chosen instanceid %" PRIu64, llMinInstanceID);
 
     return 0;
 }
@@ -570,7 +570,7 @@ int Database :: SetMinChosenInstanceID(const WriteOptions & oWriteOptions, const
         return ret;
     }
 
-    PLG1Imp("ok, min chosen instanceid %lu", llMinInstanceID);
+    PLG1Imp("ok, min chosen instanceid %" PRIu64, llMinInstanceID);
 
     return 0;
 }
@@ -681,7 +681,7 @@ int MultiDatabase :: Put(const WriteOptions & oWriteOptions, const int iGroupIdx
     {
         return -2;
     }
-    
+
     return m_vecDBList[iGroupIdx]->Put(oWriteOptions, llInstanceID, sValue);
 }
 
@@ -691,7 +691,7 @@ int MultiDatabase :: Del(const WriteOptions & oWriteOptions, const int iGroupIdx
     {
         return -2;
     }
-    
+
     return m_vecDBList[iGroupIdx]->Del(oWriteOptions, llInstanceID);
 }
 
@@ -701,7 +701,7 @@ int MultiDatabase :: ForceDel(const WriteOptions & oWriteOptions, const int iGro
     {
         return -2;
     }
-    
+
     return m_vecDBList[iGroupIdx]->ForceDel(oWriteOptions, llInstanceID);
 }
 
@@ -711,10 +711,10 @@ int MultiDatabase :: GetMaxInstanceID(const int iGroupIdx, uint64_t & llInstance
     {
         return -2;
     }
-    
+
     return m_vecDBList[iGroupIdx]->GetMaxInstanceID(llInstanceID);
 }
-    
+
 int MultiDatabase :: SetMinChosenInstanceID(const WriteOptions & oWriteOptions, const int iGroupIdx, const uint64_t llMinInstanceID)
 {
     if (iGroupIdx >= (int)m_vecDBList.size())

@@ -14,11 +14,11 @@ BytesBuffer g_oTmpBuffer;
 void PrintState(AcceptorStateData & oState)
 {
     printf("------------------------------------------------------\n");
-    printf("instanceid %llu\n", oState.instanceid());
-    printf("promiseid %llu\n", oState.promiseid());
-    printf("promisenodid %llu\n", oState.promisenodeid());
-    printf("acceptedid %llu\n", oState.acceptedid());
-    printf("acceptednodeid %llu\n", oState.acceptednodeid());
+    printf("instanceid %" PRIu64 "\n", oState.instanceid());
+    printf("promiseid %" PRIu64 "\n", oState.promiseid());
+    printf("promisenodid %" PRIu64 "\n", oState.promisenodeid());
+    printf("acceptedid %" PRIu64 "\n", oState.acceptedid());
+    printf("acceptednodeid %" PRIu64 "\n", oState.acceptednodeid());
     printf("acceptedvaluesize %zu\n", oState.acceptedvalue().size());
     printf("checksum %u\n", oState.checksum());
 }
@@ -45,7 +45,7 @@ int VFileFetch(const std::string & sFilePath, const int iOffset, const int iFetc
         close(iFd);
         return -1;
     }
-    
+
     off_t iSeekPos = lseek(iFd, iOffset, SEEK_SET);
     if (iSeekPos == -1)
     {
@@ -64,7 +64,7 @@ int VFileFetch(const std::string & sFilePath, const int iOffset, const int iFetc
             printf("File End, offset %d\n", iNowOffset);
             break;
         }
-        
+
         if (iReadLen != (ssize_t)sizeof(int))
         {
             printf("readlen %zd not qual to %zu\n", iReadLen, sizeof(int));
@@ -101,21 +101,21 @@ int VFileFetch(const std::string & sFilePath, const int iOffset, const int iFetc
         bool bBufferValid = oState.ParseFromArray(g_oTmpBuffer.GetPtr() + sizeof(uint64_t), iLen - sizeof(uint64_t));
         if (!bBufferValid)
         {
-            printf("This instance's buffer wrong, can't parse to acceptState, instanceid %lu bufferlen %d nowoffset %d\n",
+            printf("This instance's buffer wrong, can't parse to acceptState, instanceid %" PRIu64 " bufferlen %d nowoffset %d\n",
                     llInstanceID, (int)(iLen - sizeof(uint64_t)), iNowOffset);
             break;
         }
 
         PrintState(oState);
 
-        iNowOffset += sizeof(int) + iLen; 
+        iNowOffset += sizeof(int) + iLen;
         iNowFetchCount++;
         if (iNowFetchCount >= iFetchCount)
         {
             break;
         }
     }
-    
+
     close(iFd);
 
     return ret;

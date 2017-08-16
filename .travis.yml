@@ -2,11 +2,14 @@
 sudo: required
 dist: trusty
 
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y ninja-build python
 language: cpp
 compiler: g++
 git:
-    submodules: false
+    submodules: true
 script:
-    - ./build.sh
+    - ./gyp_build.sh
 notifications:
     email: true

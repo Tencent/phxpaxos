@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "pnode.h"
@@ -95,7 +95,7 @@ int PNode :: InitLogStorage(const Options & oOptions, LogStorage *& poLogStorage
     }
 
     poLogStorage = &m_oDefaultLogStorage;
-    
+
     PLImp("OK, use default logstorage");
 
     return 0;
@@ -119,7 +119,7 @@ int PNode :: InitNetWork(const Options & oOptions, NetWork *& poNetWork)
     }
 
     poNetWork = &m_oDefaultNetWork;
-    
+
     PLImp("OK, use default network");
 
     return 0;
@@ -136,7 +136,7 @@ int PNode :: CheckOptions(const Options & oOptions)
     {
         LOGGER->InitLogger(oOptions.eLogLevel);
     }
-    
+
     if (oOptions.poLogStorage == nullptr && oOptions.sLogStoragePath.size() == 0)
     {
         PLErr("no logpath and logstorage is null");
@@ -160,7 +160,7 @@ int PNode :: CheckOptions(const Options & oOptions)
         PLErr("group count %d is small than zero or equal to zero", oOptions.iGroupCount);
         return -2;
     }
-    
+
     for (auto & oFollowerNodeInfo : oOptions.vecFollowerNodeInfoList)
     {
         if (oFollowerNodeInfo.oMyNode.GetNodeID() == oFollowerNodeInfo.oFollowNode.GetNodeID())
@@ -282,7 +282,7 @@ int PNode :: Init(const Options & oOptions, NetWork *& poNetWork)
     }
 
     //step6 init statemachine
-    InitStateMachine(oOptions);    
+    InitStateMachine(oOptions);
 
     //step7 parallel init group
     for (auto & poGroup : m_vecGroupList)
@@ -377,7 +377,7 @@ int PNode :: OnReceiveMessage(const char * pcMessage, const int iMessageLen)
         PLErr("Message size %d to small, not valid.", iMessageLen);
         return -2;
     }
-    
+
     int iGroupIdx = -1;
 
     memcpy(&iGroupIdx, pcMessage, GROUPIDXLEN);
@@ -405,7 +405,7 @@ void PNode :: AddStateMachine(const int iGroupIdx, StateMachine * poSM)
     {
         return;
     }
-    
+
     m_vecGroupList[iGroupIdx]->AddStateMachine(poSM);
 }
 
@@ -467,9 +467,9 @@ void PNode :: ContinuePaxosLogCleaner()
 ///////////////////////////////////////////////////////
 
 int PNode :: ProposalMembership(
-        SystemVSM * poSystemVSM, 
-        const int iGroupIdx, 
-        const NodeInfoList & vecNodeInfoList, 
+        SystemVSM * poSystemVSM,
+        const int iGroupIdx,
+        const NodeInfoList & vecNodeInfoList,
         const uint64_t llVersion)
 {
     string sOpValue;
@@ -639,7 +639,7 @@ const NodeInfo PNode :: GetMaster(const int iGroupIdx)
     return NodeInfo(m_vecMasterList[iGroupIdx]->GetMasterSM()->GetMaster());
 }
 
-const NodeInfo PNode :: GetMasterWithVersion(const int iGroupIdx, uint64_t & llVersion) 
+const NodeInfo PNode :: GetMasterWithVersion(const int iGroupIdx, uint64_t & llVersion)
 {
     if (!CheckGroupID(iGroupIdx))
     {
@@ -715,7 +715,7 @@ void PNode :: SetLogSync(const int iGroupIdx, const bool bLogSync)
 
 //////////////////////////////////////////////////////////////////////
 
-int PNode :: GetInstanceValue(const int iGroupIdx, const uint64_t llInstanceID, 
+int PNode :: GetInstanceValue(const int iGroupIdx, const uint64_t llInstanceID,
         std::vector<std::pair<std::string, int> > & vecValues)
 {
     if (!CheckGroupID(iGroupIdx))
@@ -756,13 +756,13 @@ int PNode :: GetInstanceValue(const int iGroupIdx, const uint64_t llInstanceID,
 
 //////////////////////////////////////////////////////////////////////////
 
-int PNode :: BatchPropose(const int iGroupIdx, const std::string & sValue, 
+int PNode :: BatchPropose(const int iGroupIdx, const std::string & sValue,
         uint64_t & llInstanceID, uint32_t & iBatchIndex)
 {
     return BatchPropose(iGroupIdx, sValue, llInstanceID, iBatchIndex, nullptr);
 }
 
-int PNode :: BatchPropose(const int iGroupIdx, const std::string & sValue, 
+int PNode :: BatchPropose(const int iGroupIdx, const std::string & sValue,
         uint64_t & llInstanceID, uint32_t & iBatchIndex, SMCtx * poSMCtx)
 {
     if (!CheckGroupID(iGroupIdx))
@@ -807,7 +807,7 @@ void PNode :: SetBatchDelayTimeMs(const int iGroupIdx, const int iBatchDelayTime
 
     m_vecProposeBatch[iGroupIdx]->SetBatchDelayTimeMs(iBatchDelayTimeMs);
 }
-    
+
 }
 
 

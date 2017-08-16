@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #pragma once
@@ -25,13 +25,13 @@ See the AUTHORS file for names of contributors.
 #include <stdio.h>
 #include "phxpaxos_plugin/monitor.h"
 
-namespace phxpaxos 
+namespace phxpaxos
 {
 
 class MonProposerBP : public ProposerBP
 {
 public:
-    MonProposerBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc) 
+    MonProposerBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc)
         : m_oMonitorConfig(oMonitorConfig), m_pIDKeyOssFunc(pIDKeyOssFunc) { }
     void NewProposal(const std::string & sValue);
     void NewProposalSkipPrepare();
@@ -58,7 +58,7 @@ private:
 class MonAcceptorBP : public AcceptorBP
 {
 public:
-    MonAcceptorBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc) 
+    MonAcceptorBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc)
         : m_oMonitorConfig(oMonitorConfig), m_pIDKeyOssFunc(pIDKeyOssFunc) { }
     void OnPrepare();
     void OnPreparePass();
@@ -77,7 +77,7 @@ private:
 class MonLearnerBP : public LearnerBP
 {
 public:
-    MonLearnerBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc) 
+    MonLearnerBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc)
         : m_oMonitorConfig(oMonitorConfig), m_pIDKeyOssFunc(pIDKeyOssFunc) { }
     void AskforLearn();
     void OnAskforLearn();
@@ -108,7 +108,7 @@ private:
 class MonInstanceBP : public InstanceBP
 {
 public:
-    MonInstanceBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc) 
+    MonInstanceBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc)
         : m_oMonitorConfig(oMonitorConfig), m_pIDKeyOssFunc(pIDKeyOssFunc) { }
     void NewInstance();
     void SendMessage();
@@ -136,7 +136,7 @@ private:
 class MonCommiterBP : public CommiterBP
 {
 public:
-    MonCommiterBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc) 
+    MonCommiterBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc)
         : m_oMonitorConfig(oMonitorConfig), m_pIDKeyOssFunc(pIDKeyOssFunc) { }
     void NewValue();
     void NewValueConflict();
@@ -160,7 +160,7 @@ private:
 class MonIOLoopBP : public IOLoopBP
 {
 public:
-    MonIOLoopBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc) 
+    MonIOLoopBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc)
         : m_oMonitorConfig(oMonitorConfig), m_pIDKeyOssFunc(pIDKeyOssFunc) { }
     void OneLoop();
     void EnqueueMsg();
@@ -178,7 +178,7 @@ private:
 class MonNetworkBP : public NetworkBP
 {
 public:
-    MonNetworkBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc) 
+    MonNetworkBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc)
         : m_oMonitorConfig(oMonitorConfig), m_pIDKeyOssFunc(pIDKeyOssFunc) { }
     void TcpEpollLoop();
     void TcpOnError();
@@ -205,7 +205,7 @@ private:
 class MonLogStorageBP : public LogStorageBP
 {
 public:
-    MonLogStorageBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc) 
+    MonLogStorageBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc)
         : m_oMonitorConfig(oMonitorConfig), m_pIDKeyOssFunc(pIDKeyOssFunc) { }
     void LevelDBGetNotExist();
     void LevelDBGetFail();
@@ -227,7 +227,7 @@ private:
 class MonAlgorithmBaseBP : public AlgorithmBaseBP
 {
 public:
-    MonAlgorithmBaseBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc) 
+    MonAlgorithmBaseBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc)
         : m_oMonitorConfig(oMonitorConfig), m_pIDKeyOssFunc(pIDKeyOssFunc) { }
 
     virtual void UnPackHeaderLenTooLong();
@@ -244,7 +244,7 @@ private:
 class MonCheckpointBP : public CheckpointBP
 {
 public:
-    MonCheckpointBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc) 
+    MonCheckpointBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc)
         : m_oMonitorConfig(oMonitorConfig), m_pIDKeyOssFunc(pIDKeyOssFunc) { }
 
     virtual void NeedAskforCheckpoint();
@@ -267,7 +267,7 @@ private:
 class MonMasterBP : public MasterBP
 {
 public:
-    MonMasterBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc) 
+    MonMasterBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc)
         : m_oMonitorConfig(oMonitorConfig), m_pIDKeyOssFunc(pIDKeyOssFunc) { }
 
     virtual void TryBeMaster();
@@ -290,7 +290,7 @@ public:
     MonitorBP(const MonitorConfig & oMonitorConfig, IDKeyOssFunc pIDKeyOssFunc);
 
     ProposerBP * GetProposerBP();
-    
+
     AcceptorBP * GetAcceptorBP();
 
     LearnerBP * GetLearnerBP();
@@ -324,5 +324,5 @@ public:
     MonCheckpointBP m_oCheckpointBP;
     MonMasterBP m_oMasterBP;
 };
-    
+
 }

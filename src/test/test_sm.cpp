@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "test_sm.h"
@@ -34,17 +34,17 @@ TestSM :: TestSM()
     m_iLastValueChecksum = 0;
 }
 
-bool TestSM :: Execute(const int iGroupIdx, const uint64_t llInstanceID, 
+bool TestSM :: Execute(const int iGroupIdx, const uint64_t llInstanceID,
         const std::string & sPaxosValue, SMCtx * poSMCtx)
 {
     uint32_t iOtherLastChecksum = 0;
     string sBodyValue;
     UnPackTestValue(sPaxosValue, sBodyValue, iOtherLastChecksum);
-    NLDebug("instanceid %lu other %u my %u", llInstanceID, iOtherLastChecksum, m_iLastValueChecksum);
+    NLDebug("instanceid %" PRIu64 " other %u my %u", llInstanceID, iOtherLastChecksum, m_iLastValueChecksum);
 
     if (iOtherLastChecksum != 0 && iOtherLastChecksum != m_iLastValueChecksum)
     {
-        printf("instanceid %lu other last check sum %u my last check sum %u\n",
+        printf("instanceid %" PRIu64 " other last check sum %u my last check sum %u\n",
                 llInstanceID, iOtherLastChecksum, m_iLastValueChecksum);
         assert(iOtherLastChecksum == m_iLastValueChecksum);
     }
@@ -74,7 +74,7 @@ bool TestSM :: CheckExecuteValueCorrect(const std::vector<pair<uint64_t, std::st
     {
         if (it.first < llNowInstanceID)
         {
-            printf("instanceid not serial, actual %lu now %lu\n",
+            printf("instanceid not serial, actual %" PRIu64 " now %" PRIu64 "\n",
                     it.first, llNowInstanceID);
             return false;
         }
@@ -87,7 +87,7 @@ bool TestSM :: CheckExecuteValueCorrect(const std::vector<pair<uint64_t, std::st
         if (m_vecExecuted[i].first != vecOtherExecuted[i].first
                 || m_vecExecuted[i].second != vecOtherExecuted[i].second)
         {
-            printf("not same %lu %s | %lu %s\n",
+            printf("not same %" PRIu64 " %s | %" PRIu64 " %s\n",
                     m_vecExecuted[i].first, m_vecExecuted[i].second.c_str(),
                     vecOtherExecuted[i].first, vecOtherExecuted[i].second.c_str());
             return false;

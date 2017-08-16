@@ -1,22 +1,22 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "paxos_log.h"
@@ -48,11 +48,11 @@ int PaxosLog :: WriteLog(const WriteOptions & oWriteOptions, const int iGroupIdx
     int ret = WriteState(oWriteOptions, iGroupIdx, llInstanceID, oState);
     if (ret != 0)
     {
-        PLG1Err("WriteState to db fail, groupidx %d instanceid %lu ret %d", iGroupIdx, llInstanceID, ret);
+        PLG1Err("WriteState to db fail, groupidx %d instanceid %" PRIu64 " ret %d", iGroupIdx, llInstanceID, ret);
         return ret;
     }
 
-    PLG1Imp("OK, groupidx %d InstanceID %lu valuelen %zu", 
+    PLG1Imp("OK, groupidx %d InstanceID %" PRIu64 " valuelen %zu",
             iGroupIdx, llInstanceID, sValue.size());
 
     return 0;
@@ -63,10 +63,10 @@ int PaxosLog :: ReadLog(const int iGroupIdx, const uint64_t llInstanceID, std::s
     const int m_iMyGroupIdx = iGroupIdx;
 
     AcceptorStateData oState;
-    int ret = ReadState(iGroupIdx, llInstanceID, oState); 
+    int ret = ReadState(iGroupIdx, llInstanceID, oState);
     if (ret != 0)
     {
-        PLG1Err("ReadState from db fail, groupidx %d instanceid %lu ret %d", 
+        PLG1Err("ReadState from db fail, groupidx %d instanceid %" PRIu64 " ret %d",
                 iGroupIdx, llInstanceID, ret);
         return ret;
 
@@ -74,7 +74,7 @@ int PaxosLog :: ReadLog(const int iGroupIdx, const uint64_t llInstanceID, std::s
 
     sValue = oState.acceptedvalue();
 
-    PLG1Imp("OK, groupidx %d InstanceID %lu value %zu", 
+    PLG1Imp("OK, groupidx %d InstanceID %" PRIu64 " value %zu",
             iGroupIdx, llInstanceID, sValue.size());
 
     return 0;
@@ -91,11 +91,11 @@ int PaxosLog :: WriteState(const WriteOptions & oWriteOptions, const int iGroupI
         PLG1Err("State.Serialize fail");
         return -1;
     }
-    
+
     int ret = m_poLogStorage->Put(oWriteOptions, iGroupIdx, llInstanceID, sBuffer);
     if (ret != 0)
     {
-        PLG1Err("DB.Put fail, groupidx %d bufferlen %zu ret %d", 
+        PLG1Err("DB.Put fail, groupidx %d bufferlen %zu ret %d",
                 iGroupIdx, sBuffer.size(), ret);
         return ret;
     }
@@ -145,7 +145,7 @@ int PaxosLog :: GetMaxInstanceIDFromLog(const int iGroupIdx, uint64_t & llInstan
     }
     else
     {
-        PLG1Imp("OK, MaxInstanceID %llu groupidsx %d", llInstanceID, iGroupIdx);
+        PLG1Imp("OK, MaxInstanceID %" PRIu64 " groupidsx %d", llInstanceID, iGroupIdx);
     }
 
     return ret;
