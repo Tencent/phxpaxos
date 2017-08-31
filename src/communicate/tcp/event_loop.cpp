@@ -24,17 +24,19 @@ See the AUTHORS file for names of contributors.
 #include "tcp_acceptor.h"
 #include "tcp_client.h"
 #include "comm_include.h"
+#include "message_event.h"
+#include "phxpaxos/network.h"
 
 using namespace std;
 
 namespace phxpaxos
 {
 
-EventLoop :: EventLoop()
+EventLoop :: EventLoop(NetWork * poNetWork)
 {
     m_iEpollFd = -1;
     m_bIsEnd = false;
-    m_poTcpAcceptor = nullptr;
+    m_poNetWork = poNetWork;
     m_poTcpClient = nullptr;
     m_poNotify = nullptr;
     memset(m_EpollEvents, 0, sizeof(m_EpollEvents));
@@ -42,16 +44,12 @@ EventLoop :: EventLoop()
 
 EventLoop :: ~EventLoop()
 {
+    ClearEvent();
 }
 
 void EventLoop :: JumpoutEpollWait()
 {
     m_poNotify->SendNotify();
-}
-
-void EventLoop :: SetTcpAcceptor(TcpAcceptor * poTcpAcceptor)
-{
-    m_poTcpAcceptor = poTcpAcceptor;
 }
 
 void EventLoop :: SetTcpClient(TcpClient * poTcpClient)
@@ -157,11 +155,7 @@ void EventLoop :: StartLoop()
 
         OneLoop(iNextTimeout);
 
-        //deal with accept fds
-        if (m_poTcpAcceptor != nullptr)
-        {
-            m_poTcpAcceptor->CreateEvent();
-        }
+        CreateEvent();
 
         if (m_poTcpClient != nullptr)
         {
@@ -330,6 +324,61 @@ void EventLoop :: DealwithTimeout(int & iNextTimeout)
             }
         }
     }
+}
+
+void EventLoop :: AddEvent(int iFD, SocketAddress oAddr)
+{
+    std::lock_guard<std::mutex> oLockGuard(m_oMutex);
+    m_oFDQueue.push(make_pair(iFD, oAddr));
+}
+
+void EventLoop :: CreateEvent()
+{
+    std::lock_guard<std::mutex> oLockGuard(m_oMutex);
+
+    if (m_oFDQueue.empty())
+    {
+        return;
+    }
+
+    ClearEvent();
+    
+    int iCreatePerTime = 200;
+    while ((!m_oFDQueue.empty()) && iCreatePerTime--)
+    {
+        auto oData = m_oFDQueue.front();
+        m_oFDQueue.pop();
+
+        //create event for this fd
+        MessageEvent * poMessageEvent = new MessageEvent(MessageEventType_RECV, oData.first, 
+                oData.second, this, m_poNetWork);
+        poMessageEvent->AddEvent(EPOLLIN);
+
+        m_vecCreatedEvent.push_back(poMessageEvent);
+    }
+}
+
+void EventLoop :: ClearEvent()
+{
+    for (auto it = m_vecCreatedEvent.begin(); it != end(m_vecCreatedEvent);)
+    {
+        if ((*it)->IsDestroy())
+        {
+            delete (*it);
+            it = m_vecCreatedEvent.erase(it);
+        }
+        else
+        {
+            it++;
+        }
+    }
+}
+
+int EventLoop :: GetActiveEventCount()
+{
+    std::lock_guard<std::mutex> oLockGuard(m_oMutex);
+    ClearEvent();
+    return (int)m_vecCreatedEvent.size();
 }
 
 }

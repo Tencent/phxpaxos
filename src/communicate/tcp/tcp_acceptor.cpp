@@ -19,6 +19,7 @@ permissions and limitations under the License.
 See the AUTHORS file for names of contributors. 
 */
 
+#include <stdio.h>
 #include "tcp_acceptor.h"
 #include "commdef.h"
 #include "event_loop.h"
@@ -30,11 +31,7 @@ See the AUTHORS file for names of contributors.
 namespace phxpaxos
 {
 
-TcpAcceptor :: TcpAcceptor(
-        EventLoop * poEventLoop,
-        NetWork * poNetWork)
-    : m_poEventLoop(poEventLoop),
-    m_poNetWork(poNetWork)
+TcpAcceptor :: TcpAcceptor()
 {
     m_bIsEnd = false;
     m_bIsStarted = false;
@@ -42,15 +39,6 @@ TcpAcceptor :: TcpAcceptor(
 
 TcpAcceptor :: ~TcpAcceptor()
 {
-    while (!m_oFDQueue.empty())
-    {
-        AcceptData * poData = m_oFDQueue.front();
-        m_oFDQueue.pop();
-
-        delete poData;
-    }
-
-    ClearEvent();
 }
 
 void TcpAcceptor :: Listen(const std::string & sListenIP, const int iListenPort)
@@ -104,17 +92,10 @@ void TcpAcceptor :: run()
 
                 PLImp("accepted!, fd %d ip %s port %d",
                         fd, oAddr.getHost().c_str(), oAddr.getPort());
-                AcceptData * poData = new AcceptData;
-                poData->fd = fd;
-                poData->oAddr = oAddr;
-                
-                m_oMutex.lock();
-                m_oFDQueue.push(poData);
-                m_oMutex.unlock();
+
+                AddEvent(fd, oAddr);
             }
         }
-
-        ClearEvent();
 
         if (m_bIsEnd)
         {
@@ -124,48 +105,29 @@ void TcpAcceptor :: run()
     }
 }
 
-void TcpAcceptor :: CreateEvent()
+void TcpAcceptor :: AddEventLoop(EventLoop * poEventLoop)
 {
-    std::lock_guard<std::mutex> oLockGuard(m_oMutex);
-
-    if (m_oFDQueue.empty())
-    {
-        return;
-    }
-    
-    int iCreatePerTime = 200;
-    while ((!m_oFDQueue.empty()) && iCreatePerTime--)
-    {
-        AcceptData * poData = m_oFDQueue.front();
-        m_oFDQueue.pop();
-
-        //create event for this fd
-        MessageEvent * poMessageEvent = new MessageEvent(MessageEventType_RECV, poData->fd, 
-                poData->oAddr, m_poEventLoop, m_poNetWork);
-        poMessageEvent->AddEvent(EPOLLIN);
-
-        m_vecCreatedEvent.push_back(poMessageEvent);
-
-        delete poData;
-    }
+    m_vecEventLoop.push_back(poEventLoop);
 }
 
-void TcpAcceptor :: ClearEvent()
+void TcpAcceptor :: AddEvent(int iFD, SocketAddress oAddr)
 {
-    std::lock_guard<std::mutex> oLockGuard(m_oMutex);
+    EventLoop * poMinActiveEventLoop = nullptr;
+    int iMinActiveEventCount = 1 << 30;
 
-    for (auto it = m_vecCreatedEvent.begin(); it != end(m_vecCreatedEvent);)
+    for (auto & poEventLoop : m_vecEventLoop)
     {
-        if ((*it)->IsDestroy())
+        int iActiveCount = poEventLoop->GetActiveEventCount();
+        if (iActiveCount < iMinActiveEventCount)
         {
-            delete (*it);
-            it = m_vecCreatedEvent.erase(it);
-        }
-        else
-        {
-            it++;
+            iMinActiveEventCount = iActiveCount;
+            poMinActiveEventLoop = poEventLoop;
         }
     }
+
+    //printf("this %p addevent %p fd %d ip %s port %d\n", 
+            //this, poMinActiveEventLoop, iFD, oAddr.getHost().c_str(), oAddr.getPort());
+    poMinActiveEventLoop->AddEvent(iFD, oAddr);
 }
     
 }

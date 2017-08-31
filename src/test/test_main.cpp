@@ -132,7 +132,7 @@ public:
     void run()
     {
         string sValue;
-        m_iAvgValueSize = 100 * 1024;
+        m_iAvgValueSize = 10 * 1024;
         for (int i = 0; i < m_iWriteCount; i++)
         {
             RandValue(m_iAvgValueSize, sValue);

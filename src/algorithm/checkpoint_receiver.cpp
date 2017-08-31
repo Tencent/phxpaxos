@@ -161,7 +161,12 @@ int CheckpointReceiver :: InitFilePath(const std::string & sFilePath, std::strin
         }
     }
 
-    sFormatFilePath = "/";
+    sFormatFilePath = "";
+    if (vecDirList.size() > 0 && vecDirList[0].size() > 0 && vecDirList[0][0] != '.')
+    {
+        sFormatFilePath += "/";
+    }
+
     for (size_t i = 0; i < vecDirList.size(); i++)
     {
         if (i + 1 == vecDirList.size())

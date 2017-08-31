@@ -34,11 +34,13 @@ namespace phxpaxos
 class Event;
 class TcpAcceptor;
 class TcpClient;
+class MessageEvent;
+class NetWork;
 
 class EventLoop
 {
 public:
-    EventLoop();
+    EventLoop(NetWork * poNetWork);
     virtual ~EventLoop();
 
     int Init(const int iEpollLength);
@@ -56,8 +58,6 @@ public:
     virtual void OneLoop(const int iTimeoutMs);
 
 public:
-    void SetTcpAcceptor(TcpAcceptor * poTcpAcceptor);
-
     void SetTcpClient(TcpClient * poTcpClient);
 
     void JumpoutEpollWait();
@@ -70,6 +70,15 @@ public:
     void DealwithTimeout(int & iNextTimeout);
 
     void DealwithTimeoutOne(const uint32_t iTimerID, const int iType);
+
+public:
+    void AddEvent(int iFD, SocketAddress oAddr);
+
+    void CreateEvent();
+
+    void ClearEvent();
+
+    int GetActiveEventCount();
 
 public:
     typedef struct EventCtx
@@ -85,13 +94,17 @@ protected:
     int m_iEpollFd;
     epoll_event m_EpollEvents[MAX_EVENTS];
     std::map<int, EventCtx_t> m_mapEvent;
-    TcpAcceptor * m_poTcpAcceptor;
+    NetWork * m_poNetWork;
     TcpClient * m_poTcpClient;
     Notify * m_poNotify;
 
 protected:
     Timer m_oTimer;
     std::map<uint32_t, int> m_mapTimerID2FD;
+
+    std::queue<std::pair<int, SocketAddress> > m_oFDQueue;
+    std::mutex m_oMutex;
+    std::vector<MessageEvent *> m_vecCreatedEvent;
 };
     
 }

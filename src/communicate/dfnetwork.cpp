@@ -41,7 +41,7 @@ void DFNetWork :: StopNetWork()
     m_oTcpIOThread.Stop();
 }
 
-int DFNetWork :: Init(const std::string & sListenIp, const int iListenPort) 
+int DFNetWork :: Init(const std::string & sListenIp, const int iListenPort, const int iIOThreadCount) 
 {
     int ret = m_oUDPSend.Init();
     if (ret != 0)
@@ -55,7 +55,7 @@ int DFNetWork :: Init(const std::string & sListenIp, const int iListenPort)
         return ret;
     }
 
-    ret = m_oTcpIOThread.Init(sListenIp, iListenPort);
+    ret = m_oTcpIOThread.Init(sListenIp, iListenPort, iIOThreadCount);
     if (ret != 0)
     {
         PLErr("m_oTcpIOThread Init fail, ret %d", ret);
@@ -72,12 +72,12 @@ void DFNetWork :: RunNetWork()
     m_oTcpIOThread.Start();
 }
 
-int DFNetWork :: SendMessageTCP(const std::string & sIp, const int iPort, const std::string & sMessage)
+int DFNetWork :: SendMessageTCP(const int iGroupIdx, const std::string & sIp, const int iPort, const std::string & sMessage)
 {
-    return m_oTcpIOThread.AddMessage(sIp, iPort, sMessage);
+    return m_oTcpIOThread.AddMessage(iGroupIdx, sIp, iPort, sMessage);
 }
 
-int DFNetWork :: SendMessageUDP(const std::string & sIp, const int iPort, const std::string & sMessage)
+int DFNetWork :: SendMessageUDP(const int iGroupIdx, const std::string & sIp, const int iPort, const std::string & sMessage)
 {
     return m_oUDPSend.AddMessage(sIp, iPort, sMessage);
 }

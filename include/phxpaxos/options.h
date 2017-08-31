@@ -152,6 +152,11 @@ public:
     //Message size under iUDPMaxSize we use udp to send.
     //Default is 4096.
     size_t iUDPMaxSize;
+
+    //optional
+    //Our default network io thread count.
+    //Default is 1.
+    int iIOThreadCount;
     
     //optional
     //We support to run multi phxpaxos on one process.

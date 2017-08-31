@@ -35,14 +35,15 @@ public:
     TcpRead(NetWork * poNetWork);
     ~TcpRead();
 
-    int Init(const std::string & sListenIp, const int iListenPort);
-    
+    int Init();
+
     void run();
 
     void Stop();
 
+    EventLoop * GetEventLoop();
+
 private:
-    TcpAcceptor m_oTcpAcceptor;
     EventLoop m_oEventLoop;
 };
 
@@ -73,17 +74,19 @@ public:
     TcpIOThread(NetWork * poNetWork);
     ~TcpIOThread();
 
-    int Init(const std::string & sListenIp, const int iListenPort);
+    int Init(const std::string & sListenIp, const int iListenPort, const int iIOThreadCount);
 
     void Start();
 
     void Stop();
 
-    int AddMessage(const std::string & sIP, const int iPort, const std::string & sMessage);
+    int AddMessage(const int iGroupIdx, const std::string & sIP, const int iPort, const std::string & sMessage);
 
 private:
-    TcpRead m_oTcpRead;
-    TcpWrite m_oTcpWrite;
+    NetWork * m_poNetWork;
+    TcpAcceptor m_oTcpAcceptor;
+    std::vector<TcpRead *> m_vecTcpRead;
+    std::vector<TcpWrite *> m_vecTcpWrite;
     bool m_bIsStarted;
 };
     

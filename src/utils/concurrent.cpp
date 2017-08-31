@@ -32,6 +32,7 @@ static void* mmThreadRun(void* p) {
 }
 
 namespace phxpaxos {
+
 ///////////////////////////////////////////////////////////Thread
 
 Thread::Thread() {}
@@ -41,7 +42,6 @@ Thread::~Thread() {}
 void Thread::start() {
     _thread = std::thread(std::bind(&mmThreadRun, this));
 }
-
 
 void Thread::join() {
     _thread.join();

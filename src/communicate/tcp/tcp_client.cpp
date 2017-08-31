@@ -30,6 +30,7 @@ namespace phxpaxos
 TcpClient :: TcpClient(EventLoop * poEventLoop, NetWork * poNetWork)
     : m_poEventLoop(poEventLoop), m_poNetWork(poNetWork)
 {
+   m_vecEvent.reserve(1000); 
 }
 
 TcpClient :: ~TcpClient()
@@ -96,7 +97,7 @@ void TcpClient :: DealWithWrite()
     size_t iSize = m_vecEvent.size();
 
     for (size_t i = 0; i < iSize; i++)
-    {
+    {   
         m_vecEvent[i]->OpenWrite();
     }
     //PLImp("end, live event count %zu", vecEventList.size());

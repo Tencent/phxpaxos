@@ -39,8 +39,8 @@ Communicate :: ~Communicate()
 {
 }
 
-int Communicate :: Send(const nodeid_t iNodeID, const NodeInfo & oNodeInfo, 
-        const std::string & sMessage, const int iSendType)
+int Communicate :: Send(const int iGroupIdx, const nodeid_t iNodeID, 
+        const NodeInfo & oNodeInfo, const std::string & sMessage, const int iSendType)
 {
     if ((int)sMessage.size() > MAX_VALUE_SIZE)
     {
@@ -55,21 +55,21 @@ int Communicate :: Send(const nodeid_t iNodeID, const NodeInfo & oNodeInfo,
     if (sMessage.size() > m_iUDPMaxSize || iSendType == Message_SendType_TCP)
     {
         BP->GetNetworkBP()->SendTcp(sMessage);
-        return m_poNetwork->SendMessageTCP(oNodeInfo.GetIP(), oNodeInfo.GetPort(), sMessage);
+        return m_poNetwork->SendMessageTCP(iGroupIdx, oNodeInfo.GetIP(), oNodeInfo.GetPort(), sMessage);
     }
     else
     {
         BP->GetNetworkBP()->SendUdp(sMessage);
-        return m_poNetwork->SendMessageUDP(oNodeInfo.GetIP(), oNodeInfo.GetPort(), sMessage);
+        return m_poNetwork->SendMessageUDP(iGroupIdx, oNodeInfo.GetIP(), oNodeInfo.GetPort(), sMessage);
     }
 }
 
-int Communicate :: SendMessage(const nodeid_t iSendtoNodeID, const std::string & sMessage, const int iSendType)
+int Communicate :: SendMessage(const int iGroupIdx, const nodeid_t iSendtoNodeID, const std::string & sMessage, const int iSendType)
 {
-    return Send(iSendtoNodeID, NodeInfo(iSendtoNodeID), sMessage, iSendType);
+    return Send(iGroupIdx, iSendtoNodeID, NodeInfo(iSendtoNodeID), sMessage, iSendType);
 }
 
-int Communicate :: BroadcastMessage(const std::string & sMessage, const int iSendType)
+int Communicate :: BroadcastMessage(const int iGroupIdx, const std::string & sMessage, const int iSendType)
 {
     const std::set<nodeid_t> & setNodeInfo = m_poConfig->GetSystemVSM()->GetMembershipMap();
     
@@ -77,14 +77,14 @@ int Communicate :: BroadcastMessage(const std::string & sMessage, const int iSen
     {
         if (it != m_iMyNodeID)
         {
-            Send(it, NodeInfo(it), sMessage, iSendType);
+            Send(iGroupIdx, it, NodeInfo(it), sMessage, iSendType);
         }
     }
 
     return 0;
 }
 
-int Communicate :: BroadcastMessageFollower(const std::string & sMessage, const int iSendType)
+int Communicate :: BroadcastMessageFollower(const int iGroupIdx, const std::string & sMessage, const int iSendType)
 {
     const std::map<nodeid_t, uint64_t> & mapFollowerNodeInfo = m_poConfig->GetMyFollowerMap(); 
     
@@ -92,7 +92,7 @@ int Communicate :: BroadcastMessageFollower(const std::string & sMessage, const 
     {
         if (it.first != m_iMyNodeID)
         {
-            Send(it.first, NodeInfo(it.first), sMessage, iSendType);
+            Send(iGroupIdx, it.first, NodeInfo(it.first), sMessage, iSendType);
         }
     }
     
@@ -101,7 +101,7 @@ int Communicate :: BroadcastMessageFollower(const std::string & sMessage, const 
     return 0;
 }
 
-int Communicate :: BroadcastMessageTempNode(const std::string & sMessage, const int iSendType)
+int Communicate :: BroadcastMessageTempNode(const int iGroupIdx, const std::string & sMessage, const int iSendType)
 {
     const std::map<nodeid_t, uint64_t> & mapTempNode = m_poConfig->GetTmpNodeMap(); 
     
@@ -109,7 +109,7 @@ int Communicate :: BroadcastMessageTempNode(const std::string & sMessage, const 
     {
         if (it.first != m_iMyNodeID)
         {
-            Send(it.first, NodeInfo(it.first), sMessage, iSendType);
+            Send(iGroupIdx, it.first, NodeInfo(it.first), sMessage, iSendType);
         }
     }
     

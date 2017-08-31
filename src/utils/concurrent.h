@@ -43,7 +43,6 @@ namespace phxpaxos {
 
 using std::deque;
 
-
 class Thread : public Noncopyable {
 public:
     Thread();
