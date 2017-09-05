@@ -35,8 +35,8 @@ class MockNetWork : public phxpaxos::NetWork
 public:
     MOCK_METHOD0(RunNetWork, void());
     MOCK_METHOD0(StopNetWork, void());
-    MOCK_METHOD3(SendMessageTCP, int(const std::string & sIp, const int iPort, const std::string & sMessage));
-    MOCK_METHOD3(SendMessageUDP, int(const std::string & sIp, const int iPort, const std::string & sMessage));
+    MOCK_METHOD4(SendMessageTCP, int(const int iGroupIdx, const std::string & sIp, const int iPort, const std::string & sMessage));
+    MOCK_METHOD4(SendMessageUDP, int(const int iGroupIdx, const std::string & sIp, const int iPort, const std::string & sMessage));
 };
 
 class MockLogStorage : public phxpaxos::LogStorage
