@@ -20,10 +20,11 @@ See the AUTHORS file for names of contributors.
 */
 
 #include "concurrent.h"
+#include <functional>
 #include <iostream>
 #include <stdlib.h>
-#include <unistd.h>
 #include <time.h>
+#include <unistd.h>
 
 static void* mmThreadRun(void* p) {
     phxpaxos::Thread* thread = (phxpaxos::Thread*)p;
