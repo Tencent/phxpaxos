@@ -114,6 +114,7 @@ Options :: Options()
     iSyncInterval = 0;
     poNetWork = nullptr;
     iUDPMaxSize = 4096;
+    iIOThreadCount = 1;
     iGroupCount = 1;
     bUseMembership = false;
     pMembershipChangeCallback = nullptr;

@@ -37,31 +37,11 @@ See the AUTHORS file for names of contributors.
 #include <string>
 #include <condition_variable>
 #include <mutex>
+#include <thread>
 
 namespace phxpaxos {
 
 using std::deque;
-
-class ThreadAttr {
-public:
-    ThreadAttr();
-
-    ~ThreadAttr();
-
-    void setScope(bool sys);
-
-    void setStackSize(size_t n);
-
-    void setDetached(bool detached);
-
-    void setPriority(int prio);
-    
-    pthread_attr_t* impl();
-
-private:
-
-    pthread_attr_t _attr;
-};
 
 class Thread : public Noncopyable {
 public:
@@ -71,28 +51,24 @@ public:
 
     void start();
 
-    void start(ThreadAttr& attr);
-
     void join();
 
     void detach();
     
-    pthread_t getId() const;
-
-    void kill(int sig);
+    std::thread::id getId() const;
 
     virtual void run() = 0;
 
     static void sleep(int ms);
 
 protected:
-    pthread_t _thread;
+    std::thread _thread;
 };
 
 template <class T>
 class Queue {
 public:
-    Queue() : _lock(_mutex), _size(0) { _lock.unlock(); }
+    Queue() : _size(0) {}
 
     virtual ~Queue() {}
 
@@ -177,11 +153,11 @@ public:
     }
 
     virtual void lock() {
-        _mutex.lock();
+        _lock.lock();
     }
 
     virtual void unlock() {
-        _mutex.unlock();
+        _lock.unlock();
     }
 
     void swap(Queue& q) {
@@ -192,9 +168,8 @@ public:
     }
 
 protected:
-    std::mutex _mutex;
-    std::unique_lock<std::mutex> _lock;
-    std::condition_variable _cond;
+    std::mutex _lock;
+    std::condition_variable_any _cond;
     deque<T> _storage;
     size_t _size;
 };

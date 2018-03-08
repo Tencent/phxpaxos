@@ -203,7 +203,7 @@ int Base :: SendMessage(const nodeid_t iSendtoNodeID, const CheckpointMsg & oChe
         return ret;
     }
 
-    return m_poMsgTransport->SendMessage(iSendtoNodeID, sBuffer, iSendType);
+    return m_poMsgTransport->SendMessage(m_poConfig->GetMyGroupIdx(), iSendtoNodeID, sBuffer, iSendType);
 }
 
 int Base :: SendMessage(const nodeid_t iSendtoNodeID, const PaxosMsg & oPaxosMsg, const int iSendType)
@@ -228,7 +228,7 @@ int Base :: SendMessage(const nodeid_t iSendtoNodeID, const PaxosMsg & oPaxosMsg
         return ret;
     }
 
-    return m_poMsgTransport->SendMessage(iSendtoNodeID, sBuffer, iSendType);
+    return m_poMsgTransport->SendMessage(m_poConfig->GetMyGroupIdx(), iSendtoNodeID, sBuffer, iSendType);
 }
 
 int Base :: BroadcastMessage(const PaxosMsg & oPaxosMsg, const int iRunType, const int iSendType)
@@ -255,7 +255,7 @@ int Base :: BroadcastMessage(const PaxosMsg & oPaxosMsg, const int iRunType, con
         return ret;
     }
 
-    ret = m_poMsgTransport->BroadcastMessage(sBuffer, iSendType);
+    ret = m_poMsgTransport->BroadcastMessage(m_poConfig->GetMyGroupIdx(), sBuffer, iSendType);
 
     if (iRunType == BroadcastMessage_Type_RunSelf_Final)
     {
@@ -274,7 +274,7 @@ int Base :: BroadcastMessageToFollower(const PaxosMsg & oPaxosMsg, const int iSe
         return ret;
     }
 
-    return m_poMsgTransport->BroadcastMessageFollower(sBuffer, iSendType);
+    return m_poMsgTransport->BroadcastMessageFollower(m_poConfig->GetMyGroupIdx(), sBuffer, iSendType);
 }
 
 int Base :: BroadcastMessageToTempNode(const PaxosMsg & oPaxosMsg, const int iSendType)
@@ -286,7 +286,7 @@ int Base :: BroadcastMessageToTempNode(const PaxosMsg & oPaxosMsg, const int iSe
         return ret;
     }
 
-    return m_poMsgTransport->BroadcastMessageTempNode(sBuffer, iSendType);
+    return m_poMsgTransport->BroadcastMessageTempNode(m_poConfig->GetMyGroupIdx(), sBuffer, iSendType);
 }
 
 ///////////////////////////

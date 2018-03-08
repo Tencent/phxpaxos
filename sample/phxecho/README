@@ -4,6 +4,8 @@ The echo command will replicate to other echo_server by phxpaxos.
 
 The suggest start shell write on echo.sh. you can run three echo_server to test phxpaxos.
 
+First, you need to create a new directory names "log" as the subdirectory of the directory where your shell running. 
+
 Echo_server will create a workspace dir on ./logpath_ip_port, data generate by phxpaxos will write on this path.
 
 Have fun :).

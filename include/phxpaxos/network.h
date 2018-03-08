@@ -44,9 +44,9 @@ public:
     //If paxoslib call this function, network need to stop receive any message.
     virtual void StopNetWork() = 0;
 
-    virtual int SendMessageTCP(const std::string & sIp, const int iPort, const std::string & sMessage) = 0;
+    virtual int SendMessageTCP(const int iGroupIdx, const std::string & sIp, const int iPort, const std::string & sMessage) = 0;
 
-    virtual int SendMessageUDP(const std::string & sIp, const int iPort, const std::string & sMessage) = 0;
+    virtual int SendMessageUDP(const int iGroupIdx, const std::string & sIp, const int iPort, const std::string & sMessage) = 0;
 
     //When receive a message, call this funtion.
     //This funtion is async, just enqueue an return.

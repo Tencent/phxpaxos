@@ -97,6 +97,8 @@ int TestServer :: RunPaxos()
     oOptions.bUseBatchPropose = true;
     oOptions.bOpenChangeValueBeforePropose = true;
 
+    oOptions.iIOThreadCount = 3;
+
     ret = Node::RunNode(oOptions, m_poPaxosNode);
     if (ret != 0)
     {

@@ -27,6 +27,7 @@ See the AUTHORS file for names of contributors.
 #include <time.h>
 #include <errno.h>
 #include <math.h>
+#include <thread>
 
 namespace phxpaxos {
 
@@ -48,15 +49,7 @@ const uint64_t Time :: GetSteadyClockMS()
 
 void Time :: MsSleep(const int iTimeMs)
 {
-    timespec t;
-    t.tv_sec = iTimeMs / 1000; 
-    t.tv_nsec = (iTimeMs % 1000) * 1000000;
-
-    int ret = 0;
-    do 
-    {
-        ret = ::nanosleep(&t, &t);
-    } while (ret == -1 && errno == EINTR); 
+    std::this_thread::sleep_for(std::chrono::milliseconds(iTimeMs));
 }
 
 /////////////////////////////////////////////

@@ -20,10 +20,11 @@ See the AUTHORS file for names of contributors.
 */
 
 #include "concurrent.h"
+#include <functional>
 #include <iostream>
 #include <stdlib.h>
-#include <unistd.h>
 #include <time.h>
+#include <unistd.h>
 
 static void* mmThreadRun(void* p) {
     phxpaxos::Thread* thread = (phxpaxos::Thread*)p;
@@ -33,99 +34,30 @@ static void* mmThreadRun(void* p) {
 
 namespace phxpaxos {
 
-///////////////////////////////////////////////////////////ThreadAttr
-
-ThreadAttr::ThreadAttr() {
-    if (pthread_attr_init(&_attr) != 0) {
-        throw ThreadException("pthread_attr_init error");
-    }
-}
-
-ThreadAttr::~ThreadAttr() {
-    pthread_attr_destroy(&_attr);
-}
-
-void ThreadAttr::setScope(bool sys) {
-    int scope = sys ? PTHREAD_SCOPE_SYSTEM : PTHREAD_SCOPE_PROCESS;
-    pthread_attr_setscope(&_attr, scope);
-}
-
-void ThreadAttr::setStackSize(size_t n) {
-    pthread_attr_setstacksize(&_attr, n);
-}
-
-void ThreadAttr::setDetached(bool detached) {
-    int state = detached ? PTHREAD_CREATE_DETACHED : PTHREAD_CREATE_JOINABLE;
-    pthread_attr_setdetachstate(&_attr, state);
-}
-
-void ThreadAttr::setPriority(int prio) {
-    sched_param param;
-
-    pthread_attr_getschedparam(&_attr, &param);
-    param.sched_priority = prio;
-
-    pthread_attr_setschedparam(&_attr, &param);
-}
-
-pthread_attr_t* ThreadAttr::impl() {
-    return &_attr;
-}
-
 ///////////////////////////////////////////////////////////Thread
 
-Thread::Thread() : _thread(0) {}
+Thread::Thread() {}
 
 Thread::~Thread() {}
 
 void Thread::start() {
-    int rc = pthread_create(&_thread, 0, mmThreadRun, this);
-    if (rc != 0) {
-        throw ThreadException("pthread_create error");
-    }
-}
-
-void Thread::start(ThreadAttr& attr) {
-    int rc = pthread_create(&_thread, attr.impl(), mmThreadRun, this);
-    if (rc != 0) {
-        throw ThreadException("pthread_create error");
-    }
+    _thread = std::thread(std::bind(&mmThreadRun, this));
 }
 
 void Thread::join() {
-    int rc = pthread_join(_thread, 0);
-    if (rc != 0) {
-        throw ThreadException("pthread_join error");
-    }
+    _thread.join();
 }
 
 void Thread::detach() {
-    int rc = pthread_detach(_thread);
-    if (rc != 0) {
-        throw ThreadException("pthread_detach error");
-    }
+    _thread.detach();
 }
     
-pthread_t Thread::getId() const {
-    return _thread;
-}
-
-void Thread::kill(int sig) {
-    int rc = pthread_kill(_thread, sig);
-    if (rc != 0) {
-        throw ThreadException("pthread_kill error");
-    }
+std::thread::id Thread::getId() const {
+    return _thread.get_id();
 }
 
 void Thread::sleep(int ms) {
-    timespec t;
-    t.tv_sec = ms / 1000;
-    t.tv_nsec = (ms % 1000) * 1000000;
-
-    int ret = 0;
-    do {
-        ret = ::nanosleep(&t, &t);
-    } while (ret == -1 && errno == EINTR);
+    std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
 
 } 

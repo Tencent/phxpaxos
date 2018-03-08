@@ -21,6 +21,7 @@ See the AUTHORS file for names of contributors.
 
 #pragma once
 
+#include <vector>
 #include <mutex>
 #include "utils_include.h"
 #include "message_event.h"
@@ -34,9 +35,7 @@ class NetWork;
 class TcpAcceptor : public Thread
 {
 public:
-    TcpAcceptor(
-            EventLoop * poEventLoop,
-            NetWork * poNetWork);
+    TcpAcceptor();
     ~TcpAcceptor();
 
     void Listen(const std::string & sListenIP, const int iListenPort);
@@ -45,26 +44,15 @@ public:
 
     void Stop();
 
-    void CreateEvent();
+    void AddEventLoop(EventLoop * poEventLoop);
 
-    void ClearEvent();
+    void AddEvent(int iFD, SocketAddress oAddr);
 
 private:
     ServerSocket m_oSocket;
-    EventLoop * m_poEventLoop;
-    NetWork * m_poNetWork;
+    std::vector<EventLoop *> m_vecEventLoop;
 
 private:
-    struct AcceptData
-    {
-        int fd;
-        SocketAddress oAddr;
-    };
-    std::queue<AcceptData *> m_oFDQueue;
-    std::mutex m_oMutex;
-
-    std::vector<MessageEvent *> m_vecCreatedEvent;
-
     bool m_bIsEnd;
     bool m_bIsStarted;
 };

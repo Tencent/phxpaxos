@@ -37,16 +37,16 @@ class MsgTransport
 public:
     virtual ~MsgTransport() {}
 
-    virtual int SendMessage(const nodeid_t iSendtoNodeID, const std::string & sBuffer, 
-            const int iSendType = Message_SendType_UDP) = 0;
+    virtual int SendMessage(const int iGroupIdx, const nodeid_t iSendtoNodeID, 
+            const std::string & sBuffer, const int iSendType = Message_SendType_UDP) = 0;
 
-    virtual int BroadcastMessage(const std::string & sBuffer, 
+    virtual int BroadcastMessage(const int iGroupIdx, const std::string & sBuffer, 
             const int iSendType = Message_SendType_UDP) = 0;
     
-    virtual int BroadcastMessageFollower(const std::string & sBuffer, 
+    virtual int BroadcastMessageFollower(const int iGroupIdx, const std::string & sBuffer, 
             const int iSendType = Message_SendType_UDP) = 0;
     
-    virtual int BroadcastMessageTempNode(const std::string & sBuffer, 
+    virtual int BroadcastMessageTempNode(const int iGroupIdx, const std::string & sBuffer, 
             const int iSendType = Message_SendType_UDP) = 0;
 };
     

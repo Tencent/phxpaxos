@@ -110,7 +110,8 @@ int PNode :: InitNetWork(const Options & oOptions, NetWork *& poNetWork)
         return 0;
     }
 
-    int ret = m_oDefaultNetWork.Init(oOptions.oMyNode.GetIP(), oOptions.oMyNode.GetPort());
+    int ret = m_oDefaultNetWork.Init(
+            oOptions.oMyNode.GetIP(), oOptions.oMyNode.GetPort(), oOptions.iIOThreadCount);
     if (ret != 0)
     {
         PLErr("init default network fail, listenip %s listenport %d ret %d",
