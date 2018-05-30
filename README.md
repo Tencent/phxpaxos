@@ -83,7 +83,7 @@ PhxPaxos [![Build Status](https://travis-ci.org/Tencent/phxpaxos.png)](https://t
  * **include/network.h** Abstract function of Network Module. You can use your own network protocol by overloading these functions.
  * **include/storage.h** Abstract function of Storage Module.
  * **include/log.h** Abstract function of Logging Module.
- * **include/breakpoint.h** Abstract function of breaking points, add your ownMonitor Module here to monitor these break pints. 
+ * **include/breakpoint.h** Abstract function of breaking points, add your ownMonitor Module here to monitor these break points. 
  
 # How to Compile
 ### Third party libs preparation
