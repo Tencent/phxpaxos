@@ -88,7 +88,7 @@ void WaitLock :: RefleshRejectRate(const int iUseTimeMs)
     }
 }
 
-void WaitLock :: SetMaxWaitLogCount(const int iMaxWaitLockCount)
+void WaitLock :: SetMaxWaitLockCount(const int iMaxWaitLockCount)
 {
     m_iMaxWaitLockCount = iMaxWaitLockCount;
 }

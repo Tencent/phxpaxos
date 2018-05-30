@@ -174,7 +174,7 @@ private:
 TEST(WaitLock, TooMuchLockWating)
 {
 	WaitLock oLock;
-    oLock.SetMaxWaitLogCount(5);
+    oLock.SetMaxWaitLockCount(5);
     int iRejectCount = 0;
 
     std::vector<TooMuchLockWatingTester *> vecTester;
