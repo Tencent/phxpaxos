@@ -38,7 +38,7 @@ public:
 
     void UnLock();
 
-    void SetMaxWaitLogCount(const int iMaxWaitLockCount);
+    void SetMaxWaitLockCount(const int iMaxWaitLockCount);
 
     void SetLockWaitTimeThreshold(const int iLockWaitTimeThresholdMS);
 

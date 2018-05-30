@@ -150,7 +150,7 @@ void Committer :: SetTimeoutMs(const int iTimeoutMs)
 
 void Committer :: SetMaxHoldThreads(const int iMaxHoldThreads)
 {
-    m_oWaitLock.SetMaxWaitLogCount(iMaxHoldThreads);
+    m_oWaitLock.SetMaxWaitLockCount(iMaxHoldThreads);
 }
 
 void Committer :: SetProposeWaitTimeThresholdMS(const int iWaitTimeThresholdMS)
