@@ -1,28 +1,19 @@
-[submodule "third_party/grpc"]
-	path = third_party/grpc
-	url = https://github.com/grpc/grpc
-	branch = release-0_14
-[submodule "third_party/openssl"]
-	path = third_party/openssl
-	url = https://github.com/openssl/openssl
-	branch = OpenSSL_1_0_2-stable
 [submodule "third_party/gtest"]
 	path = third_party/gtest
 	url = https://github.com/google/googletest
 	branch = release-1.6.0
+[submodule "third_party/gflags"]
+	path = third_party/gflags
+	url = https://github.com/gflags/gflags
+[submodule "third_party/protobuf"]
+	path = third_party/protobuf
+	url = https://github.com/google/protobuf
+[submodule "third_party/glog"]
+	path = third_party/glog
+	url = https://github.com/google/glog
+[submodule "third_party/leveldb"]
+	path = third_party/leveldb
+	url = https://github.com/google/leveldb
 [submodule "third_party/gmock"]
 	path = third_party/gmock
 	url = https://github.com/google/googlemock
-	branch = release-1.6.0
-[submodule "third_party/glog"]
-	path = third_party/glog
-	url = https://github.com/google/glog.git
-	branch = v0.3.3
-[submodule "third_party/leveldb"]
-	path = third_party/leveldb
-	url = https://github.com/google/leveldb.git
-	branch = v1.18
-[submodule "third_party/protobuf"]
-	path = third_party/protobuf
-	url = https://github.com/google/protobuf.git
-	branch = v3.0.0
