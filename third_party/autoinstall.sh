@@ -147,7 +147,14 @@ function install_glog()
     go_back;
     cd $lib_name;
     ./autogen.sh
-    ./configure CXXFLAGS=-fPIC --prefix=$(pwd);
+    exist_gflags_dir="../gflags";
+    if [ -d $exist_gflags_dir ]; then
+        # use local gflags
+        ./configure CXXFLAGS=-fPIC --prefix=$(pwd) --with-gflags=$(pwd)/gflags;
+    else
+        # use system gflags
+        ./configure CXXFLAGS=-fPIC --prefix=$(pwd);
+    fi
     make && make install;
 
     check_lib_exist $lib_name;
@@ -158,7 +165,7 @@ function install_glog()
     psucc "install $lib_name ok."
 }
 
-function install_gflag()
+function install_gflags()
 {
     lib_name="gflags";
     check_dir_exist $lib_name;
@@ -183,9 +190,9 @@ function install_gflag()
     psucc "install $lib_name ok."
 }
 
+install_gflags;
+install_glog;
 install_leveldb;
 install_protobuf;
-install_glog;
-install_gflag;
 
 psucc "all done."
