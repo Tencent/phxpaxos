@@ -10,3 +10,7 @@ script:
     - ./build.sh
 notifications:
     email: true
+branches:
+  only:
+  - /.*/
+
