@@ -107,7 +107,7 @@ public:
     virtual void BeforePropose(const int iGroupIdx, std::string & sValue);
 
     //Because function BeforePropose much waste cpu,
-    //Only NeedCallBeforePropose return true then weill call function BeforePropose.
+    //Only NeedCallBeforePropose return true then will call function BeforePropose.
     //You can use this function to control call frequency.
     //Default is false.
     virtual const bool NeedCallBeforePropose();
