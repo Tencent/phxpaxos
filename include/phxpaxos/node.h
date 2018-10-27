@@ -33,7 +33,7 @@ namespace phxpaxos
 
 class NetWork;
 
-//All the funciton in class Node is thread safe!
+//All the function in class Node is thread safe!
 
 class Node
 {
@@ -42,7 +42,7 @@ public:
     virtual ~Node() { }
 
     //If you want to end paxos, just delete poNode.
-    //But if you use your own network, poNode can be deleted after your own network stop recieving messages. 
+    //But if you use your own network, poNode can be deleted after your own network stop receiving messages.
     static int RunNode(const Options & oOptions, Node *& poNode);
 
     //Base function.
@@ -142,18 +142,18 @@ public:
     //Qos
 
     //If many threads propose same group, that some threads will be on waiting status.
-    //Set max hold threads, and we will reject some propose request to avoid to many threads be holded.
+    //Set max hold threads, and we will reject some propose request to avoid to many threads be held.
     //Reject propose request will get retcode(PaxosTryCommitRet_TooManyThreadWaiting_Reject), check on def.h.
     virtual void SetMaxHoldThreads(const int iGroupIdx, const int iMaxHoldThreads) = 0;
 
-    //To avoid threads be holded too long time, we use this threshold to reject some propose to control thread's wait time.
+    //To avoid threads be held too long time, we use this threshold to reject some propose to control thread's wait time.
     virtual void SetProposeWaitTimeThresholdMS(const int iGroupIdx, const int iWaitTimeThresholdMS) = 0;
 
     //write disk
     virtual void SetLogSync(const int iGroupIdx, const bool bLogSync) = 0;
 
     //Not suggest to use this function
-    //pair: value,smid.
+    //pair: value, smid.
     //Because of BatchPropose, a InstanceID maybe include multi-value.
     virtual int GetInstanceValue(const int iGroupIdx, const uint64_t llInstanceID, 
             std::vector<std::pair<std::string, int> > & vecValues) = 0;

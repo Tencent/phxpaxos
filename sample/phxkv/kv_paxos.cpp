@@ -81,7 +81,7 @@ int PhxKV :: RunPaxos()
     oOptions.vecNodeInfoList = m_vecNodeList;
 
     //because all group share state machine(kv), so every group have same state machine.
-    //just for split key to different paxos group, to upgrate performance.
+    //just for split key to different paxos group, to upgrade performance.
     for (int iGroupIdx = 0; iGroupIdx < m_iGroupCount; iGroupIdx++)
     {
         GroupSMInfo oSMInfo;

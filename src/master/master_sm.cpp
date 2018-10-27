@@ -125,7 +125,7 @@ int MasterStateMachine :: LearnMaster(
 
     if (oMasterOper.version() != m_llMasterVersion)
     {
-        PLG1Debug("version conflit, op version %lu now master version %lu",
+        PLG1Debug("version conflict, op version %lu now master version %lu",
                 oMasterOper.version(), m_llMasterVersion);
         return 0;
     }

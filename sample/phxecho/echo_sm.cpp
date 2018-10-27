@@ -36,7 +36,7 @@ bool PhxEchoSM :: Execute(const int iGroupIdx, const uint64_t llInstanceID,
     printf("[SM Execute] ok, smid %d instanceid %lu value %s\n", 
             SMID(), llInstanceID, sPaxosValue.c_str());
 
-    //only commiter node have SMCtx.
+    //only committer node have SMCtx.
     if (poSMCtx != nullptr && poSMCtx->m_pCtx != nullptr)
     {
         PhxEchoSMCtx * poPhxEchoSMCtx = (PhxEchoSMCtx *)poSMCtx->m_pCtx;
