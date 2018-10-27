@@ -286,7 +286,7 @@ int LogStore :: GetFileFD(const int iNeedWriteSize, int & iFd, int & iFileID, in
 {
     if (m_iFd == -1)
     {
-        PLG1Err("File aready broken, fileid %d", m_iFileID);
+        PLG1Err("File already broken, fileid %d", m_iFileID);
         return -1;
     }
 
@@ -317,7 +317,7 @@ int LogStore :: GetFileFD(const int iNeedWriteSize, int & iFd, int & iFileID, in
         {
             assert(iOffset != -1);
 
-            m_oFileLogger.Log("new file but file aready exist, now fileid %d exist filesize %d", 
+            m_oFileLogger.Log("new file but file already exist, now fileid %d exist filesize %d",
                     m_iFileID, iOffset);
 
             PLG1Err("IncreaseFileID success, but file exist, data wrong, file size %d", iOffset);
@@ -430,7 +430,7 @@ int LogStore :: Read(const std::string & sFileID, uint64_t & llInstanceID, std::
     if (iReadLen != (ssize_t)sizeof(int))
     {
         close(iFd);
-        PLG1Err("readlen %zd not qual to %zu", iReadLen, sizeof(int));
+        PLG1Err("readlen %zd not equal to %zu", iReadLen, sizeof(int));
         return -1;
     }
     
@@ -441,7 +441,7 @@ int LogStore :: Read(const std::string & sFileID, uint64_t & llInstanceID, std::
     if (iReadLen != iLen)
     {
         close(iFd);
-        PLG1Err("readlen %zd not qual to %zu", iReadLen, iLen);
+        PLG1Err("readlen %zd not equal to %zu", iReadLen, iLen);
         return -1;
     }
 
@@ -474,7 +474,7 @@ int LogStore :: Del(const std::string & sFileID, const uint64_t llInstanceID)
 
     if (iFileID > m_iFileID)
     {
-        PLG1Err("del fileid %d large than useing fileid %d", iFileID, m_iFileID);
+        PLG1Err("del fileid %d large than using fileid %d", iFileID, m_iFileID);
         return -2;
     }
 
@@ -650,7 +650,7 @@ int LogStore :: RebuildIndexForOneFile(const int iFileID, const int iOffset,
         if (iReadLen != (ssize_t)sizeof(int))
         {
             bNeedTruncate = true;
-            PLG1Err("readlen %zd not qual to %zu, need truncate", iReadLen, sizeof(int));
+            PLG1Err("readlen %zd not equal to %zu, need truncate", iReadLen, sizeof(int));
             break;
         }
 
@@ -674,7 +674,7 @@ int LogStore :: RebuildIndexForOneFile(const int iFileID, const int iOffset,
         if (iReadLen != iLen)
         {
             bNeedTruncate = true;
-            PLG1Err("readlen %zd not qual to %zu, need truncate", iReadLen, iLen);
+            PLG1Err("readlen %zd not equal to %zu, need truncate", iReadLen, iLen);
             break;
         }
 

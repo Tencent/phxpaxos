@@ -77,7 +77,7 @@ public:
     void OnNewValueCommitTimeout();
 
 public:
-    //this funciton only enqueue, do nothing.
+    //this function only enqueue, do nothing.
     int OnReceiveMessage(const char * pcMessage, const int iMessageLen);
 
 public:

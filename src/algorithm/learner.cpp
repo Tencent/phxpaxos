@@ -358,7 +358,7 @@ void Learner :: OnSendNowInstanceID(const PaxosMsg & oPaxosMsg)
     int ret = m_poConfig->GetSystemVSM()->UpdateByCheckpoint(oPaxosMsg.systemvariables(), bSystemVariablesChange);
     if (ret == 0 && bSystemVariablesChange)
     {
-        PLGHead("SystemVariables changed!, all thing need to reflesh, so skip this msg");
+        PLGHead("SystemVariables changed!, all thing need to refresh, so skip this msg");
         return;
     }
 

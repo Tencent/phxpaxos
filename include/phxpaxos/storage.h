@@ -29,7 +29,7 @@ namespace phxpaxos
 {
 
 //Paxoslib need to storage many datas, if you want to storage datas yourself,
-//you must implememt all function in class LogStorage, and make sure that observe the writeoptions.
+//you must implement all function in class LogStorage, and make sure that observe the writeoptions.
 
 class WriteOptions
 {

@@ -94,7 +94,7 @@ public:
     //Checkpoint file was on dir(sCheckpointTmpFileDirPath).
     //vecFileList is all the file in dir(sCheckpointTmpFileDirPath).
     //vecFileList filepath is absolute path.
-    //After called this fuction, paxoslib will kill the processor. 
+    //After called this function, paxoslib will kill the processor.
     //State machine need to understand this when restart.
     virtual int LoadCheckpointState(const int iGroupIdx, const std::string & sCheckpointTmpFileDirPath,
             const std::vector<std::string> & vecFileList, const uint64_t llCheckpointInstanceID);

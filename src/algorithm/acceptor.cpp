@@ -123,7 +123,7 @@ int AcceptorState :: Persist(const uint64_t llInstanceID, const uint32_t iLastCh
     }
     
     PLGImp("GroupIdx %d InstanceID %lu PromiseID %lu PromiseNodeID %lu "
-            "AccectpedID %lu AcceptedNodeID %lu ValueLen %zu Checksum %u", 
+            "AcceptedID %lu AcceptedNodeID %lu ValueLen %zu Checksum %u",
             m_poConfig->GetMyGroupIdx(), llInstanceID, m_oPromiseBallot.m_llProposalID, 
             m_oPromiseBallot.m_llNodeID, m_oAcceptedBallot.m_llProposalID, 
             m_oAcceptedBallot.m_llNodeID, m_sAcceptedValue.size(), m_iChecksum);
@@ -162,7 +162,7 @@ int AcceptorState :: Load(uint64_t & llInstanceID)
     m_iChecksum = oState.checksum();
     
     PLGImp("GroupIdx %d InstanceID %lu PromiseID %lu PromiseNodeID %lu"
-           " AccectpedID %lu AcceptedNodeID %lu ValueLen %zu Checksum %u", 
+           " AcceptedID %lu AcceptedNodeID %lu ValueLen %zu Checksum %u",
             m_poConfig->GetMyGroupIdx(), llInstanceID, m_oPromiseBallot.m_llProposalID, 
             m_oPromiseBallot.m_llNodeID, m_oAcceptedBallot.m_llProposalID, 
             m_oAcceptedBallot.m_llNodeID, m_sAcceptedValue.size(), m_iChecksum);

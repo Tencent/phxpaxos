@@ -49,11 +49,11 @@ int Node :: RunNode(const Options & oOptions, Node *& poNode)
     }
 
     //step1 set node to network
-    //very important, let network on recieve callback can work.
+    //very important, let network on receive callback can work.
     poNetWork->m_poNode = poRealNode;
 
     //step2 run network.
-    //start recieve message from network, so all must init before this step.
+    //start receive message from network, so all must init before this step.
     //must be the last step.
     poNetWork->RunNetWork();
 

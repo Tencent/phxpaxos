@@ -205,7 +205,7 @@ void IOLoop :: OneLoop(const int iTimeoutMs)
     DealWithRetry();
 
     //must put on here
-    //because addtimer on this funciton
+    //because addtimer on this function
     m_poInstance->CheckNewValue();
 }
 
@@ -240,7 +240,7 @@ void IOLoop :: DealwithTimeoutOne(const uint32_t iTimerID, const int iType)
     auto it = m_mapTimerIDExist.find(iTimerID);
     if (it == end(m_mapTimerIDExist))
     {
-        //PLGErr("Timeout aready remove!, timerid %u iType %d", iTimerID, iType);
+        //PLGErr("Timeout already removed!, timerid %u iType %d", iTimerID, iType);
         return;
     }
 
