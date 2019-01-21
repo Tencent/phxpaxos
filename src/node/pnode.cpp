@@ -671,6 +671,17 @@ int PNode :: SetMasterLease(const int iGroupIdx, const int iLeaseTimeMs)
     return 0;
 }
 
+int PNode :: SetMasterRenewInterval(const int iGroupIdx, const int iRenewIntervalTimeMs)
+{
+    if (!CheckGroupID(iGroupIdx))
+    {
+        return Paxos_GroupIdxWrong;
+    }
+
+    m_vecMasterList[iGroupIdx]->SetMasterRenewInterval(iRenewIntervalTimeMs);
+    return 0;
+}
+
 int PNode :: DropMaster(const int iGroupIdx)
 {
     if (!CheckGroupID(iGroupIdx))
