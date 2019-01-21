@@ -85,6 +85,7 @@ public:
     const NodeInfo GetMasterWithVersion(const int iGroupIdx, uint64_t & llVersion);
     const bool IsIMMaster(const int iGroupIdx);
     int SetMasterLease(const int iGroupIdx, const int iLeaseTimeMs);
+    int SetMasterRenewInterval(const int iGroupIdx, const int iRenewIntervalTimeMs);
     int DropMaster(const int iGroupIdx);
 
 public:

@@ -137,6 +137,8 @@ public:
 
     virtual int SetMasterLease(const int iGroupIdx, const int iLeaseTimeMs) = 0;
 
+    virtual int SetMasterRenewInterval(const int iGroupIdx, const int iRenewIntervalTimeMs) = 0;
+
     virtual int DropMaster(const int iGroupIdx) = 0;
 
     //Qos

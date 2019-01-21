@@ -48,6 +48,8 @@ public:
 
     void SetLeaseTime(const int iLeaseTimeMs);
 
+    void SetMasterRenewInterval(const int iRenewIntervalTimeMs);
+
     void TryBeMaster(const int iLeaseTime);
 
     void DropMaster();
@@ -62,6 +64,7 @@ private:
 
 private:
     int m_iLeaseTime;
+    int m_iRenewIntervalTimeMs;
 
     bool m_bIsEnd;
     bool m_bIsStarted;

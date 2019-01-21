@@ -34,6 +34,7 @@ MasterMgr :: MasterMgr(
     : m_oDefaultMasterSM(poLogStorage, poPaxosNode->GetMyNodeID(), iGroupIdx, pMasterChangeCallback) 
 {
     m_iLeaseTime = 10000;
+    m_iRenewIntervalTimeMs = 0;
 
     m_poPaxosNode = (Node *)poPaxosNode;
     m_iMyGroupIdx = iGroupIdx;
@@ -61,6 +62,11 @@ void MasterMgr :: SetLeaseTime(const int iLeaseTimeMs)
     }
 
     m_iLeaseTime = iLeaseTimeMs;
+}
+
+void MasterMgr :: SetMasterRenewInterval(const int iRenewIntervalTimeMs)
+{
+    m_iRenewIntervalTimeMs = iRenewIntervalTimeMs;
 }
 
 void MasterMgr :: DropMaster()
@@ -94,12 +100,13 @@ void MasterMgr :: run()
         }
         
         int iLeaseTime = m_iLeaseTime;
+        int iRenewIntervalTimeMs = m_iRenewIntervalTimeMs;
 
         uint64_t llBeginTime = Time::GetSteadyClockMS();
         
         TryBeMaster(iLeaseTime);
 
-        int iContinueLeaseTimeout = (iLeaseTime - 100) / 4;
+        int iContinueLeaseTimeout = iRenewIntervalTimeMs ? iRenewIntervalTimeMs : (iLeaseTime - 100) / 4;
         iContinueLeaseTimeout = iContinueLeaseTimeout / 2 + OtherUtils::FastRand() % iContinueLeaseTimeout;
 
         if (m_bNeedDropMaster)
