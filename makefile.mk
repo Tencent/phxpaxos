@@ -46,7 +46,7 @@ LDFLAGS+=-Wl,--no-as-needed
 #=====================================================================================================
 
 PROTOC = $(SRC_BASE_PATH)/third_party/protobuf/bin/protoc
-PROTOS_PATH = .
+PROTOS_PATH = / #change to /
 GRPC_CPP_PLUGIN = grpc_cpp_plugin
 GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
 NANOPB_PLUGIN_PATH=$(NANOPBPATH)/generator/protoc-gen-nanopb
