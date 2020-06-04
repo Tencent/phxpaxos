@@ -209,46 +209,6 @@ uint64_t OtherUtils :: GenGid(const uint64_t llNodeID)
 }
 
 //////////////////////////////////////////////////////////
-/*
-#ifdef __i386
-
-__inline__ uint64_t rdtsc()
-{
-    uint64_t x;
-    __asm__ volatile ("rdtsc" : "=A" (x));
-    return x;
-}
-
-#elif __amd64
-
-__inline__ uint64_t rdtsc()
-{
-
-    uint64_t a, d;
-    __asm__ volatile ("rdtsc" : "=a" (a), "=d" (d));
-    return (d<<32) | a;
-}
-#elif __ARM_ARC
-__inline__ uint64_t rdtsc()
-{
-
-  uint32_t pmccntr;
-  uint32_t pmuseren;
-  uint32_t pmcntenset;
-  // Read the user mode perf monitor counter access permissions.
-  __asm__ volatile("mrc p15, 0, %0, c9, c14, 0" : "=r"(pmuseren));
-  if (pmuseren & 1) {  // Allows reading perfmon counters for user mode code.
-    __asm__ volatile("mrc p15, 0, %0, c9, c12, 1" : "=r"(pmcntenset));
-    if (pmcntenset & 0x80000000ul) {  // Is it counting?
-      __asm__ volatile("mrc p15, 0, %0, c9, c13, 0" : "=r"(pmccntr));
-      // The counter is set up to count every 64th cycle
-      return static_cast<int64_t>(pmccntr) * 64;  // Should optimize to << 6
-    }
-  }
-}
-
-#endif
-*/
 
 __inline__  int64_t rdtsc() {
 
