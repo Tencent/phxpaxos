@@ -106,6 +106,8 @@ We only need 2 third party libs: Protobuf and Leveldb while compiling PhxPaxos l
  
 ### Compilation and Installation
 
+#### AutoTools
+
 ###### How to Complie libphxpaxos.a.
  
 Execute following shell commands in root directory of PhxPaxos
@@ -119,6 +121,17 @@ make install
  
 Execute following shell commands in plugin directory.
 ```Bash
+make
+make install
+```
+
+#### CMake
+
+Execute following shell commands in root directory of PhxPaxos
+```
+mkdir -p build
+cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release --DCMAKE_INSTALL_PREFIX=/usr/local
 make
 make install
 ```

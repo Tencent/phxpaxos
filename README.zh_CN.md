@@ -111,6 +111,9 @@
  * GCC-4.8及以上版本。
  
 ### 编译安装方法
+
+#### AutoTools
+
 ###### 编译libphxpaxos.a
  
 在PhxPaxos根目录下
@@ -127,6 +130,18 @@ make install
 make
 make install
 ```
+
+#### CMake
+
+在PhxPaxos根目录下
+```
+mkdir -p build
+cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release --DCMAKE_INSTALL_PREFIX=/usr/local
+make
+make install
+```
+
 
 # 如何嵌入PhxPaxos到自己的代码
 ### 选择一个单机服务
