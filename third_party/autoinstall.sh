@@ -146,6 +146,7 @@ function install_glog()
 
     go_back;
     cd $lib_name;
+    autoreconf -ivf
     ./autogen.sh
     exist_gflags_dir="../gflags";
     if [ -d $exist_gflags_dir ]; then
