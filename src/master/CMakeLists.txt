@@ -10,7 +10,7 @@ add_library(phxpaxos_master STATIC
 add_library(phxpaxos::master ALIAS phxpaxos_master)
 target_link_libraries(
     phxpaxos_master
-    PRIVATE
+    PUBLIC
     phxpaxos::utils
     phxpaxos::comm
     phxpaxos::config

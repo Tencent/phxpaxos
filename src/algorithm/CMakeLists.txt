@@ -3,7 +3,7 @@ add_library(phxpaxos_algorithm STATIC ${PHXPAXOS_ALGORITHM_SRCS})
 add_library(phxpaxos::algorithm ALIAS phxpaxos_algorithm)
 target_link_libraries(
     phxpaxos_algorithm
-    PRIVATE
+    PUBLIC
     phxpaxos::comm
     phxpaxos::logstorage
     phxpaxos::smbase

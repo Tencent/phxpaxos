@@ -3,7 +3,7 @@ add_library(phxpaxos_communicate_tcp STATIC ${PHXPAXOS_COMMUNICATE_TCP_SRCS})
 add_library(phxpaxos::communicate::tcp ALIAS phxpaxos_communicate_tcp)
 target_link_libraries(
     phxpaxos_communicate_tcp
-    PRIVATE
+    PUBLIC
     phxpaxos::utils
     phxpaxos::comm
 )

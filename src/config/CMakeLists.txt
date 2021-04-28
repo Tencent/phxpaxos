@@ -3,7 +3,7 @@ add_library(phxpaxos_config STATIC ${PHXPAXOS_CONFIG_SRCS})
 add_library(phxpaxos::config ALIAS phxpaxos_config)
 target_link_libraries(
     phxpaxos_config
-    PRIVATE
+    PUBLIC
     phxpaxos::comm
     phxpaxos::logstorage
     phxpaxos::smbase

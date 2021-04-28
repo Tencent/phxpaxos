@@ -3,7 +3,7 @@ add_library(phxpaxos_logstorage STATIC ${PHXPAXOS_LOGSTORAGE_SRCS})
 add_library(phxpaxos::logstorage ALIAS phxpaxos_logstorage)
 target_link_libraries(
     phxpaxos_logstorage
-    PRIVATE
+    PUBLIC
     phxpaxos::comm
     leveldb
 )

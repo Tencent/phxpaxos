@@ -27,6 +27,7 @@ target_link_libraries(
     bench_db
     PRIVATE
     phxpaxos
+    phxpaxos::logstorage
     leveldb
     protobuf::libprotobuf
     pthread

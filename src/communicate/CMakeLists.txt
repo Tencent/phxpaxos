@@ -5,7 +5,7 @@ add_library(phxpaxos_communicate STATIC ${PHXPAXOS_COMMUNICATE_SRCS})
 add_library(phxpaxos::communicate ALIAS phxpaxos_communicate)
 target_link_libraries(
     phxpaxos_communicate
-    PRIVATE
+    PUBLIC
     phxpaxos::comm
     phxpaxos::utils
     phxpaxos::config

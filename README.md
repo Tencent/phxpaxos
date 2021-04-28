@@ -131,7 +131,7 @@ Execute following shell commands in root directory of PhxPaxos
 ```
 mkdir -p build
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release --DCMAKE_INSTALL_PREFIX=/usr/local
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local ..
 make
 make install
 ```

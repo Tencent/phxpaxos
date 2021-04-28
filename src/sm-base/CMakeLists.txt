@@ -3,7 +3,7 @@ add_library(phxpaxos_smbase STATIC ${PHXPAXOS_SMBASE_SRCS})
 add_library(phxpaxos::smbase ALIAS phxpaxos_smbase)
 target_link_libraries(
     phxpaxos_smbase
-    PRIVATE
+    PUBLIC
     phxpaxos::comm
 )
 target_include_directories(

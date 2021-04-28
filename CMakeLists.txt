@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.12)
 project(phxpaxos)
 
 option(PHXPAXOS_BUILD_TOOLS "build tools" OFF)
@@ -24,10 +24,18 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-add_compile_options(-Wall -Werror)
+add_compile_options(-Wall -Werror -Wno-unused-local-typedefs -Wno-unused-variable)
+add_compile_options(-Wl,--no-as-needed)
 add_compile_options(-std=c++11)
 
-list(APPEND CMAKE_PREFIX_PATH 
+# for find_package in CONFIG mode to find <PackageName>Config.cmake and <lower-case-package-name>-config.cmake
+list(APPEND CMAKE_PREFIX_PATH
+    "${PROJECT_SOURCE_DIR}/third_party/local_install/abseil/lib64/cmake/absl"
+    "${PROJECT_SOURCE_DIR}/third_party/local_install/grpc/lib/cmake/grpc"
+)
+
+# for find_library find_path find_program
+list(APPEND CMAKE_PREFIX_PATH
     "${PROJECT_SOURCE_DIR}/third_party/local_install/gflags"
     "${PROJECT_SOURCE_DIR}/third_party/local_install/glog"
     "${PROJECT_SOURCE_DIR}/third_party/local_install/gmock"
@@ -35,7 +43,10 @@ list(APPEND CMAKE_PREFIX_PATH
     "${PROJECT_SOURCE_DIR}/third_party/local_install/protobuf"
     "${PROJECT_SOURCE_DIR}/third_party/local_install/grpc"
 )
+
+# for find_package in MODULE mode to find Find<PackageName>.cmake
 list(INSERT CMAKE_MODULE_PATH 0 ${PROJECT_SOURCE_DIR}/cmake)
+
 
 find_package(Leveldb MODULE REQUIRED)
 find_package(Protobuf MODULE REQUIRED)
@@ -56,6 +67,7 @@ if(PHXPAXOS_BUILD_TOOLS)
 endif()
 
 if(PHXPAXOS_BUILD_UT)
+    find_package(Gtest MODULE REQUIRED)
     find_package(Gmock MODULE REQUIRED)
     add_subdirectory(src/ut)
 endif()
@@ -68,7 +80,10 @@ if(PHXPAXOS_BUILD_BENCHMARK)
     add_subdirectory(src/benchmark)
 endif()
 
-if(PHXPAXOS_BUILD_PLUGIN OR PHXPAXOS_BUILD_SAMPLE)
+if(PHXPAXOS_BUILD_PLUGIN 
+  OR PHXPAXOS_BUILD_SAMPLE_ECHO 
+  OR PHXPAXOS_BUILD_SAMPLE_ELECTION 
+  OR PHXPAXOS_BUILD_SAMPLE_KV)
     find_package(Gflags MODULE REQUIRED)
     find_package(Glog MODULE REQUIRED)
     add_subdirectory(plugin)
@@ -83,32 +98,8 @@ if(PHXPAXOS_BUILD_SAMPLE_ELECTION)
 endif()
 
 if(PHXPAXOS_BUILD_SAMPLE_KV)
-    find_package(Grpc MODULE REQUIRED)
+    find_package(absl CONFIG REQUIRED)
+    find_package(gRPC CONFIG REQUIRED)
+    include(${PROJECT_SOURCE_DIR}/cmake/gRPCHelper.cmake)
     add_subdirectory(sample/phxkv)
-endif()
-
-add_library(phxpaxos STATIC)
-target_include_directories(
-    phxpaxos
-    PUBLIC
-    $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-)
-target_link_libraries(phxpaxos PRIVATE -static-libstdc++)
-target_link_libraries(
-    phxpaxos
-    PRIVATE
-    phxpaxos::node
-)
-
-if(PHXPAXOS_INSTALL)
-    install(
-        TARGETS phxpaxos
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-    )
-    install(
-        DIRECTORY ${PROJECT_SOURCE_DIR}/include/phxpaxos
-        DESTINATION include
-    )
 endif()

@@ -3,7 +3,7 @@
 set -e -u -o pipefail
 
 work_dir=$(cd `dirname $0` && pwd)
-mkdir -p ${work_dir}/local_install/{gflags,glog,gmock,leveldb,protobuf,grpc}
+mkdir -p ${work_dir}/local_install/{gflags,glog,gmock,leveldb,abseil,protobuf,grpc}
 install_prefix=${work_dir}/local_install
 
 function perror() {
@@ -56,6 +56,9 @@ function install_gmock_and_gtest() {
 # leveldb
 function install_leveldb() {
     cd ${work_dir}/leveldb
+    # enable rtti
+    sed -i '/-fno-rtti/d' CMakeLists.txt
+    sed -i '/-frtti/d' CMakeLists.txt
     mkdir -p build && cd build
     cmake \
         -DCMAKE_BUILD_TYPE=Release \
@@ -68,11 +71,23 @@ function install_leveldb() {
     psucc "install leveldb ok."
 }
 
+# abseil-cpp
+function install_abseil() {
+    cd ${work_dir}/grpc/third_party/abseil-cpp
+    mkdir -p build && cd build
+    cmake \
+        -DCMAKE_INSTALL_PREFIX=${install_prefix}/abseil \
+        ..
+    make
+    make install
+    psucc "install abseil-cpp ok."
+}
+
 # protobuf
 function install_protobuf() {
     cd ${work_dir}/grpc/third_party/protobuf
     ./autogen.sh
-    ./configure --prefix=${install_prefix}/protobuf
+    ./configure --prefix=${install_prefix}/protobuf --disable-shared
     make
     make install
     psucc "install protobuf ok."
@@ -95,6 +110,7 @@ install_gflags
 install_glog
 install_gmock_and_gtest
 install_leveldb
+install_abseil
 install_protobuf
 install_grpc
 

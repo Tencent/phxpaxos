@@ -20,7 +20,9 @@ target_link_libraries(
     phxkv_client
     PUBLIC
     phxpaxos
-    grpc
+    gRPC::grpc
+    gRPC::grpc++_unsecure
+    absl::synchronization
 )
 target_compile_options(phxkv_client PRIVATE -Wall)
 
@@ -42,7 +44,9 @@ target_link_libraries(
     phxkv_client_tools
     PRIVATE
     phxpaxos
-    grpc
+    gRPC::grpc
+    gRPC::grpc++_unsecure
+    absl::synchronization
 )
 target_compile_options(phxkv_client_tools PRIVATE -Wall)
 
@@ -69,6 +73,9 @@ target_link_libraries(
     PRIVATE
     phxpaxos
     phxpaxos::plugin
-    grpc
+    leveldb
+    gRPC::grpc
+    gRPC::grpc++_unsecure
+    absl::synchronization
 )
 target_compile_options(phxkv_grpcserver PRIVATE -Wall)

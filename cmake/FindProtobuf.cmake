@@ -1,15 +1,4 @@
 #
-# Locate and configure the Google Protocol Buffers library
-#
-# Adds the following targets:
-#
-# protobuf::libprotobuf - Protobuf library
-# protobuf::libprotobuf-lite - Protobuf lite library
-# protobuf::libprotoc - Protobuf Protoc Library
-# protobuf::protoc - protoc executable
-#
-
-#
 # Generates C++ sources from the .proto files
 #
 # protobuf_generate_cpp (<SRCS> <HDRS> <DEST> [<ARGN>...])
@@ -78,6 +67,18 @@ endfunction()
 if(NOT DEFINED PROTOBUF_GENERATE_CPP_APPEND_PATH)
     set(PROTOBUF_GENERATE_CPP_APPEND_PATH TRUE)
 endif()
+
+
+#
+# Locate and configure the Google Protocol Buffers library
+#
+# Adds the following targets:
+#
+# protobuf::libprotobuf - Protobuf library
+# protobuf::libprotobuf-lite - Protobuf lite library
+# protobuf::libprotoc - Protobuf Protoc Library
+# protobuf::protoc - protoc executable
+#
 
 # Find the include directory
 find_path(PROTOBUF_INCLUDE_DIR google/protobuf/service.h)

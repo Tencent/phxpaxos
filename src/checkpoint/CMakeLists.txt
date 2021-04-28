@@ -3,7 +3,7 @@ add_library(phxpaxos_checkpoint STATIC ${PHXPAXOS_CHECKPOINT_SRCS})
 add_library(phxpaxos::checkpoint ALIAS phxpaxos_checkpoint)
 target_link_libraries(
     phxpaxos_checkpoint
-    PRIVATE
+    PUBLIC
     phxpaxos::comm
     phxpaxos::logstorage
     phxpaxos::smbase

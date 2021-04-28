@@ -10,12 +10,12 @@ find_library(GMOCK_LIBRARY
 )
 mark_as_advanced(GMOCK_LIBRARY)
 
-message("GMOCK_INCLUDE_DIR: ${GMOCK_INCLUDE_DIR}")
-message("GMOCK_LIBRARY: ${GMOCK_LIBRARY}")
-
-add_library(gmock STATIC IMPORTRED)
-set_target_properties(
-    gmock
+add_library(gmock STATIC IMPORTED)
+set_target_properties(gmock PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES ${GMOCK_INCLUDE_DIR}
     IMPORTED_LOCATION ${GMOCK_LIBRARY}
 )
+
+include(${CMAKE_ROOT}/Modules/FindPackageHandleStandardArgs.cmake)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(gmock DEFAULT_MSG
+    GMOCK_LIBRARY GMOCK_INCLUDE_DIR)

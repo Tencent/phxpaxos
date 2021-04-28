@@ -1,2 +1,4 @@
 /build
 local_install
+*.pb.cc
+*.pb.h

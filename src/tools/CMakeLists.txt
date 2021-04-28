@@ -6,6 +6,7 @@ target_link_libraries(
     phxpaxos::config
     phxpaxos::logstorage
 )
+target_compile_options(system_variables_tools PRIVATE -Wno-format)
 
 add_executable(paxos_log_tools paxos_log_tools.cpp)
 target_link_libraries(
@@ -14,6 +15,7 @@ target_link_libraries(
     phxpaxos::comm
     phxpaxos::logstorage
 )
+target_compile_options(paxos_log_tools PRIVATE -Wno-format)
 
 add_executable(vfile_fetch vfile_fetch.cpp)
 target_link_libraries(
@@ -22,3 +24,4 @@ target_link_libraries(
     phxpaxos::comm
     phxpaxos::logstorage
 )
+target_compile_options(vfile_fetch PRIVATE -Wno-format)

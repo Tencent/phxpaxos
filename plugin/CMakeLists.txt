@@ -11,6 +11,7 @@ target_link_libraries(
     PRIVATE
     phxpaxos
     glog
+    gflags
 )
 target_include_directories(
     phxpaxos_plugin

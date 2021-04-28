@@ -10,7 +10,7 @@ add_library(phxpaxos_comm STATIC
 add_library(phxpaxos::comm ALIAS phxpaxos_comm)
 target_link_libraries(
     phxpaxos_comm
-    PRIVATE
+    PUBLIC
     phxpaxos::utils
     protobuf::libprotobuf
 )
@@ -18,4 +18,5 @@ target_include_directories(
     phxpaxos_comm
     PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR}/include
 )

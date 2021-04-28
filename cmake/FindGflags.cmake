@@ -10,12 +10,12 @@ find_library(GFLAGS_LIBRARY
 )
 mark_as_advanced(GFLAGS_LIBRARY)
 
-message("GFLAGS_INCLUDE_DIR: ${GFLAGS_INCLUDE_DIR}")
-message("GFLAGS_LIBRARY: ${GFLAGS_LIBRARY}")
-
-add_library(gflags STATIC IMPORTRED)
-set_target_properties(
-    gflags
+add_library(gflags STATIC IMPORTED)
+set_target_properties(gflags PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES ${GFLAGS_INCLUDE_DIR}
     IMPORTED_LOCATION ${GFLAGS_LIBRARY}
 )
+
+include(${CMAKE_ROOT}/Modules/FindPackageHandleStandardArgs.cmake)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(gflags DEFAULT_MSG
+    GFLAGS_LIBRARY GFLAGS_INCLUDE_DIR)
