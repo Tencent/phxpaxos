@@ -6,20 +6,21 @@ PHX_EXTLIB_PATH = $(PHX_LIB_PATH)/extlib
 
 NANOPBPATH=$(SRC_BASE_PATH)/third_party/nanopb/
 
-PROTOBUF_INCLUDE_PATH=$(SRC_BASE_PATH)/third_party/protobuf/include
-GRPC_INCLUDE_PATH=$(SRC_BASE_PATH)/third_party/grpc/include
-LEVELDB_INCLUDE_PATH=$(SRC_BASE_PATH)/third_party/leveldb/include
-GFLAGS_INCLUDE_PATH=$(SRC_BASE_PATH)/third_party/gflags/include
-GLOG_INCLUDE_PATH=$(SRC_BASE_PATH)/third_party/glog/include
+PROTOBUF_INCLUDE_PATH=$(SRC_BASE_PATH)/third_party/local_install/protobuf/include
+ABSL_INCLUDE_PATH=$(SRC_BASE_PATH)/third_party/local_install/abseil/include
+GRPC_INCLUDE_PATH=$(SRC_BASE_PATH)/third_party/local_install/grpc/include
+LEVELDB_INCLUDE_PATH=$(SRC_BASE_PATH)/third_party/local_install/leveldb/include
+GFLAGS_INCLUDE_PATH=$(SRC_BASE_PATH)/third_party/local_install/gflags/include
+GLOG_INCLUDE_PATH=$(SRC_BASE_PATH)/third_party/local_install/glog/include
 PHXPAXOS_INCLUDE_PATH=$(SRC_BASE_PATH)/include
 PHXPAXOS_PLUGIN_PATH=$(SRC_BASE_PATH)/plugin/include
 
-PROTOBUF_LIB_PATH=$(SRC_BASE_PATH)/third_party/protobuf/lib
-LEVELDB_LIB_PATH=$(SRC_BASE_PATH)/third_party/leveldb/lib
-GFLAGS_LIB_PATH=$(SRC_BASE_PATH)/third_party/gflags/lib
-GLOG_LIB_PATH=$(SRC_BASE_PATH)/third_party/glog/lib
-GRPC_LIBE_PATH=$(SRC_BASE_PATH)/third_party/grpc/lib
-OPEN_SSL_LIB_PATH=$(SRC_BASE_PATH)/third_party/openssl/lib
+PROTOBUF_LIB_PATH=$(SRC_BASE_PATH)/third_party/local_install/protobuf/lib
+LEVELDB_LIB_PATH=$(SRC_BASE_PATH)/third_party/local_install/leveldb/lib64
+GFLAGS_LIB_PATH=$(SRC_BASE_PATH)/third_party/local_install/gflags/lib
+GLOG_LIB_PATH=$(SRC_BASE_PATH)/third_party/local_install/glog/lib
+ABSL_LIBE_PATH=$(SRC_BASE_PATH)/third_party/local_install/abseil/lib64
+GRPC_LIBE_PATH=$(SRC_BASE_PATH)/third_party/local_install/grpc/lib
 PHXPAXOS_LIB_PATH=$(SRC_BASE_PATH)/lib
 
 ifeq ($(debug),y)
@@ -33,22 +34,22 @@ endif
 CXX=g++
 CXXFLAGS+=-std=c++11 $(OPT)
 CPPFLAGS+=-I$(SRC_BASE_PATH) -I$(PROTOBUF_INCLUDE_PATH) -I$(LEVELDB_INCLUDE_PATH)
-CPPFLAGS+=-I$(GFLAGS_INCLUDE_PATH) -I$(GLOG_INCLUDE_PATH)
+CPPFLAGS+=-I$(GFLAGS_INCLUDE_PATH) -I$(GLOG_INCLUDE_PATH) -I$(ABSL_INCLUDE_PATH)
 CPPFLAGS+=-Wall -fPIC -m64  -Wno-unused-local-typedefs
 
 #LDFLAGS+=-shared
 #LDFLAGS+=-static
 LDFLAGS+=-L$(PHX_LIB_PATH) -L$(PROTOBUF_LIB_PATH) -L$(LEVELDB_LIB_PATH)
-LDFLAGS+=-L$(GFLAGS_LIB_PATH) -L$(GLOG_LIB_PATH) -L$(GRPC_LIBE_PATH) -L$(OPEN_SSL_LIB_PATH) -g
+LDFLAGS+=-L$(GFLAGS_LIB_PATH) -L$(GLOG_LIB_PATH) -L$(GRPC_LIBE_PATH) -L$(ABSL_LIBE_PATH) -g
 LDFLAGS+=-Wl,--no-as-needed
 
 
 #=====================================================================================================
 
-PROTOC = $(SRC_BASE_PATH)/third_party/protobuf/bin/protoc
+PROTOC = $(SRC_BASE_PATH)/third_party/local_install/protobuf/bin/protoc
 PROTOS_PATH = .
 GRPC_CPP_PLUGIN = grpc_cpp_plugin
-GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
+GRPC_CPP_PLUGIN_PATH ?= $(SRC_BASE_PATH)/third_party/local_install/grpc/bin/grpc_cpp_plugin
 NANOPB_PLUGIN_PATH=$(NANOPBPATH)/generator/protoc-gen-nanopb
 
 vpath %.proto $(PROTOS_PATH)

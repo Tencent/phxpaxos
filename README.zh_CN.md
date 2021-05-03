@@ -104,7 +104,15 @@
 | src/ut             | 单元测试             | 无                                 | gtest,gmock      |
 
 编译我们的Phxpaxo(libphxpaxos.a)类库，只需要protobuf和leveldb两个第三方库；而编译其他目录则需要glog和grpc这两个库。
-在编译前，需要先准备好这些第三方库，放在我们的third_party目录，可以直接放置，也可以通过软链的形式，也可以git clone时加上--recursive参数获取third_party目录下所有的submodule。
+在编译前，需要先准备好这些第三方库，放在我们的third_party目录，可以在`git clone`时加上`--recurse-submodules`参数获取third_party目录下所有的submodule。
+如果已经clone，可以在phxpaxos根目录执行 `git submodule update --init --recursive`来获取third_party下所有依赖。
+
+确认`third_party`下所有submodule（以及submodule的submodule）都已准备完成后，进入`third_party`下，执行`autoinstall.sh`脚本，编译安装依赖。该脚本会逐一编译所有的依赖，并将其安装到`third_party/local_install`目录下。
+
+```Bash
+cd third_party
+./autoinstall.sh
+```
 
 ### 编译环境
  * Linux。
@@ -134,13 +142,15 @@ make install
 #### CMake
 
 在PhxPaxos根目录下
-```
+```Bash
 mkdir -p build
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release --DCMAKE_INSTALL_PREFIX=/usr/local
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local ..
 make
 make install
 ```
+
+其他的编译选项，可参见项目根目录的 CMakeLists.txt 文件。
 
 
 # 如何嵌入PhxPaxos到自己的代码

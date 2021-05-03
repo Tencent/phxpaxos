@@ -2,3 +2,9 @@
 local_install
 *.pb.cc
 *.pb.h
+*.o
+Makefile
+/.lib
+/lib
+/.sbin
+/.vscode

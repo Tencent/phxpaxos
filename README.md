@@ -98,7 +98,14 @@ Following is a dependency relationship tablet of all directories.
 | sample/phxkv       | Executable program           | libphxpaxos.a,libphxpaxos_plugin.a | grpc             |
 | src/ut             | Unit tests             | None                                 | gtest,gmock      |
 
-We only need 2 third party libs: Protobuf and Leveldb while compiling PhxPaxos library(target is libphxpaoxs.a).But we need GLOG and GRPC while compiling other directories. All these third party libs should be prepared and palced in our `third_party` directory before PhxPaxos compilation. You can `git clone` them by adding `--recurse-submodules` on just download and link them.
+We only need 2 third party libs: Protobuf and Leveldb while compiling PhxPaxos library(target is libphxpaoxs.a).But we need GLOG and GRPC while compiling other directories. All these third party libs should be prepared and palced in our `third_party` directory before PhxPaxos compilation. You can `git clone` them by adding `--recurse-submodules` on just download and link them. For already cloned repos, use  `git submodule update --init --recursive`.
+
+Then switch to the `third_party` directory, execute `autoinstall.sh` to compile deps. The script `autoinstall.sh` will compile all deps and install them to `third_party/local_install` directory.
+
+```Bash
+cd third_party
+./autoinstall.sh
+```
 
 ### Compilation Enviroment
  * Linux
@@ -127,7 +134,7 @@ make install
 
 #### CMake
 
-Execute following shell commands in root directory of PhxPaxos
+Execute following shell commands in root directory of PhxPaxos.
 ```
 mkdir -p build
 cd build
@@ -135,6 +142,8 @@ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local ..
 make
 make install
 ```
+
+See CMakeLists.txt in project root directory for all building options.
 
 # How to Wrap Your Own Code Around PhxPaxos.
 ### First choose a single node service.
