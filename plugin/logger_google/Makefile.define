@@ -23,9 +23,9 @@ LOGGER_GOOGLE_OBJ=logger_google.o
 
 LOGGER_GOOGLE_LIB=logger_google plugin/include:include
 
-LOGGER_GOOGLE_SYS_LIB=$(PHXPAXOS_LIB_PATH)/libphxpaxos.a $(LEVELDB_LIB_PATH)/libleveldb.a $(PROTOBUF_LIB_PATH)/libprotobuf.a $(GLOG_LIB_PATH)/libglog.a  $(GFLAGS_LIB_PATH)/libgflags.a-lpthread
+LOGGER_GOOGLE_SYS_LIB=$(PHXPAXOS_LIB_PATH)/libphxpaxos.a $(LEVELDB_LIB_PATH)/libleveldb.a $(PROTOBUF_LIB_PATH)/libprotobuf.a $(GLOG_LIB_PATH)/libglog.a $(GFLAGS_LIB_PATH)/libgflags.a -lpthread
 
-LOGGER_GOOGLE_INCS=$(SRC_BASE_PATH)/plugin/logger_google  $(PHXPAXOS_INCLUDE_PATH) $(LEVELDB_INCLUDE_PATH) $(PROTOBUF_INCLUDE_PATH)
+LOGGER_GOOGLE_INCS=$(SRC_BASE_PATH)/plugin/logger_google $(PHXPAXOS_INCLUDE_PATH) $(LEVELDB_INCLUDE_PATH) $(PROTOBUF_INCLUDE_PATH)
 
 LOGGER_GOOGLE_EXTRA_CPPFLAGS=-Wall -Werror
 

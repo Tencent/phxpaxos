@@ -17,6 +17,9 @@
 # 
 # See the AUTHORS file for names of contributors. 
 
+# 
+# This file is abandoned. Please use cmake to build phxkv
+
 allobject=elibphxkv_client.a phxkv_client_tools phxkv_grpcserver 
 
 PHXKV_CLIENT_OBJ=phxkv.pb.o phxkv.grpc.pb.o kv_grpc_client.o kv_grpc_client_main.o

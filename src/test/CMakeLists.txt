@@ -1,0 +1,21 @@
+set(PHX_PAXOS_TEST_SRCS 
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_server.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_sm.cpp
+)
+add_executable(phx_paxos_test ${PHX_PAXOS_TEST_SRCS})
+target_link_libraries(
+    phx_paxos_test
+    PRIVATE
+    phxpaxos::utils
+    phxpaxos::comm
+    phxpaxos
+    leveldb
+    protobuf::libprotobuf
+    pthread
+)
+target_include_directories(
+    phx_paxos_test
+    PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
