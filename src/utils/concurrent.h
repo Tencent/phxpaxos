@@ -1,43 +1,43 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #pragma once
 
 #include "util.h"
-#include <deque>
-#include <pthread.h>
-#include <signal.h>
-#include <sched.h>
 #include <cassert>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <queue>
+#include <condition_variable>
+#include <deque>
+#include <iostream>
 #include <list>
 #include <map>
-#include <iostream>
-#include <string>
-#include <condition_variable>
 #include <mutex>
+#include <pthread.h>
+#include <queue>
+#include <sched.h>
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
 #include <thread>
+#include <unistd.h>
 
 namespace phxpaxos {
 
@@ -45,150 +45,135 @@ using std::deque;
 
 class Thread : public Noncopyable {
 public:
-    Thread();
+  Thread();
 
-    virtual ~Thread();
+  virtual ~Thread();
 
-    void start();
+  void start();
 
-    void join();
+  void join();
 
-    void detach();
-    
-    std::thread::id getId() const;
+  void detach();
 
-    virtual void run() = 0;
+  std::thread::id getId() const;
 
-    static void sleep(int ms);
+  virtual void run() = 0;
+
+  static void sleep(int ms);
 
 protected:
-    std::thread _thread;
+  std::thread _thread;
 };
 
-template <class T>
-class Queue {
+template <class T> class Queue {
 public:
-    Queue() : _size(0) {}
+  Queue() : _size(0) {}
 
-    virtual ~Queue() {}
+  virtual ~Queue() {}
 
-    T& peek() {
-        while (empty()) {
-            _cond.wait(_lock);
-        }
-        return _storage.front();
+  T &peek() {
+    while (empty()) {
+      _cond.wait(_lock);
+    }
+    return _storage.front();
+  }
+
+  size_t peek(T &value) {
+    while (empty()) {
+      _cond.wait(_lock);
+    }
+    value = _storage.front();
+    return _size;
+  }
+
+  bool peek(T &t, int timeoutMS) {
+    while (empty()) {
+      if (_cond.wait_for(_lock, std::chrono::milliseconds(timeoutMS)) ==
+          std::cv_status::timeout) {
+        return false;
+      }
+    }
+    t = _storage.front();
+    return true;
+  }
+
+  size_t pop(T *values, size_t n) {
+    while (empty()) {
+      _cond.wait(_lock);
     }
 
-    size_t peek(T& value) {
-        while (empty()) {
-            _cond.wait(_lock);
-        }
-        value = _storage.front();
-        return _size;
+    size_t i = 0;
+    while (!_storage.empty() && i < n) {
+      values[i] = _storage.front();
+      _storage.pop_front();
+      --_size;
+      ++i;
     }
 
-    bool peek(T& t, int timeoutMS) {
-        while (empty()) {
-            if (_cond.wait_for(_lock, std::chrono::milliseconds(timeoutMS)) == std::cv_status::timeout) {
-                return false;
-            }
-        }
-        t = _storage.front();
-        return true;
+    return i;
+  }
+
+  size_t pop() {
+    _storage.pop_front();
+    return --_size;
+  }
+
+  virtual size_t add(const T &t, bool signal = true, bool back = true) {
+    if (back) {
+      _storage.push_back(t);
+    } else {
+      _storage.push_front(t);
     }
 
-    size_t pop(T* values, size_t n) {
-        while (empty()) {
-            _cond.wait(_lock);
-        }
-
-        size_t i = 0;
-        while (!_storage.empty() && i < n) {
-            values[i] = _storage.front();
-            _storage.pop_front();
-            --_size;
-            ++i;
-        }
-
-        return i;
+    if (signal) {
+      _cond.notify_one();
     }
 
-    size_t pop() {
-        _storage.pop_front();
-        return --_size;
-    }
+    return ++_size;
+  }
 
-    virtual size_t add(const T& t, bool signal = true, bool back = true) {
-        if (back) {
-            _storage.push_back(t);
-        } else {
-            _storage.push_front(t);
-        }
+  bool empty() const { return _storage.empty(); }
 
-        if (signal) {
-            _cond.notify_one();
-        }
+  size_t size() const { return _storage.size(); }
 
-        return ++_size;
-    }
+  void clear() { _storage.clear(); }
 
-    bool empty() const {
-        return _storage.empty();
-    }
+  void signal() { _cond.notify_one(); }
 
-    size_t size() const {
-        return _storage.size();
-    }
+  void broadcast() { _cond.notify_all(); }
 
-    void clear() {
-        _storage.clear();
-    }
+  virtual void lock() { _lock.lock(); }
 
-    void signal() {
-        _cond.notify_one();
-    }
+  virtual void unlock() { _lock.unlock(); }
 
-    void broadcast() {
-        _cond.notify_all();
-    }
-
-    virtual void lock() {
-        _lock.lock();
-    }
-
-    virtual void unlock() {
-        _lock.unlock();
-    }
-
-    void swap(Queue& q) {
-        _storage.swap( q._storage );
-        int size = q._size;
-        q._size = _size;
-        _size = size;
-    }
+  void swap(Queue &q) {
+    _storage.swap(q._storage);
+    int size = q._size;
+    q._size = _size;
+    _size = size;
+  }
 
 protected:
-    std::mutex _lock;
-    std::condition_variable_any _cond;
-    deque<T> _storage;
-    size_t _size;
+  std::mutex _lock;
+  std::condition_variable_any _cond;
+  deque<T> _storage;
+  size_t _size;
 };
 
 class SyncException : public SysCallException {
 public:
-    SyncException(int errCode, const string& errMsg, bool detail = true)
-        : SysCallException(errCode, errMsg, detail) {}
+  SyncException(int errCode, const string &errMsg, bool detail = true)
+      : SysCallException(errCode, errMsg, detail) {}
 
-    virtual ~SyncException() throw () {}
+  virtual ~SyncException() throw() {}
 };
 
 class ThreadException : public SysCallException {
 public:
-    ThreadException(const string& errMsg, bool detail = true)
-        : SysCallException(errno, errMsg, detail) {}
+  ThreadException(const string &errMsg, bool detail = true)
+      : SysCallException(errno, errMsg, detail) {}
 
-    virtual ~ThreadException() throw () {}
+  virtual ~ThreadException() throw() {}
 };
 
-} 
-
+} // namespace phxpaxos

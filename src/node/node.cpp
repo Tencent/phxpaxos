@@ -1,68 +1,61 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "phxpaxos/node.h"
 #include "pnode.h"
 
-namespace phxpaxos
-{
+namespace phxpaxos {
 
-int Node :: RunNode(const Options & oOptions, Node *& poNode)
-{
-    if (oOptions.bIsLargeValueMode)
-    {
-        InsideOptions::Instance()->SetAsLargeBufferMode();
-    }
-    
-    InsideOptions::Instance()->SetGroupCount(oOptions.iGroupCount);
-        
-    poNode = nullptr;
-    NetWork * poNetWork = nullptr;
+int Node ::RunNode(const Options &oOptions, Node *&poNode) {
+  if (oOptions.bIsLargeValueMode) {
+    InsideOptions::Instance()->SetAsLargeBufferMode();
+  }
 
-    Breakpoint::m_poBreakpoint = nullptr;
-    BP->SetInstance(oOptions.poBreakpoint);
+  InsideOptions::Instance()->SetGroupCount(oOptions.iGroupCount);
 
-    PNode * poRealNode = new PNode();
-    int ret = poRealNode->Init(oOptions, poNetWork);
-    if (ret != 0)
-    {
-        delete poRealNode;
-        return ret;
-    }
+  poNode = nullptr;
+  NetWork *poNetWork = nullptr;
 
-    //step1 set node to network
-    //very important, let network on recieve callback can work.
-    poNetWork->m_poNode = poRealNode;
+  Breakpoint::m_poBreakpoint = nullptr;
+  BP->SetInstance(oOptions.poBreakpoint);
 
-    //step2 run network.
-    //start recieve message from network, so all must init before this step.
-    //must be the last step.
-    poNetWork->RunNetWork();
+  PNode *poRealNode = new PNode();
+  int ret = poRealNode->Init(oOptions, poNetWork);
+  if (ret != 0) {
+    delete poRealNode;
+    return ret;
+  }
 
+  // step1 set node to network
+  // very important, let network on recieve callback can work.
+  poNetWork->m_poNode = poRealNode;
 
-    poNode = poRealNode;
+  // step2 run network.
+  // start recieve message from network, so all must init before this step.
+  // must be the last step.
+  poNetWork->RunNetWork();
 
-    return 0;
-}
-    
+  poNode = poRealNode;
+
+  return 0;
 }
 
-
+} // namespace phxpaxos

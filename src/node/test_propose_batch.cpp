@@ -20,83 +20,72 @@ See the AUTHORS file for names of contributors.
 */
 
 #include "propose_batch.h"
-#include <algorithm>
 #include "utils_include.h"
+#include <algorithm>
 
 using namespace phxpaxos;
 using namespace std;
 
-class RequestClient : public Thread
-{
+class RequestClient : public Thread {
 public:
-    RequestClient(ProposeBatch * poBatch)
-        : m_poBatch(poBatch) { }
-    ~RequestClient() { join(); }
+  RequestClient(ProposeBatch *poBatch) : m_poBatch(poBatch) {}
+  ~RequestClient() { join(); }
 
-    void run()
-    {
-        while (true)
-        {
-            //Time::MsSleep(rand() % 10000);
-            uint64_t llInstanceID = 0;
-            uint32_t iBatchIndex = 0;
-            string sValue = "hello paxos";
-            int ret = m_poBatch->Propose(sValue, llInstanceID, iBatchIndex, nullptr);
-            
-            printf("propose done, instanceid %lu batchindex %u ret %d\n", 
-                    llInstanceID, iBatchIndex, ret);
-        }
+  void run() {
+    while (true) {
+      // Time::MsSleep(rand() % 10000);
+      uint64_t llInstanceID = 0;
+      uint32_t iBatchIndex = 0;
+      string sValue = "hello paxos";
+      int ret = m_poBatch->Propose(sValue, llInstanceID, iBatchIndex, nullptr);
+
+      printf("propose done, instanceid %lu batchindex %u ret %d\n",
+             llInstanceID, iBatchIndex, ret);
     }
+  }
 
 private:
-    ProposeBatch * m_poBatch;
+  ProposeBatch *m_poBatch;
 };
 
-class ProposeBatchTest : public ProposeBatch
-{
+class ProposeBatchTest : public ProposeBatch {
 public:
-    ProposeBatchTest(const int iGroupIdx, Node * poPaxosNode, NotifierPool * poNotifierPool)
-        : ProposeBatch(iGroupIdx, poPaxosNode, poNotifierPool) { }
+  ProposeBatchTest(const int iGroupIdx, Node *poPaxosNode,
+                   NotifierPool *poNotifierPool)
+      : ProposeBatch(iGroupIdx, poPaxosNode, poNotifierPool) {}
 
-    void DoPropose(std::vector<PendingProposal> & vecRequest)
-    {
-        if (vecRequest.size() == 0)
-        {
-            return;
-        }
-
-        Time::MsSleep(rand() % 1000);
-        for (size_t i = 0; i < vecRequest.size(); i++)
-        {
-            PendingProposal & oPendingProposal = vecRequest[i];
-            *oPendingProposal.piBatchIndex = (uint32_t)i;
-            *oPendingProposal.pllInstanceID = 1024; 
-            oPendingProposal.poNotifier->SendNotify(0);
-        }
-        printf("batch size %zu\n", vecRequest.size());
+  void DoPropose(std::vector<PendingProposal> &vecRequest) {
+    if (vecRequest.size() == 0) {
+      return;
     }
+
+    Time::MsSleep(rand() % 1000);
+    for (size_t i = 0; i < vecRequest.size(); i++) {
+      PendingProposal &oPendingProposal = vecRequest[i];
+      *oPendingProposal.piBatchIndex = (uint32_t)i;
+      *oPendingProposal.pllInstanceID = 1024;
+      oPendingProposal.poNotifier->SendNotify(0);
+    }
+    printf("batch size %zu\n", vecRequest.size());
+  }
 };
 
-int main(int argc, char ** argv)
-{
-    NotifierPool oNotifierPool;
-    ProposeBatchTest oBatch(0, nullptr, &oNotifierPool);
-    oBatch.SetBatchDelayTimeMs(1000);
+int main(int argc, char **argv) {
+  NotifierPool oNotifierPool;
+  ProposeBatchTest oBatch(0, nullptr, &oNotifierPool);
+  oBatch.SetBatchDelayTimeMs(1000);
 
-    int iClientCount = 10;
-    vector<RequestClient *> vecClient;
-    for (int i = 0; i < iClientCount; i++)
-    {
-        auto poClient = new RequestClient(&oBatch);
-        poClient->start();
-        vecClient.push_back(poClient);
-    }
+  int iClientCount = 10;
+  vector<RequestClient *> vecClient;
+  for (int i = 0; i < iClientCount; i++) {
+    auto poClient = new RequestClient(&oBatch);
+    poClient->start();
+    vecClient.push_back(poClient);
+  }
 
-    for (int i = 0; i < iClientCount; i++)
-    {
-        delete vecClient[i];
-    }
+  for (int i = 0; i < iClientCount; i++) {
+    delete vecClient[i];
+  }
 
-    return 0;
+  return 0;
 }
-

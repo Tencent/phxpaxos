@@ -1,70 +1,67 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #pragma once
 
+#include "config_include.h"
+#include "msg_transport.h"
 #include "phxpaxos/network.h"
 #include "phxpaxos/options.h"
 #include <map>
-#include "msg_transport.h"
-#include "config_include.h"
 
-namespace phxpaxos
-{
+namespace phxpaxos {
 
-class Communicate : public MsgTransport
-{
+class Communicate : public MsgTransport {
 public:
-    Communicate(
-            const Config * poConfig,
-            const nodeid_t iMyNodeID, 
-            const int iUDPMaxSize,
-            NetWork * poNetwork);
-    ~Communicate();
+  Communicate(const Config *poConfig, const nodeid_t iMyNodeID,
+              const int iUDPMaxSize, NetWork *poNetwork);
+  ~Communicate();
 
-    int SendMessage(const int iGroupIdx, const nodeid_t iSendtoNodeID, const std::string & sMessage,
-            const int iSendType = Message_SendType_UDP);
+  int SendMessage(const int iGroupIdx, const nodeid_t iSendtoNodeID,
+                  const std::string &sMessage,
+                  const int iSendType = Message_SendType_UDP);
 
-    int BroadcastMessage(const int iGroupIdx, const std::string & sMessage,
-            const int iSendType = Message_SendType_UDP);
+  int BroadcastMessage(const int iGroupIdx, const std::string &sMessage,
+                       const int iSendType = Message_SendType_UDP);
 
-    int BroadcastMessageFollower(const int iGroupIdx, const std::string & sMessage,
-            const int iSendType = Message_SendType_UDP);
-    
-    int BroadcastMessageTempNode(const int iGroupIdx, const std::string & sMessage,
-            const int iSendType = Message_SendType_UDP);
+  int BroadcastMessageFollower(const int iGroupIdx, const std::string &sMessage,
+                               const int iSendType = Message_SendType_UDP);
+
+  int BroadcastMessageTempNode(const int iGroupIdx, const std::string &sMessage,
+                               const int iSendType = Message_SendType_UDP);
 
 public:
-    void SetUDPMaxSize(const size_t iUDPMaxSize);
+  void SetUDPMaxSize(const size_t iUDPMaxSize);
 
 private:
-    int Send(const int iGroupIdx, const nodeid_t iNodeID, 
-            const NodeInfo & tNodeInfo, const std::string & sMessage, const int iSendType);
+  int Send(const int iGroupIdx, const nodeid_t iNodeID,
+           const NodeInfo &tNodeInfo, const std::string &sMessage,
+           const int iSendType);
 
 private:
-    Config * m_poConfig;
-    NetWork * m_poNetwork;
+  Config *m_poConfig;
+  NetWork *m_poNetwork;
 
-    nodeid_t m_iMyNodeID;
-    size_t m_iUDPMaxSize; 
+  nodeid_t m_iMyNodeID;
+  size_t m_iUDPMaxSize;
 };
-    
-}
+
+} // namespace phxpaxos

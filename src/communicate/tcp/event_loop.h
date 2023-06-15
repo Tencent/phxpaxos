@@ -1,33 +1,32 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #pragma once
 
+#include "notify.h"
+#include "timer.h"
 #include <map>
 #include <sys/epoll.h>
-#include "timer.h"
-#include "notify.h"
 
-namespace phxpaxos
-{
+namespace phxpaxos {
 
 #define MAX_EVENTS 1024
 
@@ -37,74 +36,73 @@ class TcpClient;
 class MessageEvent;
 class NetWork;
 
-class EventLoop
-{
+class EventLoop {
 public:
-    EventLoop(NetWork * poNetWork);
-    virtual ~EventLoop();
+  EventLoop(NetWork *poNetWork);
+  virtual ~EventLoop();
 
-    int Init(const int iEpollLength);
+  int Init(const int iEpollLength);
 
-    void ModEvent(const Event * poEvent, const int iEvents);
+  void ModEvent(const Event *poEvent, const int iEvents);
 
-    void RemoveEvent(const Event * poEvent);
+  void RemoveEvent(const Event *poEvent);
 
-    void StartLoop();
+  void StartLoop();
 
-    void Stop();
+  void Stop();
 
-    void OnError(const int iEvents, Event * poEvent);
+  void OnError(const int iEvents, Event *poEvent);
 
-    virtual void OneLoop(const int iTimeoutMs);
-
-public:
-    void SetTcpClient(TcpClient * poTcpClient);
-
-    void JumpoutEpollWait();
+  virtual void OneLoop(const int iTimeoutMs);
 
 public:
-    bool AddTimer(const Event * poEvent, const int iTimeout, const int iType, uint32_t & iTimerID);
+  void SetTcpClient(TcpClient *poTcpClient);
 
-    void RemoveTimer(const uint32_t iTimerID);
-
-    void DealwithTimeout(int & iNextTimeout);
-
-    void DealwithTimeoutOne(const uint32_t iTimerID, const int iType);
+  void JumpoutEpollWait();
 
 public:
-    void AddEvent(int iFD, SocketAddress oAddr);
+  bool AddTimer(const Event *poEvent, const int iTimeout, const int iType,
+                uint32_t &iTimerID);
 
-    void CreateEvent();
+  void RemoveTimer(const uint32_t iTimerID);
 
-    void ClearEvent();
+  void DealwithTimeout(int &iNextTimeout);
 
-    int GetActiveEventCount();
+  void DealwithTimeoutOne(const uint32_t iTimerID, const int iType);
 
 public:
-    typedef struct EventCtx
-    {
-        Event * m_poEvent;
-        int m_iEvents;
-    } EventCtx_t;
+  void AddEvent(int iFD, SocketAddress oAddr);
+
+  void CreateEvent();
+
+  void ClearEvent();
+
+  int GetActiveEventCount();
+
+public:
+  typedef struct EventCtx {
+    Event *m_poEvent;
+    int m_iEvents;
+  } EventCtx_t;
 
 private:
-    bool m_bIsEnd;
+  bool m_bIsEnd;
 
 protected:
-    int m_iEpollFd;
-    epoll_event m_EpollEvents[MAX_EVENTS];
-    std::map<int, EventCtx_t> m_mapEvent;
-    NetWork * m_poNetWork;
-    TcpClient * m_poTcpClient;
-    Notify * m_poNotify;
+  int m_iEpollFd;
+  epoll_event m_EpollEvents[MAX_EVENTS];
+  std::map<int, EventCtx_t> m_mapEvent;
+  NetWork *m_poNetWork;
+  TcpClient *m_poTcpClient;
+  Notify *m_poNotify;
 
 protected:
-    Timer m_oTimer;
-    std::map<uint32_t, int> m_mapTimerID2FD;
+  Timer m_oTimer;
+  std::map<uint32_t, int> m_mapTimerID2FD;
 
-    std::queue<std::pair<int, SocketAddress> > m_oFDQueue;
-    std::mutex m_oMutex;
-    std::vector<MessageEvent *> m_vecCreatedEvent;
+  std::queue<std::pair<int, SocketAddress>> m_oFDQueue;
+  std::mutex m_oMutex;
+  std::vector<MessageEvent *> m_vecCreatedEvent;
 };
-    
-}
+
+} // namespace phxpaxos

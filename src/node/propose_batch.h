@@ -1,102 +1,101 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #pragma once
 
 #include "commdef.h"
-#include "utils_include.h"
 #include "phxpaxos/node.h"
+#include "utils_include.h"
+#include <condition_variable>
 #include <mutex>
 #include <queue>
-#include <condition_variable>
 #include <thread>
 
-namespace phxpaxos
-{
+namespace phxpaxos {
 
-class PendingProposal
-{
+class PendingProposal {
 public:
-    PendingProposal();
-    const std::string * psValue;
-    SMCtx * poSMCtx;
+  PendingProposal();
+  const std::string *psValue;
+  SMCtx *poSMCtx;
 
-    //return parameter
-    uint64_t * pllInstanceID; 
-    uint32_t * piBatchIndex;
+  // return parameter
+  uint64_t *pllInstanceID;
+  uint32_t *piBatchIndex;
 
-    //notify
-    Notifier * poNotifier;
+  // notify
+  Notifier *poNotifier;
 
-    uint64_t llAbsEnqueueTime;
+  uint64_t llAbsEnqueueTime;
 };
 
 ///////////////////////////////////
 
-class ProposeBatch
-{
+class ProposeBatch {
 public:
-    ProposeBatch(const int iGroupIdx, Node * poPaxosNode, NotifierPool * poNotifierPool);
-    virtual ~ProposeBatch();
+  ProposeBatch(const int iGroupIdx, Node *poPaxosNode,
+               NotifierPool *poNotifierPool);
+  virtual ~ProposeBatch();
 
-    void Start();
+  void Start();
 
-    void Run();
+  void Run();
 
-    void Stop();
+  void Stop();
 
-    int Propose(const std::string & sValue, uint64_t & llInstanceID, uint32_t & iBatchIndex, SMCtx * poSMCtx);
+  int Propose(const std::string &sValue, uint64_t &llInstanceID,
+              uint32_t &iBatchIndex, SMCtx *poSMCtx);
 
 public:
-    void SetBatchCount(const int iBatchCount);
-    void SetBatchDelayTimeMs(const int iBatchDelayTimeMs);
+  void SetBatchCount(const int iBatchCount);
+  void SetBatchDelayTimeMs(const int iBatchDelayTimeMs);
 
 protected:
-    virtual void DoPropose(std::vector<PendingProposal> & vecRequest);
+  virtual void DoPropose(std::vector<PendingProposal> &vecRequest);
 
 private:
-    void AddProposal(const std::string & sValue, uint64_t & llInstanceID, uint32_t & iBatchIndex, 
-            SMCtx * poSMCtx, Notifier * poNotifier);
-    void PluckProposal(std::vector<PendingProposal> & vecRequest);
-    void OnlyOnePropose(PendingProposal & oPendingProposal);
-    const bool NeedBatch();
+  void AddProposal(const std::string &sValue, uint64_t &llInstanceID,
+                   uint32_t &iBatchIndex, SMCtx *poSMCtx, Notifier *poNotifier);
+  void PluckProposal(std::vector<PendingProposal> &vecRequest);
+  void OnlyOnePropose(PendingProposal &oPendingProposal);
+  const bool NeedBatch();
 
 private:
-    const int m_iMyGroupIdx;
-    Node * m_poPaxosNode;
-    NotifierPool * m_poNotifierPool;
+  const int m_iMyGroupIdx;
+  Node *m_poPaxosNode;
+  NotifierPool *m_poNotifierPool;
 
-    std::mutex m_oMutex;
-    std::condition_variable m_oCond;
-    std::queue<PendingProposal> m_oQueue;
-    bool m_bIsEnd;
-    bool m_bIsStarted;
-    int m_iNowQueueValueSize;
+  std::mutex m_oMutex;
+  std::condition_variable m_oCond;
+  std::queue<PendingProposal> m_oQueue;
+  bool m_bIsEnd;
+  bool m_bIsStarted;
+  int m_iNowQueueValueSize;
 
 private:
-    int m_iBatchCount;
-    int m_iBatchDelayTimeMs;
-    int m_iBatchMaxSize;
+  int m_iBatchCount;
+  int m_iBatchDelayTimeMs;
+  int m_iBatchMaxSize;
 
-    std::thread * m_poThread;
+  std::thread *m_poThread;
 };
 
-}
+} // namespace phxpaxos

@@ -1,386 +1,325 @@
 /*
-Tencent is pleased to support the open source community by making 
+Tencent is pleased to support the open source community by making
 PhxPaxos available.
-Copyright (C) 2016 THL A29 Limited, a Tencent company. 
+Copyright (C) 2016 THL A29 Limited, a Tencent company.
 All rights reserved.
 
-Licensed under the BSD 3-Clause License (the "License"); you may 
-not use this file except in compliance with the License. You may 
+Licensed under the BSD 3-Clause License (the "License"); you may
+not use this file except in compliance with the License. You may
 obtain a copy of the License at
 
 https://opensource.org/licenses/BSD-3-Clause
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
-implied. See the License for the specific language governing 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-See the AUTHORS file for names of contributors. 
+See the AUTHORS file for names of contributors.
 */
 
 #include "event_loop.h"
-#include "event_base.h"
-#include "tcp_acceptor.h"
-#include "tcp_client.h"
 #include "comm_include.h"
+#include "event_base.h"
 #include "message_event.h"
 #include "phxpaxos/network.h"
+#include "tcp_acceptor.h"
+#include "tcp_client.h"
 
 using namespace std;
 
-namespace phxpaxos
-{
+namespace phxpaxos {
 
-EventLoop :: EventLoop(NetWork * poNetWork)
-{
-    m_iEpollFd = -1;
-    m_bIsEnd = false;
-    m_poNetWork = poNetWork;
-    m_poTcpClient = nullptr;
-    m_poNotify = nullptr;
-    memset(m_EpollEvents, 0, sizeof(m_EpollEvents));
+EventLoop ::EventLoop(NetWork *poNetWork) {
+  m_iEpollFd = -1;
+  m_bIsEnd = false;
+  m_poNetWork = poNetWork;
+  m_poTcpClient = nullptr;
+  m_poNotify = nullptr;
+  memset(m_EpollEvents, 0, sizeof(m_EpollEvents));
 }
 
-EventLoop :: ~EventLoop()
-{
-    ClearEvent();
+EventLoop ::~EventLoop() { ClearEvent(); }
+
+void EventLoop ::JumpoutEpollWait() { m_poNotify->SendNotify(); }
+
+void EventLoop ::SetTcpClient(TcpClient *poTcpClient) {
+  m_poTcpClient = poTcpClient;
 }
 
-void EventLoop :: JumpoutEpollWait()
-{
-    m_poNotify->SendNotify();
+int EventLoop ::Init(const int iEpollLength) {
+  m_iEpollFd = epoll_create(iEpollLength);
+  if (m_iEpollFd == -1) {
+    PLErr("epoll_create fail, ret %d", m_iEpollFd);
+    return -1;
+  }
+
+  m_poNotify = new Notify(this);
+  assert(m_poNotify != nullptr);
+
+  int ret = m_poNotify->Init();
+  if (ret != 0) {
+    return ret;
+  }
+
+  return 0;
 }
 
-void EventLoop :: SetTcpClient(TcpClient * poTcpClient)
-{
-    m_poTcpClient = poTcpClient;
+void EventLoop ::ModEvent(const Event *poEvent, const int iEvents) {
+  auto it = m_mapEvent.find(poEvent->GetSocketFd());
+  int iEpollOpertion = 0;
+  if (it == end(m_mapEvent)) {
+    iEpollOpertion = EPOLL_CTL_ADD;
+  } else {
+    iEpollOpertion = it->second.m_iEvents ? EPOLL_CTL_MOD : EPOLL_CTL_ADD;
+  }
+
+  epoll_event tEpollEvent;
+  tEpollEvent.events = iEvents;
+  tEpollEvent.data.fd = poEvent->GetSocketFd();
+
+  int ret = epoll_ctl(m_iEpollFd, iEpollOpertion, poEvent->GetSocketFd(),
+                      &tEpollEvent);
+  if (ret == -1) {
+    PLErr(
+        "epoll_ctl fail, EpollFd %d EpollOpertion %d SocketFd %d EpollEvent %d",
+        m_iEpollFd, iEpollOpertion, poEvent->GetSocketFd(), iEvents);
+
+    // to do
+    return;
+  }
+
+  EventCtx tCtx;
+  tCtx.m_poEvent = (Event *)poEvent;
+  tCtx.m_iEvents = iEvents;
+
+  m_mapEvent[poEvent->GetSocketFd()] = tCtx;
 }
 
-int EventLoop :: Init(const int iEpollLength)
-{
-    m_iEpollFd = epoll_create(iEpollLength);
-    if (m_iEpollFd == -1)
-    {
-        PLErr("epoll_create fail, ret %d", m_iEpollFd);
-        return -1;
-    }
+void EventLoop ::RemoveEvent(const Event *poEvent) {
+  auto it = m_mapEvent.find(poEvent->GetSocketFd());
+  if (it == end(m_mapEvent)) {
+    return;
+  }
 
-    m_poNotify = new Notify(this);
-    assert(m_poNotify != nullptr);
-    
-    int ret = m_poNotify->Init();
-    if (ret != 0)
-    {
-        return ret;
-    }
+  int iEpollOpertion = EPOLL_CTL_DEL;
 
-    return 0;
+  epoll_event tEpollEvent;
+  tEpollEvent.events = 0;
+  tEpollEvent.data.fd = poEvent->GetSocketFd();
+
+  int ret = epoll_ctl(m_iEpollFd, iEpollOpertion, poEvent->GetSocketFd(),
+                      &tEpollEvent);
+  if (ret == -1) {
+    PLErr("epoll_ctl fail, EpollFd %d EpollOpertion %d SocketFd %d", m_iEpollFd,
+          iEpollOpertion, poEvent->GetSocketFd());
+
+    // to do
+    // when error
+    return;
+  }
+
+  m_mapEvent.erase(poEvent->GetSocketFd());
 }
 
-void EventLoop :: ModEvent(const Event * poEvent, const int iEvents)
-{
-    auto it = m_mapEvent.find(poEvent->GetSocketFd());
-    int iEpollOpertion = 0;
-    if (it == end(m_mapEvent))
-    {
-        iEpollOpertion = EPOLL_CTL_ADD;
-    }
-    else
-    {
-        iEpollOpertion = it->second.m_iEvents ? EPOLL_CTL_MOD : EPOLL_CTL_ADD;
-    }
+void EventLoop ::StartLoop() {
+  m_bIsEnd = false;
+  while (true) {
+    BP->GetNetworkBP()->TcpEpollLoop();
 
-    epoll_event tEpollEvent;
-    tEpollEvent.events = iEvents;
-    tEpollEvent.data.fd = poEvent->GetSocketFd();
+    int iNextTimeout = 1000;
 
-    int ret = epoll_ctl(m_iEpollFd, iEpollOpertion, poEvent->GetSocketFd(), &tEpollEvent);
-    if (ret == -1)
-    {
-        PLErr("epoll_ctl fail, EpollFd %d EpollOpertion %d SocketFd %d EpollEvent %d",
-                m_iEpollFd, iEpollOpertion, poEvent->GetSocketFd(), iEvents);
-        
-        //to do 
-        return;
+    DealwithTimeout(iNextTimeout);
+
+    // PLHead("nexttimeout %d", iNextTimeout);
+
+    OneLoop(iNextTimeout);
+
+    CreateEvent();
+
+    if (m_poTcpClient != nullptr) {
+      m_poTcpClient->DealWithWrite();
     }
 
+    if (m_bIsEnd) {
+      PLHead("TCP.EventLoop [END]");
+      break;
+    }
+  }
+}
+
+void EventLoop ::Stop() { m_bIsEnd = true; }
+
+void EventLoop ::OneLoop(const int iTimeoutMs) {
+  int n = epoll_wait(m_iEpollFd, m_EpollEvents, MAX_EVENTS, 1);
+  if (n == -1) {
+    if (errno != EINTR) {
+      PLErr("epoll_wait fail, errno %d", errno);
+      return;
+    }
+  }
+
+  for (int i = 0; i < n; i++) {
+    int iFd = m_EpollEvents[i].data.fd;
+    auto it = m_mapEvent.find(iFd);
+    if (it == end(m_mapEvent)) {
+      continue;
+    }
+
+    int iEvents = m_EpollEvents[i].events;
+    Event *poEvent = it->second.m_poEvent;
+
+    int ret = 0;
+    if (iEvents & EPOLLERR) {
+      OnError(iEvents, poEvent);
+      continue;
+    }
+
+    try {
+      if (iEvents & EPOLLIN) {
+        ret = poEvent->OnRead();
+      }
+
+      if (iEvents & EPOLLOUT) {
+        ret = poEvent->OnWrite();
+      }
+    } catch (...) {
+      ret = -1;
+    }
+
+    if (ret != 0) {
+      OnError(iEvents, poEvent);
+    }
+  }
+}
+
+void EventLoop ::OnError(const int iEvents, Event *poEvent) {
+  BP->GetNetworkBP()->TcpOnError();
+
+  PLErr("event error, events %d socketfd %d socket ip %s errno %d", iEvents,
+        poEvent->GetSocketFd(), poEvent->GetSocketHost().c_str(), errno);
+
+  RemoveEvent(poEvent);
+
+  bool bNeedDelete = false;
+  poEvent->OnError(bNeedDelete);
+
+  if (bNeedDelete) {
+    poEvent->Destroy();
+  }
+}
+
+bool EventLoop ::AddTimer(const Event *poEvent, const int iTimeout,
+                          const int iType, uint32_t &iTimerID) {
+  if (poEvent->GetSocketFd() == 0) {
+    return false;
+  }
+
+  if (m_mapEvent.find(poEvent->GetSocketFd()) == end(m_mapEvent)) {
     EventCtx tCtx;
     tCtx.m_poEvent = (Event *)poEvent;
-    tCtx.m_iEvents = iEvents;
-    
+    tCtx.m_iEvents = 0;
+
     m_mapEvent[poEvent->GetSocketFd()] = tCtx;
+  }
+
+  uint64_t llAbsTime = Time::GetSteadyClockMS() + iTimeout;
+  m_oTimer.AddTimerWithType(llAbsTime, iType, iTimerID);
+
+  m_mapTimerID2FD[iTimerID] = poEvent->GetSocketFd();
+
+  return true;
 }
 
-void EventLoop :: RemoveEvent(const Event * poEvent)
-{
-    auto it = m_mapEvent.find(poEvent->GetSocketFd());
-    if (it == end(m_mapEvent))
-    {
-        return;
-    }
-
-    int iEpollOpertion = EPOLL_CTL_DEL;
-
-    epoll_event tEpollEvent;
-    tEpollEvent.events = 0;
-    tEpollEvent.data.fd = poEvent->GetSocketFd();
-
-    int ret = epoll_ctl(m_iEpollFd, iEpollOpertion, poEvent->GetSocketFd(), &tEpollEvent);
-    if (ret == -1)
-    {
-        PLErr("epoll_ctl fail, EpollFd %d EpollOpertion %d SocketFd %d",
-                m_iEpollFd, iEpollOpertion, poEvent->GetSocketFd());
-
-        //to do 
-        //when error
-        return;
-    }
-
-    m_mapEvent.erase(poEvent->GetSocketFd());
-}
-
-void EventLoop :: StartLoop()
-{
-    m_bIsEnd = false;
-    while(true)
-    {
-        BP->GetNetworkBP()->TcpEpollLoop();
-
-        int iNextTimeout = 1000;
-        
-        DealwithTimeout(iNextTimeout);
-
-        //PLHead("nexttimeout %d", iNextTimeout);
-
-        OneLoop(iNextTimeout);
-
-        CreateEvent();
-
-        if (m_poTcpClient != nullptr)
-        {
-            m_poTcpClient->DealWithWrite();
-        }
-
-        if (m_bIsEnd)
-        {
-            PLHead("TCP.EventLoop [END]");
-            break;
-        }
-    }
-}
-
-void EventLoop :: Stop()
-{
-    m_bIsEnd = true;
-}
-
-void EventLoop :: OneLoop(const int iTimeoutMs)
-{
-    int n = epoll_wait(m_iEpollFd, m_EpollEvents, MAX_EVENTS, 1);
-    if (n == -1)
-    {
-        if (errno != EINTR)
-        {
-            PLErr("epoll_wait fail, errno %d", errno);
-            return;
-        }
-    }
-
-    for (int i = 0; i < n; i++)
-    {
-        int iFd = m_EpollEvents[i].data.fd;
-        auto it = m_mapEvent.find(iFd);
-        if (it == end(m_mapEvent))
-        {
-            continue;
-        }
-
-        int iEvents = m_EpollEvents[i].events;
-        Event * poEvent = it->second.m_poEvent;
-
-        int ret = 0;
-        if (iEvents & EPOLLERR)
-        {
-            OnError(iEvents, poEvent);
-            continue;
-        }
-        
-        try
-        {
-            if (iEvents & EPOLLIN)
-            {
-                ret = poEvent->OnRead();
-            }
-
-            if (iEvents & EPOLLOUT)
-            {
-                ret = poEvent->OnWrite();
-            }
-        }
-        catch (...)
-        {
-            ret = -1;
-        }
-
-        if (ret != 0)
-        {
-            OnError(iEvents, poEvent);
-        }
-    }
-}
-
-void EventLoop :: OnError(const int iEvents, Event * poEvent)
-{
-    BP->GetNetworkBP()->TcpOnError();
-
-    PLErr("event error, events %d socketfd %d socket ip %s errno %d", 
-            iEvents, poEvent->GetSocketFd(), poEvent->GetSocketHost().c_str(), errno);
-
-    RemoveEvent(poEvent);
-
-    bool bNeedDelete = false;
-    poEvent->OnError(bNeedDelete);
-    
-    if (bNeedDelete)
-    {
-        poEvent->Destroy();
-    }
-}
-
-bool EventLoop :: AddTimer(const Event * poEvent, const int iTimeout, const int iType, uint32_t & iTimerID)
-{
-    if (poEvent->GetSocketFd() == 0)
-    {
-        return false;
-    }    
-
-    if (m_mapEvent.find(poEvent->GetSocketFd()) == end(m_mapEvent))
-    {
-        EventCtx tCtx;
-        tCtx.m_poEvent = (Event *)poEvent;
-        tCtx.m_iEvents = 0;
-
-        m_mapEvent[poEvent->GetSocketFd()] = tCtx;
-    }
-
-    uint64_t llAbsTime = Time::GetSteadyClockMS() + iTimeout;
-    m_oTimer.AddTimerWithType(llAbsTime, iType, iTimerID);
-
-    m_mapTimerID2FD[iTimerID] = poEvent->GetSocketFd();
-
-    return true;
-}
-
-void EventLoop :: RemoveTimer(const uint32_t iTimerID)
-{
-    auto it = m_mapTimerID2FD.find(iTimerID);
-    if (it != end(m_mapTimerID2FD))
-    {
-        m_mapTimerID2FD.erase(it);
-    }
-}
-
-void EventLoop :: DealwithTimeoutOne(const uint32_t iTimerID, const int iType)
-{
-    auto it = m_mapTimerID2FD.find(iTimerID);
-    if (it == end(m_mapTimerID2FD))
-    {
-        //PLErr("Timeout aready remove!, timerid %u iType %d", iTimerID, iType);
-        return;
-    }
-
-    int iSocketFd = it->second;
-
+void EventLoop ::RemoveTimer(const uint32_t iTimerID) {
+  auto it = m_mapTimerID2FD.find(iTimerID);
+  if (it != end(m_mapTimerID2FD)) {
     m_mapTimerID2FD.erase(it);
+  }
+}
 
-    auto eventIt = m_mapEvent.find(iSocketFd);
-    if (eventIt == end(m_mapEvent))
-    {
-        return;
+void EventLoop ::DealwithTimeoutOne(const uint32_t iTimerID, const int iType) {
+  auto it = m_mapTimerID2FD.find(iTimerID);
+  if (it == end(m_mapTimerID2FD)) {
+    // PLErr("Timeout aready remove!, timerid %u iType %d", iTimerID, iType);
+    return;
+  }
+
+  int iSocketFd = it->second;
+
+  m_mapTimerID2FD.erase(it);
+
+  auto eventIt = m_mapEvent.find(iSocketFd);
+  if (eventIt == end(m_mapEvent)) {
+    return;
+  }
+
+  eventIt->second.m_poEvent->OnTimeout(iTimerID, iType);
+}
+
+void EventLoop ::DealwithTimeout(int &iNextTimeout) {
+  bool bHasTimeout = true;
+
+  while (bHasTimeout) {
+    uint32_t iTimerID = 0;
+    int iType = 0;
+    bHasTimeout = m_oTimer.PopTimeout(iTimerID, iType);
+
+    if (bHasTimeout) {
+      DealwithTimeoutOne(iTimerID, iType);
+
+      iNextTimeout = m_oTimer.GetNextTimeout();
+      if (iNextTimeout != 0) {
+        break;
+      }
     }
-
-    eventIt->second.m_poEvent->OnTimeout(iTimerID, iType);
+  }
 }
 
-void EventLoop :: DealwithTimeout(int & iNextTimeout)
-{
-    bool bHasTimeout = true;
+void EventLoop ::AddEvent(int iFD, SocketAddress oAddr) {
+  std::lock_guard<std::mutex> oLockGuard(m_oMutex);
+  m_oFDQueue.push(make_pair(iFD, oAddr));
+}
 
-    while(bHasTimeout)
-    {
-        uint32_t iTimerID = 0;
-        int iType = 0;
-        bHasTimeout = m_oTimer.PopTimeout(iTimerID, iType);
+void EventLoop ::CreateEvent() {
+  std::lock_guard<std::mutex> oLockGuard(m_oMutex);
 
-        if (bHasTimeout)
-        {
-            DealwithTimeoutOne(iTimerID, iType);
+  if (m_oFDQueue.empty()) {
+    return;
+  }
 
-            iNextTimeout = m_oTimer.GetNextTimeout();
-            if (iNextTimeout != 0)
-            {
-                break;
-            }
-        }
+  ClearEvent();
+
+  int iCreatePerTime = 200;
+  while ((!m_oFDQueue.empty()) && iCreatePerTime--) {
+    auto oData = m_oFDQueue.front();
+    m_oFDQueue.pop();
+
+    // create event for this fd
+    MessageEvent *poMessageEvent = new MessageEvent(
+        MessageEventType_RECV, oData.first, oData.second, this, m_poNetWork);
+    poMessageEvent->AddEvent(EPOLLIN);
+
+    m_vecCreatedEvent.push_back(poMessageEvent);
+  }
+}
+
+void EventLoop ::ClearEvent() {
+  for (auto it = m_vecCreatedEvent.begin(); it != end(m_vecCreatedEvent);) {
+    if ((*it)->IsDestroy()) {
+      delete (*it);
+      it = m_vecCreatedEvent.erase(it);
+    } else {
+      it++;
     }
+  }
 }
 
-void EventLoop :: AddEvent(int iFD, SocketAddress oAddr)
-{
-    std::lock_guard<std::mutex> oLockGuard(m_oMutex);
-    m_oFDQueue.push(make_pair(iFD, oAddr));
+int EventLoop ::GetActiveEventCount() {
+  std::lock_guard<std::mutex> oLockGuard(m_oMutex);
+  ClearEvent();
+  return (int)m_vecCreatedEvent.size();
 }
 
-void EventLoop :: CreateEvent()
-{
-    std::lock_guard<std::mutex> oLockGuard(m_oMutex);
-
-    if (m_oFDQueue.empty())
-    {
-        return;
-    }
-
-    ClearEvent();
-    
-    int iCreatePerTime = 200;
-    while ((!m_oFDQueue.empty()) && iCreatePerTime--)
-    {
-        auto oData = m_oFDQueue.front();
-        m_oFDQueue.pop();
-
-        //create event for this fd
-        MessageEvent * poMessageEvent = new MessageEvent(MessageEventType_RECV, oData.first, 
-                oData.second, this, m_poNetWork);
-        poMessageEvent->AddEvent(EPOLLIN);
-
-        m_vecCreatedEvent.push_back(poMessageEvent);
-    }
-}
-
-void EventLoop :: ClearEvent()
-{
-    for (auto it = m_vecCreatedEvent.begin(); it != end(m_vecCreatedEvent);)
-    {
-        if ((*it)->IsDestroy())
-        {
-            delete (*it);
-            it = m_vecCreatedEvent.erase(it);
-        }
-        else
-        {
-            it++;
-        }
-    }
-}
-
-int EventLoop :: GetActiveEventCount()
-{
-    std::lock_guard<std::mutex> oLockGuard(m_oMutex);
-    ClearEvent();
-    return (int)m_vecCreatedEvent.size();
-}
-
-}
-
-
+} // namespace phxpaxos
