@@ -21,7 +21,7 @@ See the AUTHORS file for names of contributors.
 
 #pragma once
 
-#include "./paxos_msg.pb.h"
+#include "paxos_msg.pb.h"
 #include "commdef.h"
 #include "phxpaxos/breakpoint.h"
 #include "utils_include.h"

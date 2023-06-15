@@ -21,6 +21,9 @@ See the AUTHORS file for names of contributors.
 
 #pragma once
 
+#include <cstdint>
+#include <limits>
+
 namespace phxkv {
 
 const uint64_t NullVersion = std::numeric_limits<uint64_t>::min();
