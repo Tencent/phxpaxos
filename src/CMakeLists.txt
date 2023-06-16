@@ -3,12 +3,6 @@ cmake_minimum_required(VERSION 3.10)
 project(libphxecho VERSION 1.0.0)
 cmake_policy(SET CMP0048 NEW)
 
-# specify the C++ standard & compile flags
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -Wall")
-set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
-
 find_package(Protobuf REQUIRED)
 message(STATUS "[LOG] PROTOC BINARY: ${Protobuf_PROTOC_EXECUTABLE}")
 execute_process(
@@ -50,17 +44,12 @@ message(STATUS "[LOG] SOURCES: ${SOURCES}")
 add_library(phxpaxos STATIC ${SOURCES})
 foreach(dir IN LISTS LIB_SOURCE_DIRS)
   # message(STATUS "[LOG] dir: ${dir}")
-  target_include_directories(phxpaxos PUBLIC "${PROJECT_SOURCE_DIR}/${dir}")
+
+  # target_include_directories(phxpaxos PUBLIC "${PROJECT_SOURCE_DIR}/${dir}")
+  include_directories(phxpaxos PUBLIC "${PROJECT_SOURCE_DIR}/${dir}")
 endforeach()
-target_include_directories(phxpaxos PUBLIC "${PROJECT_SOURCE_DIR}/../include")
-target_link_libraries(
-  phxpaxos
-  gtest
-  gflags
-  glog
-  gmock
-  leveldb
-  pthread)
+
+message(STATUS "[LOG] CMAKE_LIBRARY_PATH: ${CMAKE_LIBRARY_PATH}")
 
 add_subdirectory(ut)
 add_subdirectory(test1)

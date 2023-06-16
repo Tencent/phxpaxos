@@ -7,8 +7,18 @@ cmake_policy(SET CMP0048 NEW)
 # specify the C++ standard & compile flags
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O3 -Wall")
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+
+if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86")
+  add_definitions(-D__i386)
+elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64")
+  add_definitions(-D__amd64)
+elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64")
+  add_definitions(-D__arm64)
+else()
+  message(FATAL_ERROR "NOT SUPPORT PROCESSOR ${CMAKE_SYSTEM_PROCESSOR}")
+endif()
 
 # print message
 message(STATUS "[LOG] PROJECT_SOURCE_DIR: ${PROJECT_SOURCE_DIR}")

@@ -198,6 +198,11 @@ __inline__ uint64_t rdtsc() {
   return (d << 32) | a;
 }
 
+#else
+
+#include <ctime>
+__inline__ uint64_t rdtsc() { return time(NULL); }
+
 #endif
 
 struct FastRandomSeed {
