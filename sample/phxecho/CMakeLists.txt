@@ -11,18 +11,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 message(STATUS "[LOG/phxecho] PROJECT_SOURCE_DIR: ${PROJECT_SOURCE_DIR}")
 
-# specify sys include & libs
-include_directories(BEFORE /usr/include /usr/local/include)
-link_directories(BEFORE /usr/lib /usr/local/lib)
-
 aux_source_directory(${PROJECT_SOURCE_DIR}/ SOURCES)
 message(STATUS "[LOG/phxecho] SOURCES: ${SOURCES}")
 
 add_executable(phxecho ${SOURCES})
-target_include_directories(
-  phxecho
-  PRIVATE ${PROJECT_SOURCE_DIR}/../../include
-  PRIVATE ${PROJECT_SOURCE_DIR}/../../plugin/include)
 target_link_libraries(
   phxecho
   ${CMAKE_BINARY_DIR}/src/libphxpaxos.a

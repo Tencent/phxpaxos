@@ -25,10 +25,6 @@ execute_process(
 
 message(STATUS "[LOG] PROJECT_SOURCE_DIR: ${PROJECT_SOURCE_DIR}")
 
-# specify sys include & libs
-include_directories(BEFORE /usr/include /usr/local/include)
-link_directories(BEFORE /usr/lib /usr/local/lib)
-
 # add all the source file in PROJECT_SOURCE_DIR to SOURCES variable
 set(LIB_SOURCE_DIRS
     algorithm

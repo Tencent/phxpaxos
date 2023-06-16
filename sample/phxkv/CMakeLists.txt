@@ -23,10 +23,6 @@ execute_process(
     --plugin=protoc-gen-grpc=${GRPC_CPP_PLUGIN} --cpp_out=${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/phxkv.proto)
 
-# specify sys include & libs
-include_directories(BEFORE /usr/include /usr/local/include)
-link_directories(BEFORE /usr/lib /usr/local/lib)
-
 aux_source_directory(${PROJECT_SOURCE_DIR} SOURCES)
 list(REMOVE_ITEM SOURCES ${PROJECT_SOURCE_DIR}/kv_grpc_client_main.cpp)
 list(REMOVE_ITEM SOURCES ${PROJECT_SOURCE_DIR}/kv_grpc_server_main.cpp)
@@ -34,10 +30,6 @@ message(STATUS "[LOG/phxkv] SOURCES: ${SOURCES}")
 
 add_executable(phxkv_grpc_client ${PROJECT_SOURCE_DIR}/kv_grpc_client_main.cpp
                                  ${SOURCES})
-target_include_directories(
-  phxkv_grpc_client
-  PRIVATE ${PROJECT_SOURCE_DIR}/../../include
-  PRIVATE ${PROJECT_SOURCE_DIR}/../../plugin/include)
 target_link_libraries(
   phxkv_grpc_client
   ${CMAKE_BINARY_DIR}/src/libphxpaxos.a
@@ -49,10 +41,6 @@ target_link_libraries(
 
 add_executable(phxkv_grpc_server ${PROJECT_SOURCE_DIR}/kv_grpc_server_main.cpp
                                  ${SOURCES})
-target_include_directories(
-  phxkv_grpc_server
-  PRIVATE ${PROJECT_SOURCE_DIR}/../../include
-  PRIVATE ${PROJECT_SOURCE_DIR}/../../plugin/include)
 target_link_libraries(
   phxkv_grpc_server
   ${CMAKE_BINARY_DIR}/src/libphxpaxos.a
