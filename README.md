@@ -100,7 +100,7 @@ Following is a dependency relationship tablet of all directories.
 
 We only need 2 third party libs: Protobuf and Leveldb while compiling PhxPaxos library(target is libphxpaoxs.a).But we need GLOG and GRPC while compiling other directories. All these third party libs should be prepared and palced in our `third_party` directory before PhxPaxos compilation. You can `git clone` them by adding `--recurse-submodules` on just download and link them.
 
-### Compilation Enviroment
+### Compilation Environment
  * Linux
  * GCC-4.8 or above
  
