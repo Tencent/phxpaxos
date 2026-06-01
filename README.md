@@ -64,7 +64,7 @@ PhxPaxos [![Build Status](https://travis-ci.org/Tencent/phxpaxos.png)](https://t
 **include:** This directory includes all head files while using PhxPaxos. You may make some mistakes if you don't understand all the functions in this directory completely.
 >NOTE: The public interface is in include/*.h. Callers should not include or rely on the details of any other header files in this package. Those internal APIs may be changed without warning.
 
-**src:** This directory includes all implementation of Phapaxos, You can figure out the working principle of PhxPaoxs by reading this directorys. No neccessary to read it if you are only using PhxPaxos.
+**src:** This directory includes all implementation of Phapaxos, You can figure out the working principle of PhxPaoxs by reading this directorys. It is not necessary to read it if you are only using PhxPaxos.
 
 **third_party:** This directory is designed to place all third party libs for compiling and running PhxPaxos. You can get a detail in the following compilation section. We have only two libs requirement: Protobuf and LevelDB.
 
@@ -456,7 +456,7 @@ int PhxElection :: RunPaxos()
 }
 ```
 
-The difference between `MasterElection` and `Echo` is there is no neccessary to implement your own state-machine this time, instead, you can set `oSMInfo.bIsUseMaster` to `true` to enable our embedded MasterElection state-machine.
+The difference between `MasterElection` and `Echo` is there is no need to implement your own state-machine this time, instead, you can set `oSMInfo.bIsUseMaster` to `true` to enable our embedded MasterElection state-machine.
 
 Then, run `Node::RunNode()` to get the pointer of PhxPaxos instance.
 You can set the lease length of Master by using `SetMasterLease` API at any moment.
